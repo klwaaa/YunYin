@@ -1,0 +1,181 @@
+import {useGetRandomPlaylist} from "../store/randomPlaylist.ts";
+import {storeToRefs} from "pinia";
+import {watch, onUnmounted, ref} from "vue";
+import {useGetAudio} from "../store/audio.ts";
+import {useGetPlayList} from "../store/playList.ts";
+
+export default function usePlaybackMode() {
+  const {
+    controlAudioKey,
+    shuffledIndex,
+    playingSongKey,
+    playingSong,
+    playbackModeIndex,
+    currentAudioTime,
+    playingPlayList,
+  } = storeToRefs(useGetAudio());
+  
+  
+  const playList = ref<any[]>([]);
+  
+  let intervalId: ReturnType<typeof setInterval> | null = null;
+  useGetRandomPlaylist();
+  
+  const count = ref(0);
+  let randomPlaylist = JSON.parse(<string>localStorage.getItem("randomPlaylist"));
+  
+  
+  // 初始化播放列表
+  const playListData = useGetPlayList();
+  
+  
+  watch([playListData,playingPlayList], () => {
+    for (let i = 0; i < playListData.playListData.length; i++) {
+      if (Object.keys(playListData.playListData[i])[0] === playingPlayList.value) {
+        playList.value = playListData.playListData[i][Object.keys(playListData.playListData[i])[0]];
+        console.log(playList.value);
+        break;
+      }
+    }
+  }, {deep: true, immediate: true});
+  
+  function shuffled() {
+    const shuffled = [...playList.value];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    console.log(shuffled,"shuffled");
+    randomPlaylist = shuffled;
+    localStorage.setItem("randomPlaylist", JSON.stringify(shuffled));
+    playList.value = randomPlaylist;
+  }
+  
+  // 清理定时器
+  const clearPlaybackInterval = () => {
+    if (intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+  };
+  
+  // 处理歌曲结束逻辑
+  const handleTrackEnd = () => {
+    
+    // if (playbackModeIndex.value!==2){
+    //   for (let i = 0; i < playListData.playListData.length; i++) {
+    //     if (Object.keys(playListData.playListData[i])[0] === playingPlayList.value) {
+    //       playList.value = playListData.playListData[i][Object.keys(playListData.playListData[i])[0]];
+    //       break;
+    //     }
+    //   }
+    // }
+    
+    
+    // currentAudioTime.value = 0;
+    switch (playbackModeIndex.value) {
+      // case 0: // 顺序播放
+      //   intervalId = setInterval(() => {
+      //     if (currentAudioTime.value >= audioDuration.value) {
+      //       controlAudioKey.value++;
+      //       if (controlAudioKey.value >= playList.value.length) {
+      //         controlAudioKey.value = 0;
+      //       }
+      //       console.log(controlAudioKey.value, "controlAudioKey.value");
+      //       playingSongKey.value = playList.value[controlAudioKey.value].fileId;
+      //       playingSong.value = playList.value[controlAudioKey.value].name.substring(
+      //         0,
+      //         playList.value[controlAudioKey.value].name.lastIndexOf(".")
+      //       );
+      //       clearInterval(<any>intervalId);
+      //     }
+      //   }, 1000);
+      //   break;
+      
+      case 2: // 随机播放
+        console.log(count.value, "count.value");
+        if (count.value > 1) {
+          shuffled();
+        }
+        
+        // 监听是否切换歌单
+        watch([playingPlayList,playListData], () => {
+          shuffled()
+        });
+      
+      // for (let i = 0; i < randomPlaylist.length; i++) {
+      //   if (randomPlaylist[i].name.substring(0, randomPlaylist[i].name.lastIndexOf(".")) ===
+      //     playingSong.value) {
+      //     console.log(i,"i");
+      //     shuffledIndex.value = i;
+      //     break;
+      //   }
+      // }
+      
+      //     intervalId = setInterval(() => {
+      //       if (currentAudioTime.value >= audioDuration.value) {
+      //         shuffledIndex.value++;
+      //         if (shuffledIndex.value >= randomPlaylist.length) {
+      //           randomPlaylist.value = 0;
+      //         }
+      //
+      //         clearInterval(<any>intervalId);
+      //       }
+      //     }, 1000);
+      //     break;
+    }
+  };
+  
+  // 监听播放模式变化
+  watch(playbackModeIndex, () => {
+    clearPlaybackInterval();
+    count.value++;
+    handleTrackEnd();
+  }, {immediate: true});
+  
+  // // 监听是否切换歌单
+  // watch(playingPlayList, () => {
+  //   count.value++;
+  //   console.log(count.value,"count.value");
+  //   handleTrackEnd();
+  //   // for (let i = 0; i < randomPlaylist.length; i++) {
+  //   //   console.log(playingSong.value,"playingSong.value");
+  //   //   console.log(randomPlaylist[i].name.substring(0, randomPlaylist[i].name.lastIndexOf(".")));
+  //   //   if (randomPlaylist[i].name.substring(0, randomPlaylist[i].name.lastIndexOf(".")) ===
+  //   //     playingSong.value) {
+  //   //     console.log(i,"i");
+  //   //     shuffledIndex.value = i;
+  //   //     break;
+  //   //   }
+  //   // }
+  // });
+  
+  
+  // 歌名乱跳问题原因
+  // 单独监听随机播放下标
+  watch(controlAudioKey, () => {
+    if (playbackModeIndex.value !== 2) {
+      playingSongKey.value = playList.value[controlAudioKey.value].fileId;
+      playingSong.value = playList.value[controlAudioKey.value].name;
+      for (let i = 0; i < randomPlaylist.length; i++) {
+        if (randomPlaylist[i].fileId === playList.value[controlAudioKey.value].fileId) {
+          shuffledIndex.value = i;
+          break;
+        }
+      }
+      
+      // for (let i = 0; i < playList.value.length; i++) {
+      //   if (playList.value[i].name === randomPlaylist[shuffledIndex.value].name) {
+      //     controlAudioKey.value = i;
+      //     break;
+      //   }
+      // }
+    }
+  });
+  
+  // 组件卸载时清理
+  onUnmounted(() => {
+    clearPlaybackInterval();
+    currentAudioTime.value = 0;
+  });
+}
