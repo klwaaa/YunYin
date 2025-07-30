@@ -1,13 +1,19 @@
 <template>
   <div class="audioControl">
     <p class="SongTitle">{{ playingSong }}</p>
-    <el-slider
-            v-model="currentAudioTime"
-            :max="Number(audioDuration)"
-            :format-tooltip="formatTime"
-            show-tooltip
-            @change="handleChange"
-    />
+    <div class="audioDuration">
+      <p class="currentAudioTime">{{ formatTime(currentAudioTime) }}</p>
+      <el-slider
+              
+              v-model="currentAudioTime"
+              :max="Number(audioDuration)"
+              :format-tooltip="formatTime"
+              show-tooltip
+              @change="handleChange"
+              style="width: 100%"
+      />
+      <p class="audioDuration">{{ formatTime(audioDuration) }}</p>
+    </div>
   </div>
   <div class="volumeControl-el-slider">
     <el-slider
@@ -21,13 +27,15 @@
             height="200px"
     />
   </div>
-  <div class="volumeControl-div" @click="showVolumeControl">
-    音量
+  <div class="control">
+    <div class="volumeControl-div" @click="showVolumeControl">
+      音量
+    </div>
+    <button @click="changePlaybackMode" class="playbackMode" ref="playbackModeRef"></button>
+    <button @click="previousSong();debounceChooseSong();">previousSong</button>
+    <button @click="control">control</button>
+    <button @click="nextSong();debounceChooseSong();">nextSong</button>
   </div>
-  <button @click="changePlaybackMode" class="playbackMode" ref="playbackModeRef"></button>
-  <button @click="previousSong();debounceChooseSong();">previousSong</button>
-  <button @click="control">control</button>
-  <button @click="nextSong();debounceChooseSong();">nextSong</button>
 </template>
 
 <script setup lang="ts">
@@ -231,7 +239,7 @@
           newSource.buffer = globalAudioBuffer.value;
           newSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          newSource?.start(0, currentAudioTime.value + 0.298);
+          newSource?.start(0, currentAudioTime.value + 0.299);
         });
       } else {
         newSource?.stop();
@@ -249,7 +257,7 @@
       }
       newSource.connect(gainNode);
       gainNode.connect(audioCtx.destination);
-      newSource.start(audioCtx.currentTime, currentAudioTime.value + 0.298);
+      newSource.start(audioCtx.currentTime, currentAudioTime.value + 0.299);
     }
   };
   
@@ -309,8 +317,10 @@
     }
     if (playbackModeIndex.value === 2) {
       playingAudio.value = randomPlaylist[controlAudioKeyCount].name;
+      audioDuration.value = randomPlaylist[controlAudioKeyCount].duration;
     } else {
       playingAudio.value = playList[controlAudioKeyCount].name;
+      audioDuration.value = playList[controlAudioKeyCount].duration;
     }
   }
   
@@ -353,7 +363,7 @@
           oldSource.buffer = globalAudioBuffer.value;
           oldSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          oldSource.start(audioCtx.currentTime, currentAudioTime.value + 0.298);
+          oldSource.start(audioCtx.currentTime, currentAudioTime.value + 0.299);
         } else {
           console.log("newSource");
           if (controlPlay !== null) {
@@ -371,7 +381,7 @@
               newSource.buffer = globalAudioBuffer.value;
               newSource.connect(gainNode);
               gainNode.connect(audioCtx.destination);
-              newSource.start(0, currentAudioTime.value + 0.298);
+              newSource.start(0, currentAudioTime.value + 0.299);
             }
           });
           
@@ -379,14 +389,14 @@
           newSource.buffer = globalAudioBuffer.value;
           newSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          newSource?.start(audioCtx.currentTime, currentAudioTime.value + 0.298);
+          newSource?.start(audioCtx.currentTime, currentAudioTime.value + 0.299);
         }
       }
       isPlaying.value = true;
       if (currentAudioTime.value < globalAudioBufferDuration.value) {
         interval = setInterval(() => {
-          currentAudioTime.value += 0.5;
-        }, 500);
+          currentAudioTime.value += 1;
+        }, 1000);
       }
     }
   }
@@ -408,9 +418,10 @@
     }
     if (playbackModeIndex.value === 2) {
       playingAudio.value = randomPlaylist[controlAudioKeyCount].name;
+      audioDuration.value = randomPlaylist[controlAudioKeyCount].duration;
     } else {
-      console.log(playList[controlAudioKeyCount], "playList nextSong");
       playingAudio.value = playList[controlAudioKeyCount].name;
+      audioDuration.value = playList[controlAudioKeyCount].duration;
     }
   }
   
@@ -441,7 +452,7 @@
     playingSong.value = playList[controlAudioKey.value].name;
     console.log(playingSong.value, "playingSong.value changeSong");
     currentAudioTime.value = playList[controlAudioKey.value].duration;
-    
+    currentAudioTime.value = 0;
     
     audioCtx?.close();
     isPlaying.value = true;
@@ -545,7 +556,7 @@
                   if (isPlaying.value) {
                     console.log(currentAudioTime.value, "currentAudioTime.value");
                     oldSource.stop(audioCtx.currentTime);
-                    source.start(audioCtx.currentTime, currentAudioTime.value + 0.298);
+                    source.start(audioCtx.currentTime, currentAudioTime.value + 0.299);
                     console.log(audioTime, "isPlaying.value");
                     oldSource.onended = () => {
                       oldSource = undefined;
@@ -565,8 +576,8 @@
   }
   
   
-  let interval: ReturnType<typeof setInterval>;
-  let fistInterval: any;
+  let interval: any = null;
+  let fistInterval: any = null;
   
   let timeout: any;
   console.log(isPlaying.value);
@@ -590,8 +601,8 @@
   //         audioTime = audioBuffer.duration;
   //       });
   //       fistInterval = setInterval(() => {
-  //         currentAudioTime.value += 0.5;
-  //       }, 500);
+  //         currentAudioTime.value += 1;
+  //       }, 1000);
   //       console.log(fistInterval, "fistInterval,isplaying");
   //     });
   //   }, 6000);
@@ -616,16 +627,13 @@
   //     });
   //   }, 6000);
   // }
-  //
+  
   usePlaybackMode();
   
   
   watch(
     [currentAudioTime, globalAudioBuffer],
     ([newTime, newGlobalAudioBuffer], [oldTime]) => {
-      console.log(newTime, "newTime");
-      console.log(oldTime, "oldTime");
-      console.log(audioDuration.value, "audioDuration.value");
       globalAudioBufferDuration.value = newGlobalAudioBuffer?.duration;
       if (isPlaying.value) {
         if (oldTime >= <any>newGlobalAudioBuffer?.duration) {
@@ -637,23 +645,22 @@
           if (fistInterval === null) {
             console.log("start");
             fistInterval = setInterval(() => {
-              currentAudioTime.value += 0.5;
-            }, 500);
+              currentAudioTime.value += 1;
+            }, 1000);
           }
         }
       }
       if (newTime >= audioDuration.value && iterationsGroupCount !== 0) {
-        console.log(iterationsGroupCount, "iterationsGroupCount");
         if (playbackModeIndex.value !== 1) {
           nextSong();
-          // debounceChoose(changeSong, 200);
+          debounceChooseSong();
         } else {
           currentAudioTime.value = 0;
           handleChange();
           setTimeout(() => {
             fistInterval = setInterval(() => {
-              currentAudioTime.value += 0.5;
-            }, 500);
+              currentAudioTime.value += 1;
+            }, 1000);
           }, 50);
         }
       }
@@ -673,10 +680,10 @@
 </script>
 
 <style scoped>
-  .audioControl {
-    background-color: paleturquoise;
-    width: 500px;
+  .control, .audioControl {
+    display: flex;
   }
+
 
   button {
     margin: 10px;
@@ -686,6 +693,19 @@
     bottom: 30%;
     display: none;
     position: fixed; /* 固定在页面中，不随滚动 */
-    z-index: 9999;
+    z-index: 99;
+  }
+
+  .audioDuration {
+    display: flex;
+    width: 100%;
+  }
+
+  .currentAudioTime {
+    margin: 0 20px 0 10px;
+  }
+
+  p.audioDuration {
+    margin: 0 10px 0 20px;
   }
 </style>
