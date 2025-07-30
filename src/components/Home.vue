@@ -95,7 +95,7 @@
   const count = ref(0);
   const route = useRoute();
   const isShow = ref(false);
-  setTimeout(()=>isShow.value = true,500)
+  setTimeout(()=>isShow.value = true,300)
   
   // 获取得到的code
   const tokenStore = useGetTokenStore();
@@ -113,10 +113,6 @@
 </script>
 
 <style scoped>
-  .app {
-    width: 90%;
-    margin: 0 auto;
-  }
 
   .app-header {
     display: flex;
@@ -144,8 +140,10 @@
   }
 
   .audioControl {
-    position: absolute;
+    position: fixed;
+    left: 0;
     bottom: 0;
+    width: 100%;
     background-color: #457B9D;
   }
 
