@@ -1,40 +1,48 @@
 <template>
-  <div class="audioControl">
-    <p class="SongTitle">{{ playingSong }}</p>
-    <div class="audioDuration">
-      <p class="currentAudioTime">{{ formatTime(currentAudioTime) }}</p>
-      <el-slider
-              
-              v-model="currentAudioTime"
-              :max="Number(audioDuration)"
-              :format-tooltip="formatTime"
-              show-tooltip
-              @change="handleChange"
-              style="width: 100%"
-      />
-      <p class="audioDuration">{{ formatTime(audioDuration) }}</p>
+  <div class="audio-control">
+    <p class="SongTitle" :title="playingSong">
+      {{ playingSong }}
+    </p>
+    <div class="control_AudioDuration">
+      <div class="audioDuration">
+        <p class="currentAudioTime">{{ formatTime(currentAudioTime) }}</p>
+        <el-slider
+                
+                v-model="currentAudioTime"
+                :max="Number(audioDuration)"
+                :format-tooltip="formatTime"
+                show-tooltip
+                @change="handleChange"
+                style="width: 100%"
+        />
+        <p class="audioDurationMax">{{ formatTime(audioDuration) }}</p>
+      </div>
+      <div class="control">
+        <button @click="changePlaybackMode" class="playbackMode" ref="playbackModeRef"></button>
+        <button @click="previousSong();debounceChooseSong();">previousSong</button>
+        <button @click="control">control</button>
+        <button @click="nextSong();debounceChooseSong();">nextSong</button>
+      </div>
     </div>
-  </div>
-  <div class="volumeControl-el-slider">
-    <el-slider
-            v-model="volume"
-            :min="0"
-            :max="100"
-            :step="1"
-            @input="updateVolume"
-            show-tooltip
-            vertical
-            height="200px"
-    />
-  </div>
-  <div class="control">
-    <div class="volumeControl-div" @click="showVolumeControl">
-      音量
+    <div class="volumeControl" ref="volumeControl">
+      <transition name="fade">
+        <el-slider
+                v-show="showVolume"
+                v-model="volume"
+                :min="0"
+                :max="100"
+                :step="1"
+                @input="updateVolume"
+                show-tooltip
+                vertical
+                height="150px"
+                class="volume-slider"
+        />
+      </transition>
+      <button class="volumeControl-div" @click="showVolumeControl">
+        音量
+      </button>
     </div>
-    <button @click="changePlaybackMode" class="playbackMode" ref="playbackModeRef"></button>
-    <button @click="previousSong();debounceChooseSong();">previousSong</button>
-    <button @click="control">control</button>
-    <button @click="nextSong();debounceChooseSong();">nextSong</button>
   </div>
 </template>
 
@@ -46,6 +54,7 @@
   import {storeToRefs} from "pinia";
   import usePlaybackMode from "../hooks/usePlaybackMode.ts";
   import {useGetPlayList} from "../store/playList.ts";
+  import type {ElSlider} from 'element-plus'; // 引入 Element Plus 的类型定义
   
   let change: any = null;
   let controlPlay: any = null;
@@ -61,6 +70,7 @@
       playbackModeHtml.innerHTML = PlaybackMode[playbackModeIndex.value];
       // usePlaybackMode();
     };
+    document.addEventListener('click', handleClickOutside);
   });
   
   const PlaybackMode = [
@@ -179,7 +189,14 @@
   
   globalAudioBufferDuration.value = 0;
   // 得到文件下载链接
-  const {audioUrl, audioSize} = await useGetAudiosUrl(playingSongKey.value);
+  let audioUrl: any, audioSize: any;
+  await useGetAudiosUrl(playingSongKey.value).then((data) => {
+    audioUrl = data.audioUrl;
+    audioSize = data.audioSize;
+  }).catch((err) => {
+    console.log(err);
+  })
+  ;
   console.log(playList);
   const originalAudioSize = audioSize;
   let audioTime: number = 0;
@@ -272,9 +289,21 @@
   watch(currentAudioTime, debounce(handleChange, 600));
   // 初始化音量滑块
   gainNode.gain.value = volume.value / 100;
-  console.log(gainNode.gain.value, "gainNode.gain.value");
+  const showVolume = ref(false);
+  const volumeControl = ref<HTMLElement | null>(null);
+  
+  // 点击页面其他地方时自动隐藏音量滑块
+  // 监听点击是否在外部
+  function handleClickOutside(event: MouseEvent) {
+    const target = event.target as Node;
+    if (volumeControl.value && !volumeControl.value.contains(target)) {
+      showVolume.value = false;
+    }
+  }
+  
   
   // 调整音量
+  
   function updateVolume(val: number) {
     if (gainNode) {
       gainNode.gain.value = val / 100;
@@ -282,12 +311,7 @@
   }
   
   function showVolumeControl() {
-    const volumeControlSlider: any = document.querySelector(".volumeControl-el-slider");
-    if (getComputedStyle(volumeControlSlider).display === 'none') {
-      volumeControlSlider.style.display = "block";
-    } else {
-      volumeControlSlider.style.display = "none";
-    }
+    showVolume.value = !showVolume.value;
   }
   
   
@@ -680,20 +704,45 @@
 </script>
 
 <style scoped>
-  .control, .audioControl {
+  .audio-control {
+    padding: 5px 10px;
     display: flex;
+    background-color: #457B9D;
+    height: 80px;
   }
 
 
-  button {
-    margin: 10px;
+  .SongTitle {
+    position: relative;
+    width: 25%;
+    overflow: hidden;
+    text-overflow: clip;
+
   }
 
-  .volumeControl-el-slider {
-    bottom: 30%;
-    display: none;
-    position: fixed; /* 固定在页面中，不随滚动 */
-    z-index: 99;
+  /* 渐隐遮罩效果 */
+  .SongTitle::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 20px; /* 模糊的宽度，可调 */
+    pointer-events: none;
+    background: linear-gradient(to right, transparent, #457B9D); /* white 改为背景色 */
+  }
+
+
+  .control_AudioDuration {
+    margin-top: -3px;
+    display: flex;
+    width: 65%;
+    flex-wrap: wrap;
+  }
+
+  .currentAudioTime {
+    line-height: 32px;
+    margin: 0 20px 0 10px;
   }
 
   .audioDuration {
@@ -701,11 +750,48 @@
     width: 100%;
   }
 
-  .currentAudioTime {
-    margin: 0 20px 0 10px;
+  .audioDurationMax {
+    line-height: 32px;
+    margin: 0 10px 0 20px;
   }
 
-  p.audioDuration {
-    margin: 0 10px 0 20px;
+  .control {
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+  }
+
+
+  .control button {
+    margin: 10px;
+  }
+
+
+  .volumeControl {
+    width: 10%;
+    position: relative; /* 新增：作为子元素定位上下文 */
+  }
+
+  .volume-slider {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%); /* 让其中心对齐到父元素中心 */
+    bottom: 120px;
+    z-index: 10; /* 新增：确保浮在上方，不被其他元素遮住 */
+  }
+
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.3s ease;
+  }
+
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+  }
+
+  .volumeControl-div {
+    display: block;
+    margin:  7px auto;
   }
 </style>

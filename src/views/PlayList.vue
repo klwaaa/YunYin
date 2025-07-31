@@ -569,7 +569,6 @@
       setTimeout(()=>{
         emit('update:count', props.count + 1)
       },150)
-      
     }
   }
   
@@ -598,8 +597,11 @@
     border: 1px solid #ccc;
     border-radius: 4px;
   }
-
-
+  
+  li:hover {
+    cursor: pointer;
+  }
+  
   .playlist {
     width: 10%;
   }

@@ -33,27 +33,6 @@
         </div>
       </div>
     </div>
-    <!--      <Suspense>-->
-    <!--        <template v-slot:default>-->
-    <!--          <div>-->
-    <!--            <AudioView :key="controlAudioKey"></AudioView>-->
-    <!--          </div>-->
-    <!--        </template>-->
-    <!--        <template v-slot:fallback>-->
-    <!--          寻找中-->
-    <!--        </template>-->
-    <!--      </Suspense>-->
-    <!--  <Suspense>-->
-    <!--    <template v-slot:default>-->
-    <!--      <div>-->
-    <!--        222222222222222-->
-    <!--        <AudioControl :key="controlAudioKey"></AudioControl>-->
-    <!--      </div>-->
-    <!--    </template>-->
-    <!--    <template v-slot:fallback>-->
-    <!--      11111111111111111111-->
-    <!--    </template>-->
-    <!--  </Suspense>-->
     <suspense>
       <template v-slot:default>
         <router-view v-if="route.name === 'PlayList'" v-model:count="count"/>
@@ -64,12 +43,11 @@
     <div class="audioControl">
       <Suspense>
         <template v-slot:default>
-          <AudioControl :key="controlAudioKey-count" v-if="isShow"></AudioControl>
-          <p v-else>加载中</p>
+          <AudioControl :key="controlAudioKey-count"></AudioControl>
         </template>
-<!--        <template v-slot:fallback>-->
-<!--          11111111111111111111-->
-<!--        </template>-->
+        <template v-slot:fallback>
+          加载中
+        </template>
       </Suspense>
     </div>
   
@@ -79,23 +57,15 @@
 <script setup lang="ts">
   import AudioControl from "./AudioControl.vue";
   import {useRoute} from 'vue-router';
-  import AudioView from "../views/AudioView.vue";
-  import PlayList from "../views/PlayList.vue";
   import {useGetTokenStore} from "../store/token.ts";
   import useGetDriveID from "../hooks/useGetDriveID.ts";
   import {useGetAudio} from "../store/audio.ts";
-  import Test from "../views/Test.vue";
-  import MusicLibraryTest from "../views/MusicLibraryTest.vue";
   import {storeToRefs} from "pinia";
-  import AudioViewTest from "../views/AudioViewTest.vue";
-  import AudioControlTest from "./AudioControlTest.vue";
   import {RouterView, RouterLink} from "vue-router";
   import {ref} from "vue";
   
   const count = ref(0);
   const route = useRoute();
-  const isShow = ref(false);
-  setTimeout(()=>isShow.value = true,300)
   
   // 获取得到的code
   const tokenStore = useGetTokenStore();
@@ -116,7 +86,8 @@
 
   .app-header {
     display: flex;
-    justify-content: space-between
+    justify-content: space-between;
+    padding: 10px 20px;
   }
 
   .nav-items {
@@ -144,7 +115,6 @@
     left: 0;
     bottom: 0;
     width: 100%;
-    background-color: #457B9D;
   }
 
   .nav-items div {
