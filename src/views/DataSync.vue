@@ -1,6 +1,8 @@
 <template>
-  <button @click="uploadData">上传数据</button>
-  <button @click="pullData">拉取数据</button>
+  <div class="dataSync_view">
+    <button @click="uploadData">上传数据</button>
+    <button @click="pullData">拉取数据</button>
+  </div>
 </template>
 
 <script setup lang="ts">

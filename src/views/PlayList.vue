@@ -1,115 +1,117 @@
 <template>
-  <div class="search">
-    <!-- 搜索框 -->
-    <input
-            type="text"
-            v-model="searchQuery"
-            placeholder="搜索歌单或歌曲"
-            class="search-box"
-    />
-  </div>
-  <div>
-    <!-- 左侧歌单列表 -->
-    <ul class="playlist">
-      <li class="title">歌单</li>
-      <!-- 遍历歌单数据，并过滤搜索匹配项 -->
-      <li
-              v-for="(playlist, index) in filteredPlaylists"
-              :key="index"
-              @click="selectPlaylist(index)"
-              @contextmenu="handlePlaylistContextMenu(index, $event)"
-      >
-        {{ Object.keys(playlist)[0] }}
-      </li>
-      <li>
-        <button @click="addPlayList">添加歌单</button>
-      </li>
-    </ul>
-    
-    <!-- 右键菜单：歌单操作 -->
-    <ul
-            v-if="showPlaylistMenu"
-            class="context-menu"
-            :style="{ top: `${playlistMenuPosition.y}px`, left: `${playlistMenuPosition.x}px` }"
-            @click.stop
-    >
-      <li @click="renamePlaylist">重命名歌单</li>
-      <li @click="deletePlaylist">删除歌单</li>
-    </ul>
-    
-    <!-- 右侧歌曲列表 -->
-    <ul class="songList">
-      <li class="title">
-        <p class="number">序号</p>
-        <p class="name">歌曲名称</p>
-        <p class="type">文件类型</p>
-        <p class="duration">时长</p>
-      </li>
-      <!-- 遍历当前歌单中的歌曲，并过滤搜索匹配项 -->
-      <li
-              v-for="(song, index) in filteredSongs"
-              :key="song.fileId"
-              @click="selectSong(song, index)"
-              @dblclick="router.push('/AudioView')"
-              @contextmenu="handleContextMenu(song, $event)"
-      >
-        <p class="number">{{ index + 1 }}</p>
-        <p class="name">{{ getFileName(song.name) }}</p>
-        <p class="type">{{ getFileType(song.name) }}</p>
-        <p class="duration">{{ formatDuration(song.duration) }}</p>
-      </li>
-    </ul>
-    
-    <!-- 自定义右键菜单 -->
-    <ul
-            v-if="showContextMenu"
-            class="context-menu"
-            :style="{ top: `${menuPosition.y}px`, left: `${menuPosition.x}px` }"
-            @click.stop
-    >
-      <li @click="handleDeleteLocal(selectedSong)">删除本地歌曲</li>
-      <li @click="handleDeleteCloudDrive(selectedSong)">删除云盘歌曲和歌词</li>
-      <li @click="handleSave(selectedSong)">添加到</li>
-    </ul>
-  </div>
-  
-  <!-- 保存到歌单弹窗 -->
-  <div class="saveTo" v-show="saveToIsShow">
-    <div class="content">
-      <ul>
-        <!-- 遍历所有歌单 -->
-        <li v-for="(playlist, index) in playListData" :key="index">
-          <input
-                  type="checkbox"
-                  :value="Object.keys(playlist)[0]"
-                  v-model="selectedPlayList"
-          />
+  <div class="playList_view">
+    <div class="search">
+      <!-- 搜索框 -->
+      <input
+              type="text"
+              v-model="searchQuery"
+              placeholder="搜索歌单或歌曲"
+              class="search-box"
+      />
+    </div>
+    <div class="playlistAndSong">
+      <!-- 左侧歌单列表 -->
+      <ul class="playlist">
+        <li class="title">歌单</li>
+        <!-- 遍历歌单数据，并过滤搜索匹配项 -->
+        <li
+                v-for="(playlist, index) in filteredPlaylists"
+                :key="index"
+                @click="selectPlaylist(index)"
+                @contextmenu="handlePlaylistContextMenu(index, $event)"
+        >
           {{ Object.keys(playlist)[0] }}
         </li>
+        <li>
+          <button @click="addPlayList">添加歌单</button>
+        </li>
       </ul>
-      <button @click="enterSaveTo(selectedPlayList, playListData,songPar);selectedPlayList = [];">
+      
+      <!-- 右键菜单：歌单操作 -->
+      <ul
+              v-if="showPlaylistMenu"
+              class="context-menu"
+              :style="{ top: `${playlistMenuPosition.y}px`, left: `${playlistMenuPosition.x}px` }"
+              @click.stop
+      >
+        <li @click="renamePlaylist">重命名歌单</li>
+        <li @click="deletePlaylist">删除歌单</li>
+      </ul>
+      
+      <!-- 右侧歌曲列表 -->
+      <ul class="songList">
+        <li class="title">
+          <p class="number">序号</p>
+          <p class="name">歌曲名称</p>
+          <p class="type">文件类型</p>
+          <p class="duration">时长</p>
+        </li>
+        <!-- 遍历当前歌单中的歌曲，并过滤搜索匹配项 -->
+        <li
+                v-for="(song, index) in filteredSongs"
+                :key="song.fileId"
+                @click="selectSong(song, index)"
+                @dblclick="router.push('/AudioView')"
+                @contextmenu="handleContextMenu(song, $event)"
+        >
+          <p class="number">{{ index + 1 }}</p>
+          <p class="name">{{ getFileName(song.name) }}</p>
+          <p class="type">{{ getFileType(song.name) }}</p>
+          <p class="duration">{{ formatDuration(song.duration) }}</p>
+        </li>
+      </ul>
+      
+      <!-- 自定义右键菜单 -->
+      <ul
+              v-if="showContextMenu"
+              class="context-menu"
+              :style="{ top: `${menuPosition.y}px`, left: `${menuPosition.x}px` }"
+              @click.stop
+      >
+        <li @click="handleDeleteLocal(selectedSong)">删除本地歌曲</li>
+        <li @click="handleDeleteCloudDrive(selectedSong)">删除云盘歌曲和歌词</li>
+        <li @click="handleSave(selectedSong)">添加到</li>
+      </ul>
+    </div>
+    
+    <!-- 保存到歌单弹窗 -->
+    <div class="saveTo" v-show="saveToIsShow">
+      <div class="content">
+        <ul>
+          <!-- 遍历所有歌单 -->
+          <li v-for="(playlist, index) in playListData" :key="index">
+            <input
+                    type="checkbox"
+                    :value="Object.keys(playlist)[0]"
+                    v-model="selectedPlayList"
+            />
+            {{ Object.keys(playlist)[0] }}
+          </li>
+        </ul>
+        <button @click="enterSaveTo(selectedPlayList, playListData,songPar);selectedPlayList = [];">
+          确定
+        </button>
+        <button @click=" saveToIsShow = false; selectedPlayList = [];">
+          取消
+        </button>
+      </div>
+    </div>
+    
+    <!-- 新增歌单弹窗 -->
+    <div ref="addPlayListRef" class="addPlayList" v-show="addPlayListIsShow">
+      <input
+              type="text"
+              class="playListName"
+              placeholder="输入歌单名称(不能重复或为空)"
+              v-model="newPlaylistName"
+      >
+      <button @click="enterAddPlayList">
         确定
       </button>
-      <button @click=" saveToIsShow = false; selectedPlayList = [];">
+      <button @click="cancelAddPlayList">
         取消
       </button>
     </div>
-  </div>
-  
-  <!-- 新增歌单弹窗 -->
-  <div ref="addPlayListRef" class="addPlayList" v-show="addPlayListIsShow">
-    <input
-            type="text"
-            class="playListName"
-            placeholder="输入歌单名称(不能重复或为空)"
-            v-model="newPlaylistName"
-    >
-    <button @click="enterAddPlayList">
-      确定
-    </button>
-    <button @click="cancelAddPlayList">
-      取消
-    </button>
   </div>
 </template>
 
@@ -579,11 +581,12 @@
 </script>
 
 <style scoped>
-  div {
-    width: 100%;
+  /* 整体容器撑满页面高度 */
+  .playList_view {
     display: flex;
+    flex-direction: column;
+    height: calc(100vh - 50px);
   }
-
   /* 搜索框样式 */
   .search {
     margin: 10px 0;
@@ -596,49 +599,67 @@
     font-size: 14px;
     border: 1px solid #ccc;
     border-radius: 4px;
+    
   }
   
   li:hover {
     cursor: pointer;
   }
   
+  .playlistAndSong{
+    display: flex;
+    justify-content:space-evenly;
+    overflow: hidden;
+  }
+  
+  
   .playlist {
     width: 10%;
+    overflow-y: auto;
+    margin:0 20px ;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    line-height: 25px;
   }
 
-  .playlist li:first-child, .songList li:first-child {
-    border-top: black solid 1px;
-  }
-
-  :deep(.songList li) {
-    display: flex;
-    border-bottom: black solid 1px;
-    border-left: black solid 1px;
-    border-right: black solid 1px;
-  }
 
   .playlist li {
-    border-bottom: black solid 1px;
-    border-left: black solid 1px;
+    border-bottom: 1px solid #ccc;
+  }
+  .playlist li:last-child {
+    border-bottom: none;
   }
 
   .songList {
     width: 90%;
+    overflow-y: auto;
+    margin:0 20px ;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .songList li {
+    display: flex;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .songList li:last-child {
+    border-bottom: none;
   }
 
-  :deep(.number) {
+  .number {
     width: 10%;
   }
 
-  :deep(.name) {
+  .name {
     width: 50%;
   }
 
-  :deep(.type) {
+  .type {
     width: 20%;
   }
 
-  :deep(.duration) {
+  .duration {
     width: 20%;
   }
 

@@ -35,8 +35,8 @@
     </div>
     <suspense>
       <template v-slot:default>
-        <router-view v-if="route.name === 'PlayList'" v-model:count="count"/>
-        <router-view v-else/>
+        <router-view class="router-view" v-if="route.name === 'PlayList'" v-model:count="count" />
+        <router-view class="router-view" v-else />
       </template>
     </suspense>
     
@@ -119,5 +119,9 @@
 
   .nav-items div {
     margin: 0 10px;
+  }
+  .router-view{
+    width: 90%;
+    margin: auto;
   }
 </style>

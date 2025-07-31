@@ -1,27 +1,29 @@
 <template>
-  <router-link :to="{
+  <div class="audioView_view">
+    <router-link :to="{
             path: '/PlayList',
           }" class="goPlaylist">
-    <
-  </router-link>
-  <div class="lyric" ref="lyricContainer">
-    <p
-            v-for="(line, index) in bilingualLines"
-            :key="index + '-or'"
-            :ref="setLyricRefs"
-            :class="{ active: currentIndex === index }"
-            @click="handleLyricClick(line.time,index)"
-    >
-      <span class="original">{{ line.or }}</span><br/>
-      <span class="translation" v-if="line.tr">{{ line.tr }}</span>
-    </p>
+      <
+    </router-link>
+    <div class="lyric" ref="lyricContainer">
+      <p
+              v-for="(line, index) in bilingualLines"
+              :key="index + '-or'"
+              :ref="setLyricRefs"
+              :class="{ active: currentIndex === index }"
+              @click="handleLyricClick(line.time,index)"
+      >
+        <span class="original">{{ line.or }}</span><br/>
+        <span class="translation" v-if="line.tr">{{ line.tr }}</span>
+      </p>
+    </div>
+    <div class="lyric-controls">
+      <button @click="zoomIn">A+</button>
+      <p>{{ lrcSize }}</p>
+      <button @click="zoomOut">A-</button>
+    </div>
+    <button v-show="isUserScrolling" @click="track">aaaaaaa</button>
   </div>
-  <div class="lyric-controls">
-    <button @click="zoomIn">A+</button>
-    <p>{{ lrcSize }}</p>
-    <button @click="zoomOut">A-</button>
-  </div>
-  <button v-show="isUserScrolling" @click="track">aaaaaaa</button>
 </template>
 
 <script setup lang="ts">

@@ -1,42 +1,44 @@
 <template>
-  <div ref="selectedRef" class="selected">
-    <button @click="saveToIsShow = true">saveAudio</button>
-    <button @click="clickAll">clickAll</button>
-    
-    <ul>
-      <li v-for="(item) in displayedList" :key="item.fileId">
-        <input
-                type="checkbox"
-                :value="item"
-                v-model="selectedAudios"
-        />
-        {{ item.name }}
-      </li>
-    </ul>
-  </div>
-  <!--  保存到那个歌单-->
-  <div class="saveTo" v-show="saveToIsShow">
-    <div class="content">
+  <div class="musicLibrary_view">
+    <div ref="selectedRef" class="selected">
+      <button @click="saveToIsShow = true">saveAudio</button>
+      <button @click="clickAll">clickAll</button>
+      
       <ul>
-        <li v-for="(playlist, index) in playListData"
-            :key="index">
+        <li v-for="(item) in displayedList" :key="item.fileId">
           <input
                   type="checkbox"
-                  :value="Object.keys(playlist)[0]"
-                  v-model="selectedPlayList"
+                  :value="item"
+                  v-model="selectedAudios"
           />
-          {{ Object.keys(playlist)[0] }}
+          {{ item.name }}
         </li>
       </ul>
-      <button @click="enterSaveTo(selectedPlayList, playListData,undefined, selectedAudios);selectedPlayList = [];">
-        确定
-      </button>
-      <button @click="saveToIsShow = false">
-        取消
-      </button>
     </div>
+    <!--  保存到那个歌单-->
+    <div class="saveTo" v-show="saveToIsShow">
+      <div class="content">
+        <ul>
+          <li v-for="(playlist, index) in playListData"
+              :key="index">
+            <input
+                    type="checkbox"
+                    :value="Object.keys(playlist)[0]"
+                    v-model="selectedPlayList"
+            />
+            {{ Object.keys(playlist)[0] }}
+          </li>
+        </ul>
+        <button @click="enterSaveTo(selectedPlayList, playListData,undefined, selectedAudios);selectedPlayList = [];">
+          确定
+        </button>
+        <button @click="saveToIsShow = false">
+          取消
+        </button>
+      </div>
+    </div>
+    <div ref="loadMoreRef" class="loading-trigger"></div>
   </div>
-  <div ref="loadMoreRef" class="loading-trigger"></div>
 </template>
 
 <script setup lang="ts">
