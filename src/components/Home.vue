@@ -6,9 +6,8 @@
       </div>
       <div class="nav-items">
         <div class="login">
-          <a href="https://openapi.alipan.com/oauth/authorize?client_id=f3bc86ad8618424d99beb9da421d5526&redirect_uri=http://localhost:1420/PlayList/&scope=user:base,file:all:read,file:all:write">
-            登陆
-          </a>
+          <a v-if="!isLoggedIn" ref="loginRef" :href="loginUrl">请先登录</a>
+          <span v-else @click="logOut">退出登录</span>
         </div>
         <div class="PlayList">
           <router-link :to="{
@@ -35,8 +34,8 @@
     </div>
     <suspense>
       <template v-slot:default>
-        <router-view class="router-view" v-if="route.name === 'PlayList'" v-model:count="count" />
-        <router-view class="router-view" v-else />
+        <router-view class="router-view" v-if="route.name === 'PlayList'" v-model:count="count"/>
+        <router-view class="router-view" v-else/>
       </template>
     </suspense>
     
@@ -62,10 +61,11 @@
   import {useGetAudio} from "../store/audio.ts";
   import {storeToRefs} from "pinia";
   import {RouterView, RouterLink} from "vue-router";
-  import {ref} from "vue";
+  import {ref, watch} from "vue";
   
   const count = ref(0);
   const route = useRoute();
+  const loginRef: any = ref();
   
   // 获取得到的code
   const tokenStore = useGetTokenStore();
@@ -80,24 +80,42 @@
   }
   // 刷新AudioControl
   const {controlAudioKey} = storeToRefs(useGetAudio());
+  
+  const loginUrl = "https://openapi.alipan.com/oauth/authorize?client_id=f3bc86ad8618424d99beb9da421d5526&redirect_uri=http://localhost:1420/PlayList/&scope=user:base,file:all:read,file:all:write";
+  const isLoggedIn = ref(false);
+  const token = ref(JSON.parse(localStorage.getItem("token") as string));
+  
+  function logOut() {
+    token.value.access_token = null;
+    localStorage.setItem("token", JSON.stringify({access_token: "null"}));
+  }
+  
+  watch(token, () => {
+    setTimeout(() => {
+      const token: any = localStorage.getItem("token");
+      const parsed = JSON.parse(token);
+      console.log(parsed.access_token, "{access_token:null}");
+      isLoggedIn.value = parsed.access_token !== "null";
+    }, 300);
+  }, {immediate: true, deep: true});
 </script>
 
 <style scoped>
-
+  
   .app-header {
     display: flex;
     justify-content: space-between;
     padding: 10px 20px;
   }
-
+  
   .nav-items {
     display: flex;
   }
-
+  
   .logo {
     margin-left: 10px;
   }
-
+  
   .login {
     width: 100px;
     height: 30px;
@@ -105,22 +123,23 @@
     border-radius: 15px;
     text-align: center;
   }
-
-  a {
+  
+  a,span{
     line-height: 30px;
   }
-
+  
   .audioControl {
     position: fixed;
     left: 0;
     bottom: 0;
     width: 100%;
   }
-
+  
   .nav-items div {
     margin: 0 10px;
   }
-  .router-view{
+  
+  .router-view {
     width: 90%;
     margin: auto;
   }
