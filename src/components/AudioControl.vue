@@ -717,7 +717,6 @@
     width: 25%;
     overflow: hidden;
     text-overflow: clip;
-
   }
 
   /* 渐隐遮罩效果 */
