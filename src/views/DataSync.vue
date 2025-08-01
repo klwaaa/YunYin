@@ -1,7 +1,10 @@
 <template>
   <div class="dataSync_view">
+    <h2>数据同步</h2>
     <button @click="uploadData">上传数据</button>
+    <p>此操作会把本地的歌单数据上传到云盘</p>
     <button @click="pullData">拉取数据</button>
+    <p>此操作会把云盘的歌单数据拉取到本地</p>
   </div>
 </template>
 
@@ -200,6 +203,7 @@
 </script>
 
 <style scoped>
+  
   button {
     display: block;
   }

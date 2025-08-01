@@ -1,5 +1,6 @@
 <template>
   <div class="playList_view">
+    <h2>歌单</h2>
     <div class="search">
       <!-- 搜索框 -->
       <input
@@ -19,6 +20,7 @@
                 :key="index"
                 @click="selectPlaylist(index)"
                 @contextmenu="handlePlaylistContextMenu(index, $event)"
+                :title="Object.keys(playlist)[0]"
         >
           {{ Object.keys(playlist)[0] }}
         </li>
@@ -53,6 +55,7 @@
                 @click="selectSong(song, index)"
                 @dblclick="router.push('/AudioView')"
                 @contextmenu="handleContextMenu(song, $event)"
+                :title="getFileName(song.name)"
         >
           <p class="number">{{ index + 1 }}</p>
           <p class="name">{{ getFileName(song.name) }}</p>
@@ -614,7 +617,7 @@
   
   
   .playlist {
-    width: 10%;
+    width: 12%;
     overflow-y: auto;
     margin:0 20px ;
     border: 1px solid #ccc;
@@ -624,14 +627,29 @@
 
 
   .playlist li {
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden;
     border-bottom: 1px solid #ccc;
+    padding-left: 10px;
   }
   .playlist li:last-child {
     border-bottom: none;
   }
+  /* 渐隐遮罩效果 */
+  .playlist li::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 20px; /* 模糊的宽度，可调 */
+    pointer-events: none;
+    background: linear-gradient(to right, transparent, white); /* white 改为背景色 */
+  }
 
   .songList {
-    width: 90%;
+    width: 88%;
     overflow-y: auto;
     margin:0 20px ;
     border: 1px solid #ccc;
@@ -646,24 +664,39 @@
   .songList li:last-child {
     border-bottom: none;
   }
-
+  
   .number {
     width: 10%;
+    padding-left: 10px;
   }
 
   .name {
     width: 50%;
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  /* 渐隐遮罩效果 */
+  .name::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 20px; /* 模糊的宽度，可调 */
+    pointer-events: none;
+    background: linear-gradient(to right, transparent, white); /* white 改为背景色 */
   }
 
   .type {
     width: 20%;
+    padding-left: 20px;
   }
 
   .duration {
     width: 20%;
   }
-
-
+  
   .context-menu {
     position: fixed;
     z-index: 1000;
