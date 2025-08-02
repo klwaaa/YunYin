@@ -1,110 +1,119 @@
 <template>
-  <div class="search">
-  
-  </div>
-  <div>
-    <!-- 左侧歌单列表 -->
-    <ul class="playlist">
-      <li class="title">歌单</li>
-      <!-- 遍历歌单数据 -->
-      <li
-              v-for="(playlist, index) in playListData"
-              :key="index"
-              @click="selectPlaylist(index)"
-              @contextmenu="handlePlaylistContextMenu(index, $event)"
-      >
-        <!-- 显示歌单名称 -->
-        {{ Object.keys(playlist)[0] }}
-      </li>
-      <li>
-        <button @click="addPlayList">添加歌单</button>
-      </li>
-    </ul>
-    
-    <!-- 右键菜单：歌单操作 -->
-    <ul
-            v-if="showPlaylistMenu"
-            class="context-menu"
-            :style="{ top: `${playlistMenuPosition.y}px`, left: `${playlistMenuPosition.x}px` }"
-            @click.stop
-    >
-      <li @click="renamePlaylist">重命名歌单</li>
-      <li @click="deletePlaylist">删除歌单</li>
-    </ul>
-    
-    <!-- 右侧歌曲列表 -->
-    <ul class="songList">
-      <li class="title">
-        <p class="number">序号</p>
-        <p class="name">歌曲名称</p>
-        <p class="type">文件类型</p>
-        <p class="duration">时长</p>
-      </li>
-      <!-- 遍历当前歌单中的歌曲 -->
-      <li
-              v-for="(song, index) in currentPlayListSongs"
-              :key="song.fileId"
-              @click="selectSong(song, index)"
-              @dblclick="router.push('/AudioView')"
-              @contextmenu="handleContextMenu(song, $event)"
-      >
-        <p class="number">{{ index + 1 }}</p>
-        <p class="name">{{ getFileName(song.name) }}</p>
-        <p class="type">{{ getFileType(song.name) }}</p>
-        <p class="duration">{{ formatDuration(song.duration) }}</p>
-      </li>
-    </ul>
-    
-    <!-- 自定义右键菜单 -->
-    <ul
-            v-if="showContextMenu"
-            class="context-menu"
-            :style="{ top: `${menuPosition.y}px`, left: `${menuPosition.x}px` }"
-            @click.stop
-    >
-      <li @click="handleDeleteLocal(selectedSong)">删除本地歌曲</li>
-      <li @click="handleDeleteCloudDrive(selectedSong)">删除云盘歌曲和歌词</li>
-      <li @click="handleSave(selectedSong)">添加到</li>
-    </ul>
-  </div>
-  
-  <!-- 保存到歌单弹窗 -->
-  <div class="saveTo" v-show="saveToIsShow">
-    <div class="content">
-      <ul>
-        <!-- 遍历所有歌单 -->
-        <li v-for="(playlist, index) in playListData" :key="index">
-          <input
-                  type="checkbox"
-                  :value="Object.keys(playlist)[0]"
-                  v-model="selectedPlayList"
-          />
+  <div class="playList_view">
+    <div class="search">
+      <!-- 搜索框 -->
+      <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="搜索歌单或歌曲"
+          class="search-box"
+      />
+    </div>
+    <div class="playlistAndSong">
+      <!-- 左侧歌单列表 -->
+      <ul class="playlist">
+        <li class="title">歌单</li>
+        <!-- 遍历歌单数据，并过滤搜索匹配项 -->
+        <li
+            v-for="(playlist, index) in filteredPlaylists"
+            :key="index"
+            @click="selectPlaylist(index)"
+            @contextmenu="handlePlaylistContextMenu(index, $event)"
+            :title="Object.keys(playlist)[0]"
+        >
           {{ Object.keys(playlist)[0] }}
         </li>
+        <li>
+          <button @click="addPlayList">添加歌单</button>
+        </li>
       </ul>
-      <button @click="enterSaveTo(selectedPlayList, playListData,songPar);selectedPlayList = [];">
+      
+      <!-- 右键菜单：歌单操作 -->
+      <ul
+          v-if="showPlaylistMenu"
+          class="context-menu"
+          :style="{ top: `${playlistMenuPosition.y}px`, left: `${playlistMenuPosition.x}px` }"
+          @click.stop
+      >
+        <li @click="renamePlaylist">重命名歌单</li>
+        <li @click="deletePlaylist">删除歌单</li>
+      </ul>
+      
+      <!-- 右侧歌曲列表 -->
+      <ul class="songList">
+        <li class="title">
+          <p class="number">序号</p>
+          <p class="name">歌曲名称</p>
+          <p class="type">文件类型</p>
+          <p class="duration">时长</p>
+        </li>
+        <!-- 遍历当前歌单中的歌曲，并过滤搜索匹配项 -->
+        <li
+            v-for="(song, index) in filteredSongs"
+            :key="song.fileId"
+            @click="selectSong(song, index)"
+            @dblclick="router.push('/AudioView')"
+            @contextmenu="handleContextMenu(song, $event)"
+            :title="getFileName(song.name)"
+        >
+          <p class="number">{{ index + 1 }}</p>
+          <p class="name">{{ getFileName(song.name) }}</p>
+          <p class="type">{{ getFileType(song.name) }}</p>
+          <p class="duration">{{ formatDuration(song.duration) }}</p>
+        </li>
+      </ul>
+      
+      <!-- 自定义右键菜单 -->
+      <ul
+          v-if="showContextMenu"
+          class="context-menu"
+          :style="{ top: `${menuPosition.y}px`, left: `${menuPosition.x}px` }"
+          @click.stop
+      >
+        <li @click="handleDeleteLocal(selectedSong)">删除本地歌曲</li>
+        <li @click="handleDeleteCloudDrive(selectedSong)">删除云盘歌曲和歌词</li>
+        <li @click="handleSave(selectedSong)">添加到</li>
+      </ul>
+    </div>
+    
+    <!-- 保存到歌单弹窗 -->
+    <div class="saveTo" v-show="saveToIsShow">
+      <div class="content">
+        <ul>
+          <!-- 遍历所有歌单 -->
+          <li v-for="(playlist, index) in playListData" :key="index">
+            <input
+                type="checkbox"
+                :value="Object.keys(playlist)[0]"
+                v-model="selectedPlayList"
+            />
+            {{ Object.keys(playlist)[0] }}
+          </li>
+        </ul>
+        <button @click="enterSaveTo(selectedPlayList, playListData,songPar);selectedPlayList = [];">
+          确定
+        </button>
+        <button @click=" saveToIsShow = false; selectedPlayList = [];">
+          取消
+        </button>
+      </div>
+    </div>
+    
+    <!-- 新增歌单弹窗 -->
+    <div ref="addPlayListRef" class="addPlayList" v-show="addPlayListIsShow">
+      <input
+          type="text"
+          class="playListName"
+          placeholder="输入歌单名称(不能重复或为空)"
+          v-model="newPlaylistName"
+      >
+      <button @click="enterAddPlayList">
         确定
       </button>
-      <button @click=" saveToIsShow = false; selectedPlayList = [];">
+      <button @click="cancelAddPlayList">
         取消
       </button>
     </div>
-  </div>
-  
-  <!-- 新增歌单弹窗 -->
-  <div ref="addPlayListRef" class="addPlayList" v-show="addPlayListIsShow">
-    <input
-            type="text"
-            class="playListName"
-            placeholder="输入歌单名称(不能重复或为空,最好不要用纯数字,如果必须请以0开头)"
-            v-model="newPlaylistName"
-    >
-    <button @click="enterAddPlayList">
-      确定
-    </button>
-    <button @click="cancelAddPlayList">
-      取消
-    </button>
   </div>
 </template>
 
@@ -150,14 +159,38 @@
     return "";
   });
   
-  // 计算属性：当前歌单中的歌曲
-  const currentPlayListSongs = computed(() => {
+  // 搜索框输入的内容
+  const searchQuery = ref('');
+  
+  // 计算属性：过滤后的歌单
+  const filteredPlaylists = computed(() => {
+    return playListData.value.filter((playlist: any) => {
+      const playlistName = Object.keys(playlist)[0];
+      return playlistName.toLowerCase().includes(searchQuery.value.toLowerCase());
+    });
+  });
+  
+  // 计算属性：过滤后的歌曲列表
+  const filteredSongs = computed(() => {
     if (currentPlayListIndex.value >= 0 && currentPlayListIndex.value < playListData.value.length) {
       const playlist = playListData.value[currentPlayListIndex.value];
-      return playlist[Object.keys(playlist)[0]];
+      const songs = playlist[Object.keys(playlist)[0]];
+      return songs.filter((song: any) => {
+        return song.name.toLowerCase().includes(searchQuery.value.toLowerCase());
+      });
     }
     return [];
   });
+  
+  
+  // 计算属性：当前歌单中的歌曲
+  // const currentPlayListSongs = computed(() => {
+  //   if (currentPlayListIndex.value >= 0 && currentPlayListIndex.value < playListData.value.length) {
+  //     const playlist = playListData.value[currentPlayListIndex.value];
+  //     return playlist[Object.keys(playlist)[0]];
+  //   }
+  //   return [];
+  // });
   
   // 获取本地播放状态初始化
   onMounted(async () => {
@@ -172,7 +205,7 @@
       
       const saved = JSON.parse(localStorage.getItem("audio") as string);
       const savedIndex = playListData.value.findIndex((playlist: any) =>
-        Object.keys(playlist)[0] === saved?.selectedPlaylist
+          Object.keys(playlist)[0] === saved?.selectedPlaylist
       );
       
       currentPlayListIndex.value = savedIndex >= 0 ? savedIndex : 0;
@@ -203,7 +236,7 @@
   // 点击歌曲
   function selectSong(song: any, index: number) {
     console.log("selectSong");
-    playingSong.value = getFileName(song.name);
+    playingSong.value = song.name;
     isPlaying.value = true;
     playingSongKey.value = song.fileId;
     
@@ -214,16 +247,14 @@
     
     const randomPlaylist = JSON.parse(localStorage.getItem("randomPlaylist") as string);
     for (let i = 0; i < randomPlaylist.length; i++) {
-      console.log(playingSong.value, "playingSong.value");
-      console.log(randomPlaylist[i].name.substring(0, randomPlaylist[i].name.lastIndexOf(".")));
-      if (randomPlaylist[i].name.substring(0, randomPlaylist[i].name.lastIndexOf(".")) ===
-        playingSong.value) {
-        console.log(i, "i");
+      if (randomPlaylist[i].name ===
+          playingSong.value) {
         shuffledIndex.value = i;
         break;
       }
     }
   }
+  
   
   // 获取文件名（不含后缀）
   function getFileName(name: string): string {
@@ -275,6 +306,13 @@
   
   // 删除本地歌曲
   async function handleDeleteLocal(song: any) {
+    // 确定删除
+    const confirmDelete = confirm(`确定要删除此歌单的「${getFileName(song.name)}」吗？（操作不会删除云盘中的歌曲）`);
+    if (!confirmDelete) {
+      hideContextMenu();
+      return;
+    }
+    
     if (currentPlayListIndex.value === -1) return;
     
     const playlistKey = Object.keys(playListData.value[currentPlayListIndex.value])[0];
@@ -292,11 +330,20 @@
       await updateBackendPlaylist(playListData.value);
     }
     
+    selectIsPlaying();
+    
     hideContextMenu();
   }
   
   // 删除云盘歌曲
   async function handleDeleteCloudDrive(song: any) {
+    // 确定删除
+    const confirmDelete = confirm(`确定要删除云盘中的「${getFileName(song.name)}」及其歌词吗？（操作会删除其他歌单的此歌曲）`);
+    if (!confirmDelete) {
+      hideContextMenu();
+      return;
+    }
+    
     // 删除云盘操作
     const data = JSON.stringify({
       "drive_id": localStorage.getItem("drive_id"),
@@ -401,7 +448,7 @@
     
     // 检查歌单名称是否重复
     const exists = playListData.value.some((playlist: any) =>
-      Object.keys(playlist)[0] === name
+        Object.keys(playlist)[0] === name
     );
     
     if (exists) {
@@ -471,8 +518,8 @@
     
     // 检查新名称是否已存在
     const exists = playListData.value.some((playlist: any, index: any) =>
-      index !== selectedPlaylistIndex.value &&
-      Object.keys(playlist)[0] === newName
+        index !== selectedPlaylistIndex.value &&
+        Object.keys(playlist)[0] === newName
     );
     
     if (exists) {
@@ -494,57 +541,188 @@
     
     showPlaylistMenu.value = false;
   }
+  
+  // watch(filteredSongs, () => {
+  //   console.log("filteredSongs", filteredSongs.value);
+  //   console.log("playListData", playListData.value);
+  //   console.log("selectedSong",selectedSong.value);
+  //   if (selectedSong.value.fileId===playingSongKey.value){
+  //     console.log(111111111111111);
+  //   }
+  // });
+  
+  const props = defineProps<{ count: number }>()
+  const emit = defineEmits<{ (e: 'update:count', value: number): void }>()
+  
+  function selectIsPlaying() {
+    let playList;
+    if (selectedSong.value.fileId === playingSongKey.value) {
+      console.log("selectIsPlaying");
+      for (let i = 0; i < playListData.value.length; i++) {
+        if (Object.keys(playListData.value[i])[0] === playingPlayList.value) {
+          playList = (playListData.value[i][Object.keys(playListData.value[i])[0]]).length;
+          break;
+        }
+      }
+      console.log(playListData.value);
+      if (controlAudioKey.value >= playList) {
+        controlAudioKey.value = 0;
+        return;
+      }
+      setTimeout(()=>{
+        emit('update:count', props.count + 1)
+      },150)
+    }
+  }
+
+
+
+
 
 </script>
 
 <style scoped>
-  /* 样式保持不变 */
-  div {
+  /* ========== 全局布局 ========== */
+  .playList_view {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 24px;
+    background-color: var(--md-sys-color-background);
+    color: var(--md-sys-color-on-background);
+  }
+  
+  /* ========== 标题区域 ========== */
+  .playList_view h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--md-sys-color-primary);
+    text-align: center;
+    margin-top: -15px;
+  }
+  
+  
+  /* 搜索框样式 */
+  .search {
+    margin: 10px 0;
+    padding-bottom: 24px;
+  }
+  
+  .search-box {
     width: 100%;
-    display: flex;
+    padding: 12px 16px;
+    border-radius: 24px;
+    border: 1px solid var(--md-sys-color-outline-variant);
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+    font-size: 1rem;
+    transition: all 0.3s ease;
   }
-
+  
+  .search-box:focus {
+    outline: none;
+    border-color: var(--md-sys-color-primary);
+    box-shadow: 0 0 0 2px rgba(var(--md-sys-color-primary), 0.2);
+  }
+  
+  
+  
+  li:hover {
+    cursor: pointer;
+  }
+  
+  /* ========== 主内容区域 ========== */
+  .playlistAndSong{
+    user-select:none;
+    display: flex;
+    justify-content:space-evenly;
+    overflow: hidden;
+    align-items: flex-start; /* 关键：让子项顶部对齐，不拉伸高度 */
+  }
+  
+  
+  
   .playlist {
-    width: 10%;
+    width: 12%;
+    overflow-y: auto;
+    margin:0 20px ;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    line-height: 25px;
   }
-
-  .playlist li:first-child, .songList li:first-child {
-    border-top: black solid 1px;
-  }
-
-  :deep(.songList li) {
-    display: flex;
-    border-bottom: black solid 1px;
-    border-left: black solid 1px;
-    border-right: black solid 1px;
-  }
-
+  
+  
   .playlist li {
-    border-bottom: black solid 1px;
-    border-left: black solid 1px;
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden;
+    border-bottom: 1px solid #ccc;
+    padding-left: 10px;
   }
-
+  .playlist li:last-child {
+    border-bottom: none;
+  }
+  /* 渐隐遮罩效果 */
+  .playlist li::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 20px; /* 模糊的宽度，可调 */
+    pointer-events: none;
+    background: linear-gradient(to right, transparent, white); /* white 改为背景色 */
+  }
+  
   .songList {
-    width: 90%;
+    width: 88%;
+    overflow-y: auto;
+    margin:0 20px ;
+    border: 1px solid #ccc;
+    border-radius: 4px;
   }
-
-  :deep(.number) {
+  
+  .songList li {
+    display: flex;
+    border-bottom: 1px solid #ccc;
+  }
+  
+  .songList li:last-child {
+    border-bottom: none;
+  }
+  
+  .number {
     width: 10%;
+    padding-left: 10px;
   }
-
-  :deep(.name) {
+  
+  .name {
     width: 50%;
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden;
   }
-
-  :deep(.type) {
+  /* 渐隐遮罩效果 */
+  .name::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 20px; /* 模糊的宽度，可调 */
+    pointer-events: none;
+    background: linear-gradient(to right, transparent, white); /* white 改为背景色 */
+  }
+  
+  .type {
+    width: 20%;
+    padding-left: 20px;
+  }
+  
+  .duration {
     width: 20%;
   }
-
-  :deep(.duration) {
-    width: 20%;
-  }
-
-
+  
   .context-menu {
     position: fixed;
     z-index: 1000;
@@ -555,25 +733,25 @@
     width: 150px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
   }
-
+  
   .context-menu li {
     padding: 8px 16px;
     cursor: pointer;
   }
-
+  
   .context-menu li:hover {
     background-color: #f5f5f5;
   }
-
-
+  
+  
   button {
     margin: 10px;
   }
-
+  
   input[type="checkbox"] {
     margin-right: 8px;
   }
-
+  
   .saveTo {
     width: 100%;
     height: 100%;
@@ -582,14 +760,14 @@
     left: 0;
     background: rgba(0, 0, 0, 0.3);
   }
-
+  
   .content {
     width: 40%;
     background: #fff;
     margin: 25% auto;
   }
-
-
+  
+  
   .saveTo {
     width: 100%;
     height: 100%;
@@ -598,19 +776,19 @@
     left: 0;
     background: rgba(0, 0, 0, 0.3);
   }
-
+  
   .content {
     width: 40%;
     background: #fff;
     margin: 25% auto;
   }
-
+  
   .addPlayList {
     width: 400px;
     height: 200px;
     background-color: pink;
   }
-
+  
   .playListName {
     margin: 20px;
     width: 200px;

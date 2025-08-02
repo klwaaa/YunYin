@@ -100,55 +100,127 @@
 </script>
 
 <style scoped>
-  .app{
-    background-color: var(--md-sys-color-background);
+  
+  /* 全局样式 */
+  body {
+    margin: 0;
+    font-family: 'Roboto', system-ui, sans-serif;
+  }
+  
+  /* 活动路由链接样式 */
+  .router-link-active {
+    color: var(--md-sys-color-primary) !important;
+    font-weight: bold;
+    position: relative;
+  }
+  
+  .router-link-active::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background-color: var(--md-sys-color-primary);
+    border-radius: 2px;
+  }
+  
+  /* 按钮悬停效果 */
+  a, span[role="button"] {
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  a:hover, span[role="button"]:hover {
+    opacity: 0.8;
   }
   
   
+  /* 全局使用 MD3 变量 */
+  .app {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--md-sys-color-background);
+    color: var(--md-sys-color-on-background);
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  /* 顶部导航栏样式 */
   .app-header {
-    background-color: var(--md-sys-color-surface-variant);
     display: flex;
     justify-content: space-between;
-    padding: 10px 20px;
+    align-items: center;
+    padding: 0 24px;
+    height: 64px;
+    background-color: var(--md-sys-color-surface-container-high);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
   }
   
-  .playList,.login,.synchronous,.musicLibrary{
-    background-color: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--md-sys-color-primary);
   }
   
   .nav-items {
     display: flex;
+    gap: 24px;
+    align-items: center;
   }
   
-  .logo {
-    margin-left: 10px;
+  /* 导航项通用样式 */
+  .nav-items > div {
+    padding: 8px 16px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
   }
   
+  /* 导航链接样式 */
+  .nav-items a, .nav-items span {
+    text-decoration: none;
+    font-weight: 500;
+    color: var(--md-sys-color-on-surface);
+    transition: color 0.2s;
+  }
+  
+  /* 登录/退出样式 */
   .login {
-    width: 100px;
-    height: 30px;
-    border-radius: 15px;
-    text-align: center;
+    background-color: var(--md-sys-color-secondary-container);
+    color: var(--md-sys-color-on-secondary-container);
   }
   
-  a,span{
-    line-height: 30px;
+  .login a, .login span {
+    color: var(--md-sys-color-on-secondary-container);
+    cursor: pointer;
   }
   
+  /* 导航项悬停效果 */
+  .playList:hover,
+  .musicLibrary:hover,
+  .synchronous:hover {
+    background-color: var(--md-sys-color-surface-container);
+  }
+  
+  .playList:hover a,
+  .musicLibrary:hover a,
+  .synchronous:hover a {
+    color: var(--md-sys-color-primary);
+  }
+  
+  /* 路由视图区域 */
+  .router-view {
+    flex: 1;
+    padding: 24px;
+    background-color: var(--md-sys-color-surface);
+  }
+  
+  /* 音频控制栏 */
   .audioControl {
     position: fixed;
     left: 0;
     bottom: 0;
     width: 100%;
-  }
-  
-  .nav-items div {
-    margin: 0 10px;
-  }
-  
-  .router-view {
-    width: 90%;
-    margin: auto;
   }
 </style>

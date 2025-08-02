@@ -1,6 +1,5 @@
 <template>
   <div class="playList_view">
-    <h2>歌单</h2>
     <div class="search">
       <!-- 搜索框 -->
       <input
@@ -117,7 +116,6 @@
     </div>
   </div>
 </template>
-
 
 <script setup lang="ts">
   import {ref, reactive, onMounted, onBeforeUnmount, computed} from 'vue';
@@ -584,31 +582,54 @@
 </script>
 
 <style scoped>
-  /* 整体容器撑满页面高度 */
+  /* ========== 全局布局 ========== */
   .playList_view {
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 50px);
+    height: 100%;
+    padding: 24px;
+    background-color: var(--md-sys-color-background);
+    color: var(--md-sys-color-on-background);
   }
+  
+  /* ========== 标题区域 ========== */
+  .playList_view h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--md-sys-color-primary);
+    text-align: center;
+    margin-top: -15px;
+  }
+  
+  
   /* 搜索框样式 */
   .search {
     margin: 10px 0;
-    padding: 10px;
+    padding-bottom: 24px;
   }
-
+  
   .search-box {
     width: 100%;
-    padding: 8px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    
+    padding: 12px 16px;
+    border-radius: 24px;
+    border: 1px solid var(--md-sys-color-outline-variant);
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+  
+  .search-box:focus {
+    outline: none;
+    border-color: var(--md-sys-color-primary);
+    box-shadow: 0 0 0 2px rgba(var(--md-sys-color-primary), 0.2);
   }
   
   li:hover {
     cursor: pointer;
   }
   
+  /* ========== 主内容区域 ========== */
   .playlistAndSong{
     user-select:none;
     display: flex;
@@ -618,25 +639,67 @@
   }
   
   
+  
+  /* ========== 左侧歌单列表 ========== */
   .playlist {
     width: 12%;
+    background-color: var(--md-sys-color-surface-container-low);
+    border-radius: 16px;
     overflow-y: auto;
-    margin:0 20px ;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    line-height: 25px;
+    padding: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
-
-
+  
+  .playlist .title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 0 10px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--md-sys-color-outline-variant);
+    color: var(--md-sys-color-primary);
+  }
+  
   .playlist li {
-    position: relative;
-    white-space: nowrap;
+    padding: 5px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
     overflow: hidden;
-    border-bottom: 1px solid #ccc;
-    padding-left: 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  .playlist li:last-child {
-    border-bottom: none;
+  
+  /* 歌单项悬停效果 */
+  .playlist li:hover {
+    background-color: var(--md-sys-color-surface-container);
+  }
+  
+  /* 歌单项选中效果 */
+  .playlist li.selected {
+    background-color: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    font-weight: 500;
+  }
+  
+  /* 添加歌单按钮 */
+  .playlist li button {
+    width: 100%;
+    padding: 5px;
+    border-radius: 12px;
+    border: 1px dashed var(--md-sys-color-outline);
+    background: transparent;
+    color: var(--md-sys-color-on-surface);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+  }
+  
+  .playlist li button:hover {
+    background-color: var(--md-sys-color-surface-container);
+    border-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-primary);
   }
   /* 渐隐遮罩效果 */
   .playlist li::after {

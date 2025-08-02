@@ -705,18 +705,30 @@
 
 <style scoped>
   .audio-control {
-    padding: 5px 10px;
     display: flex;
-    background-color: #457B9D;
+    align-items: center;
+    width: 100%;
+    padding: 5px;
+    background-color: var(--md-sys-color-surface-container);
+    border-top: 1px solid var(--md-sys-color-outline-variant);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
+    position: relative;
     height: 80px;
   }
-
-
+  
+  
+  
   .SongTitle {
-    position: relative;
     width: 25%;
+    text-align: center;
+    position: relative;
+    margin: 0 0 12px 0;
+    color: var(--md-sys-color-on-surface);
+    font-weight: 500;
+    font-size: 1.1rem;
     overflow: hidden;
-    text-overflow: clip;
+    text-overflow: ellipsis;
+    padding: 0 20px;
   }
 
   /* 渐隐遮罩效果 */
@@ -728,49 +740,70 @@
     height: 100%;
     width: 20px; /* 模糊的宽度，可调 */
     pointer-events: none;
-    background: linear-gradient(to right, transparent, #457B9D); /* white 改为背景色 */
+    background: linear-gradient(to right, transparent, var(--md-sys-color-surface-container)); /* white 改为背景色 */
   }
 
 
   .control_AudioDuration {
-    margin-top: -3px;
+    margin-bottom: -5px;
     display: flex;
     width: 65%;
     flex-wrap: wrap;
   }
-
-  .currentAudioTime {
-    line-height: 32px;
-    margin: 0 20px 0 10px;
-  }
-
+  
   .audioDuration {
+    margin-bottom: -15px;
     display: flex;
+    align-items: center;
+    gap: 12px;
     width: 100%;
   }
-
-  .audioDurationMax {
-    line-height: 32px;
-    margin: 0 10px 0 20px;
+  
+  .currentAudioTime, .audioDurationMax {
+    min-width: 40px;
+    text-align: center;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: 0.9rem;
   }
-
+  
   .control {
     display: flex;
     width: 100%;
     justify-content: space-evenly;
   }
-
-
+  
   .control button {
     margin: 10px;
+    color: var(--md-sys-color-on-surface);
+    border-radius: 50%;
   }
-
-
+  
+  .control button:hover {
+    background-color: var(--md-sys-color-surface-container-high);
+    color: var(--md-sys-color-primary);
+  }
+  
+  .control button:nth-child(3) { /* 播放/暂停按钮 */
+    background-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    width: 48px;
+    height: 48px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .control button:nth-child(3):hover {
+    background-color: var(--md-sys-color-primary-container);
+    color: var(--md-sys-color-on-primary-container);
+    transform: scale(1.05);
+  }
+  
+  
+  
   .volumeControl {
     width: 10%;
     position: relative; /* 新增：作为子元素定位上下文 */
   }
-
+  
   .volume-slider {
     position: absolute;
     left: 50%;
@@ -792,5 +825,39 @@
   .volumeControl-div {
     display: block;
     margin:  7px auto;
+  }
+  
+  /* 进度条样式覆盖 */
+  :deep(.el-slider__runway) {
+    background-color: var(--md-sys-color-outline-variant) !important;
+  }
+  
+  :deep(.el-slider__bar) {
+    background-color: var(--md-sys-color-primary) !important;
+  }
+  
+  :deep(.el-slider__button) {
+    width: 14px !important;
+    height: 14px ;
+    border: 2px solid var(--md-sys-color-primary) !important;
+    background-color: var(--md-sys-color-surface-container) !important;
+  }
+  
+  /* 音量条样式覆盖 */
+  :deep(.el-slider.vertical .el-slider__runway) {
+    background-color: var(--md-sys-color-outline-variant) !important;
+    width: 4px !important;
+  }
+  
+  :deep(.el-slider.vertical .el-slider__bar) {
+    background-color: var(--md-sys-color-primary) !important;
+    width: 4px !important;
+  }
+  
+  :deep(.el-slider.vertical .el-slider__button) {
+    width: 14px !important;
+    height: 14px ;
+    border: 2px solid var(--md-sys-color-primary) !important;
+    background-color: var(--md-sys-color-surface-container) !important;
   }
 </style>
