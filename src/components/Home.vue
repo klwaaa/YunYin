@@ -9,7 +9,7 @@
           <a v-if="!isLoggedIn" ref="loginRef" :href="loginUrl">请先登录</a>
           <span v-else @click="logOut">退出登录</span>
         </div>
-        <div class="PlayList">
+        <div class="playList">
           <router-link :to="{
             path: '/PlayList',
           }">
@@ -49,7 +49,6 @@
         </template>
       </Suspense>
     </div>
-  
   </div>
 </template>
 
@@ -101,11 +100,21 @@
 </script>
 
 <style scoped>
+  .app{
+    background-color: var(--md-sys-color-background);
+  }
+  
   
   .app-header {
+    background-color: var(--md-sys-color-surface-variant);
     display: flex;
     justify-content: space-between;
     padding: 10px 20px;
+  }
+  
+  .playList,.login,.synchronous,.musicLibrary{
+    background-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
   }
   
   .nav-items {
@@ -119,7 +128,6 @@
   .login {
     width: 100px;
     height: 30px;
-    background-color: #80FDE0;
     border-radius: 15px;
     text-align: center;
   }

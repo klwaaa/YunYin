@@ -610,9 +610,11 @@
   }
   
   .playlistAndSong{
+    user-select:none;
     display: flex;
     justify-content:space-evenly;
     overflow: hidden;
+    align-items: flex-start; /* 关键：让子项顶部对齐，不拉伸高度 */
   }
   
   

@@ -1,13 +1,5 @@
 <template>
-<!--  <suspense>-->
-<!--    <template v-slot:default>-->
-<!--      <Home></Home>-->
-<!--    </template>-->
-<!--    <template v-slot:fallback>-->
-<!--      加载中-->
-<!--    </template>-->
-<!--  </suspense>-->
-  <Home></Home>
+  <Home class="light"></Home>
 </template>
 
 <script setup lang="ts">
