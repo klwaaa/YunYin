@@ -340,10 +340,10 @@
       }
     }
     if (playbackModeIndex.value === 2) {
-      playingAudio.value = randomPlaylist[controlAudioKeyCount].name;
+      playingSong.value = randomPlaylist[controlAudioKeyCount].name;
       audioDuration.value = randomPlaylist[controlAudioKeyCount].duration;
     } else {
-      playingAudio.value = playList[controlAudioKeyCount].name;
+      playingSong.value = playList[controlAudioKeyCount].name;
       audioDuration.value = playList[controlAudioKeyCount].duration;
     }
   }
@@ -441,10 +441,10 @@
       }
     }
     if (playbackModeIndex.value === 2) {
-      playingAudio.value = randomPlaylist[controlAudioKeyCount].name;
+      playingSong.value = randomPlaylist[controlAudioKeyCount].name;
       audioDuration.value = randomPlaylist[controlAudioKeyCount].duration;
     } else {
-      playingAudio.value = playList[controlAudioKeyCount].name;
+      playingSong.value = playList[controlAudioKeyCount].name;
       audioDuration.value = playList[controlAudioKeyCount].duration;
     }
   }
@@ -719,15 +719,15 @@
   
   
   .SongTitle {
+    height: 100%;
     width: 25%;
     text-align: center;
     position: relative;
-    margin: 0 0 12px 0;
+    margin: 1px 0 12px 0;
     color: var(--md-sys-color-on-surface);
     font-weight: 500;
     font-size: 1.1rem;
     overflow: hidden;
-    text-overflow: ellipsis;
     padding: 0 20px;
   }
 
