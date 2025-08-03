@@ -35,7 +35,7 @@
           :style="{ top: `${playlistMenuPosition.y}px`, left: `${playlistMenuPosition.x}px` }"
           @click.stop
       >
-        <li @click="renamePlaylist">重命名歌单</li>
+        <li @click="openRenameDialog">重命名歌单</li>
         <li @click="deletePlaylist">删除歌单</li>
       </ul>
       
@@ -77,43 +77,87 @@
     </div>
     
     <!-- 保存到歌单弹窗 -->
-    <div class="saveTo" v-show="saveToIsShow">
-      <div class="content">
-        <ul>
-          <!-- 遍历所有歌单 -->
-          <li v-for="(playlist, index) in playListData" :key="index">
-            <input
-                type="checkbox"
-                :value="Object.keys(playlist)[0]"
-                v-model="selectedPlayList"
-            />
-            {{ Object.keys(playlist)[0] }}
-          </li>
-        </ul>
-        <button @click="enterSaveTo(selectedPlayList, playListData,songPar);selectedPlayList = [];">
-          确定
-        </button>
-        <button @click=" saveToIsShow = false; selectedPlayList = [];">
-          取消
-        </button>
-      </div>
-    </div>
+    <el-dialog
+        v-model="saveToIsShow"
+        title="保存到歌单"
+        width="400px"
+        center
+        :close-on-click-modal="false"
+    >
+      <el-checkbox-group v-model="selectedPlayList">
+        <el-checkbox
+            v-for="(playlist, index) in playListData"
+            :key="index"
+            :label="Object.keys(playlist)[0]"
+        >
+          {{ Object.keys(playlist)[0] }}
+        </el-checkbox>
+      </el-checkbox-group>
+      
+      <template #footer>
+        <el-button @click=" saveToIsShow = false; selectedPlayList = [];">取消</el-button>
+        <el-button type="primary" @click="enterSaveTo(selectedPlayList, playListData,songPar);selectedPlayList = [];">确定</el-button>
+      </template>
+    </el-dialog>
+    
     
     <!-- 新增歌单弹窗 -->
-    <div ref="addPlayListRef" class="addPlayList" v-show="addPlayListIsShow">
-      <input
-          type="text"
-          class="playListName"
-          placeholder="输入歌单名称(不能重复或为空)"
-          v-model="newPlaylistName"
-      >
-      <button @click="enterAddPlayList">
-        确定
-      </button>
-      <button @click="cancelAddPlayList">
-        取消
-      </button>
-    </div>
+    <el-dialog
+        v-model="addPlayListIsShow"
+        title="新增歌单"
+        width="400px"
+        center
+        :close-on-click-modal="false"
+    >
+      <div>
+        <el-input
+            v-model="newPlaylistName"
+            placeholder="输入歌单名称（不能重复或为空）"
+            @keyup.enter="enterAddPlayList"
+        />
+        <div v-if="addPlayListError" style="color: red; margin-top: 8px;">{{ addPlayListError }}</div>
+      </div>
+      <template #footer>
+        <el-button @click="cancelAddPlayList">取消</el-button>
+        <el-button type="primary" @click="enterAddPlayList">确定</el-button>
+      </template>
+    </el-dialog>
+    <!--  renamePlaylist-->
+    <el-dialog
+        v-model="renameDialogVisible"
+        title="重命名歌单"
+        width="400px"
+        center
+    >
+      <div>
+        <el-input
+            v-model="renameInput"
+            placeholder="请输入新的歌单名称"
+            @keyup.enter="confirmRename"
+        />
+        <div v-if="renameError" style="color: red; margin-top: 8px;">{{ renameError }}</div>
+      </div>
+      <template #footer>
+        <el-button @click="renameDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="confirmRename">确定</el-button>
+      </template>
+    </el-dialog>
+    
+    <!--  右键确定删除-->
+    <el-dialog
+        v-model="confirmDialogVisible"
+        :title="confirmDialogTitle"
+        width="400px"
+        center
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+    >
+      <div>{{ confirmDialogMessage }}</div>
+      <template #footer>
+        <el-button @click="cancelConfirm">取消</el-button>
+        <el-button type="primary" @click="confirmConfirm">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -294,10 +338,35 @@
     window.removeEventListener('scroll', hideContextMenu);
   });
   
+  const confirmDialogVisible = ref(false);
+  const confirmDialogTitle = ref("确认");
+  const confirmDialogMessage = ref("");
+  let confirmResolve: (value: boolean) => void;
+  
+  function useConfirm(message: string, title = "确认"): Promise<boolean> {
+    return new Promise((resolve) => {
+      confirmDialogTitle.value = title;
+      confirmDialogMessage.value = message;
+      confirmDialogVisible.value = true;
+      confirmResolve = resolve;
+    });
+  }
+  
+  function confirmConfirm() {
+    confirmDialogVisible.value = false;
+    confirmResolve(true);
+  }
+  
+  function cancelConfirm() {
+    confirmDialogVisible.value = false;
+    confirmResolve(false);
+  }
+  
+  
   // 删除本地歌曲
   async function handleDeleteLocal(song: any) {
     // 确定删除
-    const confirmDelete = confirm(`确定要删除此歌单的「${getFileName(song.name)}」吗？（操作不会删除云盘中的歌曲）`);
+    const confirmDelete =  await useConfirm(`确定要删除此歌单的「${getFileName(song.name)}」吗？（操作不会删除云盘中的歌曲）`);
     if (!confirmDelete) {
       hideContextMenu();
       return;
@@ -328,7 +397,7 @@
   // 删除云盘歌曲
   async function handleDeleteCloudDrive(song: any) {
     // 确定删除
-    const confirmDelete = confirm(`确定要删除云盘中的「${getFileName(song.name)}」及其歌词吗？（操作会删除其他歌单的此歌曲）`);
+    const confirmDelete =  await useConfirm(`确定要删除云盘中的「${getFileName(song.name)}」及其歌词吗？（操作会删除其他歌单的此歌曲）`);
     if (!confirmDelete) {
       hideContextMenu();
       return;
@@ -418,12 +487,13 @@
   
   // 新增歌单弹窗相关
   const addPlayListIsShow = ref(false);
-  const addPlayListRef = ref<HTMLElement | null>(null);
-  const newPlaylistName = ref("");
+  const newPlaylistName = ref('');
+  const addPlayListError = ref('');
   
   // 显示新增歌单弹窗
   function addPlayList() {
-    newPlaylistName.value = "";
+    newPlaylistName.value = '';
+    addPlayListError.value = '';
     addPlayListIsShow.value = true;
   }
   
@@ -432,22 +502,21 @@
     const name = newPlaylistName.value.trim();
     
     if (!name) {
-      alert("歌单名称不能为空");
+      addPlayListError.value = '歌单名称不能为空';
       return;
     }
     
-    // 检查歌单名称是否重复
     const exists = playListData.value.some((playlist: any) =>
         Object.keys(playlist)[0] === name
     );
     
     if (exists) {
-      alert("歌单名称已存在");
+      addPlayListError.value = '歌单名称已存在';
       return;
     }
     
     // 添加新歌单
-    playListData.value.push({[name]: []});
+    playListData.value.push({ [name]: [] });
     
     // 保存到后端
     await updateBackendPlaylist(playListData.value);
@@ -477,7 +546,7 @@
   async function deletePlaylist() {
     if (selectedPlaylistIndex.value === -1) return;
     
-    if (confirm(`确定要删除歌单「${Object.keys(playListData.value[selectedPlaylistIndex.value])[0]}」吗？`)) {
+    if ( await useConfirm(`确定要删除歌单「${Object.keys(playListData.value[selectedPlaylistIndex.value])[0]}」吗？`)) {
       // 删除歌单
       playListData.value.splice(selectedPlaylistIndex.value, 1);
       
@@ -496,42 +565,51 @@
   }
   
   // 重命名歌单
-  async function renamePlaylist() {
+  // state
+  const renameDialogVisible = ref(false);
+  const renameInput = ref('');
+  const renameError = ref('');
+  const oldPlaylistName = ref('');
+  
+  // 触发弹窗
+  function openRenameDialog() {
     if (selectedPlaylistIndex.value === -1) return;
     
-    const oldName = Object.keys(playListData.value[selectedPlaylistIndex.value])[0];
-    const newName = prompt("请输入新的歌单名称", oldName);
+    oldPlaylistName.value = Object.keys(playListData.value[selectedPlaylistIndex.value])[0];
+    renameInput.value = oldPlaylistName.value;
+    renameError.value = '';
+    renameDialogVisible.value = true;
+  }
+  
+  // 确认重命名
+  async function confirmRename() {
+    const newName = renameInput.value.trim();
     
-    if (!newName || newName.trim() === "") {
-      alert("歌单名称不能为空");
-      showPlaylistMenu.value = false;
+    if (!newName) {
+      renameError.value = '歌单名称不能为空';
       return;
     }
     
-    // 检查新名称是否已存在
     const exists = playListData.value.some((playlist: any, index: any) =>
         index !== selectedPlaylistIndex.value &&
         Object.keys(playlist)[0] === newName
     );
     
     if (exists) {
-      alert("歌单名称已存在");
+      renameError.value = '歌单名称已存在';
       return;
     }
     
-    // 更新歌单名称
-    const songs = playListData.value[selectedPlaylistIndex.value][oldName];
-    playListData.value[selectedPlaylistIndex.value] = {[newName]: songs};
+    const songs = playListData.value[selectedPlaylistIndex.value][oldPlaylistName.value];
+    playListData.value[selectedPlaylistIndex.value] = { [newName]: songs };
     
-    // 如果重命名的是当前选中的歌单，更新当前歌单索引
     if (currentPlayListIndex.value === selectedPlaylistIndex.value) {
       selectedPlaylist.value = newName;
       playingPlayList.value = newName;
     }
     
-    // 保存到后端
     await updateBackendPlaylist(playListData.value);
-    
+    renameDialogVisible.value = false;
     showPlaylistMenu.value = false;
   }
   
@@ -668,6 +746,7 @@
   
   /* 添加歌单按钮 */
   .playlist li button {
+    width: 100%;
     padding: 7px 16px;
     border-radius: 12px;
     border: 1px dashed var(--md-sys-color-outline);
@@ -817,110 +896,5 @@
     width: 200px;
     height: 50px;
   }
-  /* ========== 弹窗样式 ========== */
-  .saveTo, .addPlayList {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
-  }
   
-  .saveTo .content, .addPlayList {
-    background-color: var(--md-sys-color-surface-container);
-    border-radius: 24px;
-    padding: 24px;
-    min-width: 300px;
-    max-width: 500px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* 保存到歌单弹窗内容 */
-  .saveTo .content ul {
-    max-height: 300px;
-    overflow-y: auto;
-    margin-bottom: 20px;
-  }
-  
-  .saveTo .content li {
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    border-radius: 12px;
-    transition: background-color 0.2s;
-  }
-  
-  .saveTo .content li:hover {
-    background-color: var(--md-sys-color-surface-container-high);
-  }
-  
-  .saveTo .content input[type="checkbox"] {
-    margin-right: 12px;
-    accent-color: var(--md-sys-color-primary);
-  }
-  
-  /* 弹窗按钮区域 */
-  .saveTo .content button,
-  .addPlayList button {
-    padding: 10px 20px;
-    border-radius: 24px;
-    border: none;
-    margin-right: 12px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s ease;
-  }
-  
-  /* 主要按钮样式 */
-  .saveTo .content button:first-child,
-  .addPlayList button:first-child {
-    background-color: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
-  }
-  
-  .saveTo .content button:first-child:hover,
-  .addPlayList button:first-child:hover {
-    background-color: var(--md-sys-color-primary-container);
-    color: var(--md-sys-color-on-primary-container);
-  }
-  
-  /* 次要按钮样式 */
-  .saveTo .content button:last-child,
-  .addPlayList button:last-child {
-    background-color: transparent;
-    border: 1px solid var(--md-sys-color-outline);
-    color: var(--md-sys-color-on-surface);
-  }
-  
-  .saveTo .content button:last-child:hover,
-  .addPlayList button:last-child:hover {
-    border-color: var(--md-sys-color-primary);
-    color: var(--md-sys-color-primary);
-  }
-  
-  /* 新增歌单弹窗输入框 */
-  .addPlayList {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  
-  .addPlayList input.playListName {
-    padding: 14px 16px;
-    border-radius: 12px;
-    border: 1px solid var(--md-sys-color-outline-variant);
-    background-color: var(--md-sys-color-surface);
-    color: var(--md-sys-color-on-surface);
-    font-size: 1rem;
-  }
-  
-  .addPlayList input.playListName:focus {
-    outline: none;
-    border-color: var(--md-sys-color-primary);
-  }
 </style>
