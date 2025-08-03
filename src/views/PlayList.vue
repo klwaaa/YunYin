@@ -78,6 +78,7 @@
     
     <!-- 保存到歌单弹窗 -->
     <el-dialog
+        class="el-dialog"
         v-model="saveToIsShow"
         title="保存到歌单"
         width="400px"
@@ -88,7 +89,7 @@
         <el-checkbox
             v-for="(playlist, index) in playListData"
             :key="index"
-            :label="Object.keys(playlist)[0]"
+            :value="Object.keys(playlist)[0]"
         >
           {{ Object.keys(playlist)[0] }}
         </el-checkbox>
@@ -103,6 +104,7 @@
     
     <!-- 新增歌单弹窗 -->
     <el-dialog
+        class="el-dialog"
         v-model="addPlayListIsShow"
         title="新增歌单"
         width="400px"
@@ -115,7 +117,7 @@
             placeholder="输入歌单名称（不能重复或为空）"
             @keyup.enter="enterAddPlayList"
         />
-        <div v-if="addPlayListError" style="color: red; margin-top: 8px;">{{ addPlayListError }}</div>
+        <div v-if="addPlayListError" class="error-message" >{{ addPlayListError }}</div>
       </div>
       <template #footer>
         <el-button @click="cancelAddPlayList">取消</el-button>
@@ -124,6 +126,7 @@
     </el-dialog>
     <!--  renamePlaylist-->
     <el-dialog
+        class="el-dialog"
         v-model="renameDialogVisible"
         title="重命名歌单"
         width="400px"
@@ -135,7 +138,7 @@
             placeholder="请输入新的歌单名称"
             @keyup.enter="confirmRename"
         />
-        <div v-if="renameError" style="color: red; margin-top: 8px;">{{ renameError }}</div>
+        <div v-if="renameError" class="error-message" >{{ renameError }}</div>
       </div>
       <template #footer>
         <el-button @click="renameDialogVisible = false">取消</el-button>
@@ -145,6 +148,7 @@
     
     <!--  右键确定删除-->
     <el-dialog
+        class="el-dialog"
         v-model="confirmDialogVisible"
         :title="confirmDialogTitle"
         width="400px"
@@ -854,47 +858,102 @@
     margin-right: 8px;
   }
   
-  .saveTo {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: rgba(0, 0, 0, 0.3);
+  /* 覆盖 Element Plus 弹窗样式 */
+  :deep(.el-dialog) {
+    background-color: var(--md-sys-color-surface) !important;
+    color: var(--md-sys-color-on-surface) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    overflow: hidden;
   }
   
-  .content {
-    width: 40%;
-    background: #fff;
-    margin: 25% auto;
+  :deep(.el-dialog__title) {
+    color: var(--md-sys-color-primary) !important;
+    font-weight: 500;
+    font-size: 18px;
   }
   
-  
-  .saveTo {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: rgba(0, 0, 0, 0.3);
+  :deep(.el-dialog__body) {
+    padding: 24px !important;
+    color: var(--md-sys-color-on-surface) !important;
   }
   
-  .content {
-    width: 40%;
-    background: #fff;
-    margin: 25% auto;
+  /* 复选框样式 */
+  :deep(.el-checkbox-group) {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
   
-  .addPlayList {
-    width: 400px;
-    height: 200px;
-    background-color: pink;
+  /* 复选框内部悬停效果 */
+  :deep(.el-checkbox:hover .el-checkbox__inner) {
+    border-color: var(--md-sys-color-primary);
+    transform: scale(1.1);
   }
   
-  .playListName {
-    margin: 20px;
-    width: 200px;
-    height: 50px;
+  :deep(.el-checkbox) {
+    margin-right: 0;
   }
   
+  :deep(.el-checkbox__label) {
+    color: var(--md-sys-color-on-surface) !important;
+  }
+  
+  :deep(.el-checkbox__input.is-checked .el-checkbox__inner) {
+    background-color: var(--md-sys-color-primary) !important;
+    border-color: var(--md-sys-color-primary) !important;
+  }
+  
+  /* 输入框样式 */
+  :deep(.el-input) {
+    --el-input-bg-color: var(--md-sys-color-surface-container-low) !important;
+    --el-input-text-color: var(--md-sys-color-on-surface) !important;
+    --el-input-border-color: var(--md-sys-color-outline) !important;
+    --el-input-hover-border-color: var(--md-sys-color-primary) !important;
+    --el-input-focus-border-color: var(--md-sys-color-primary) !important;
+  }
+  
+  :deep(.el-input__inner) {
+    border-radius: 8px !important;
+    padding: 10px 16px !important;
+  }
+  
+  /* 按钮样式 */
+  :deep(.el-button) {
+    border-radius: 8px !important;
+    padding: 10px 20px !important;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  
+  :deep(.el-button--primary) {
+    background-color: var(--md-sys-color-primary) !important;
+    border-color: var(--md-sys-color-primary) !important;
+    color: var(--md-sys-color-on-primary) !important;
+  }
+  
+  :deep(.el-button--primary:hover) {
+    background-color: var(--md-sys-color-primary-container) !important;
+    border-color: var(--md-sys-color-primary-container) !important;
+    color: var(--md-sys-color-on-primary-container) !important;
+  }
+  
+  :deep(.el-button:not(.el-button--primary)) {
+    background-color: var(--md-sys-color-surface-container-high) !important;
+    border-color: var(--md-sys-color-outline) !important;
+    color: var(--md-sys-color-on-surface) !important;
+  }
+  
+  :deep(.el-button:not(.el-button--primary):hover) {
+    background-color: var(--md-sys-color-surface-container) !important;
+  }
+  
+  /* 错误消息样式 */
+  :deep(.error-message) {
+    color: var(--md-sys-color-error) !important;
+    margin-top: 8px;
+    font-size: 15px;
+    padding-top: 6px;
+  }
+
+
 </style>
