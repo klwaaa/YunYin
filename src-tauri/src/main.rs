@@ -33,8 +33,8 @@ type PlayListData = Vec<PlaylistItem>;
 /// ✅ 使用授权码换取 token
 #[command]
 async fn get_token_by_code(code: String) -> Result<String, String> {
-    let client_id = "f3bc86ad8618424d99beb9da421d5526";
-    let client_secret = "2def6c4b6b034206811689b6115b5bc2";
+    let client_id = "应用id";
+    let client_secret = "应用密钥";
 
     let client = Client::new();
     let res = client
