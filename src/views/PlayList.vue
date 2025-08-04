@@ -17,7 +17,7 @@
         <li
             v-for="(playlist, index) in filteredPlaylists"
             :key="index"
-            @click="selectPlaylist(index)"
+            @click="selectPlaylist(playlist,index)"
             @contextmenu="handlePlaylistContextMenu(index, $event)"
             :title="Object.keys(playlist)[0]"
         >
@@ -97,7 +97,9 @@
       
       <template #footer>
         <el-button @click=" saveToIsShow = false; selectedPlayList = [];">取消</el-button>
-        <el-button type="primary" @click="enterSaveTo(selectedPlayList, playListData,songPar);selectedPlayList = [];">确定</el-button>
+        <el-button type="primary" @click="enterSaveTo(selectedPlayList, playListData,songPar);selectedPlayList = [];">
+          确定
+        </el-button>
       </template>
     </el-dialog>
     
@@ -117,7 +119,7 @@
             placeholder="输入歌单名称（不能重复或为空）"
             @keyup.enter="enterAddPlayList"
         />
-        <div v-if="addPlayListError" class="error-message" >{{ addPlayListError }}</div>
+        <div v-if="addPlayListError" class="error-message">{{ addPlayListError }}</div>
       </div>
       <template #footer>
         <el-button @click="cancelAddPlayList">取消</el-button>
@@ -138,7 +140,7 @@
             placeholder="请输入新的歌单名称"
             @keyup.enter="confirmRename"
         />
-        <div v-if="renameError" class="error-message" >{{ renameError }}</div>
+        <div v-if="renameError" class="error-message">{{ renameError }}</div>
       </div>
       <template #footer>
         <el-button @click="renameDialogVisible = false">取消</el-button>
@@ -266,7 +268,24 @@
   }
   
   // 选择歌单
-  function selectPlaylist(index: number) {
+  function selectPlaylist(playlist:any, index: number) {
+    console.log(Object.keys(playlist)[0],"playlist");
+    console.log(playListData.value, "playListData.value");
+    for (const playlist of playListData.value) {
+      console.log(Object.keys(playlist)[0],"playList");
+    }
+    if (!(searchQuery.value === "")) {
+      let i: number = 0;
+      for (const playlists of playListData.value) {
+        if (Object.keys(playlists)[0]===Object.keys(playlist)[0]){
+          currentPlayListIndex.value = i;
+          selectedPlaylist.value = Object.keys(playlist)[0];
+          return;
+        }
+        i++;
+      }
+    }
+
     currentPlayListIndex.value = index;
     selectedPlaylist.value = currentPlayListName.value;
   }
@@ -281,7 +300,8 @@
     audioDuration.value = song.duration;
     playingPlayList.value = selectedPlaylist.value;
     
-    controlAudioKey.value = index;
+    const playlist = playListData.value[currentPlayListIndex.value];
+    const songs = playlist[Object.keys(playlist)[0]];
     
     const randomPlaylist = JSON.parse(localStorage.getItem("randomPlaylist") as string);
     for (let i = 0; i < randomPlaylist.length; i++) {
@@ -291,6 +311,18 @@
         break;
       }
     }
+    
+    if (!(searchQuery.value === "")) {
+      let i: number = 0;
+      for (const song of songs) {
+        if (song.fileId === playingSongKey.value) {
+          controlAudioKey.value = i;
+          return;
+        }
+        i++;
+      }
+    }
+    controlAudioKey.value = index;
   }
   
   
@@ -322,6 +354,7 @@
     menuPosition.x = event.clientX;
     menuPosition.y = event.clientY;
     showContextMenu.value = true;
+    showPlaylistMenu.value = false;
   }
   
   // 关闭菜单
@@ -370,7 +403,7 @@
   // 删除本地歌曲
   async function handleDeleteLocal(song: any) {
     // 确定删除
-    const confirmDelete =  await useConfirm(`确定要删除此歌单的「${getFileName(song.name)}」吗？（操作不会删除云盘中的歌曲）`);
+    const confirmDelete = await useConfirm(`确定要删除此歌单的「${getFileName(song.name)}」吗？（操作不会删除云盘中的歌曲）`);
     if (!confirmDelete) {
       hideContextMenu();
       return;
@@ -401,7 +434,7 @@
   // 删除云盘歌曲
   async function handleDeleteCloudDrive(song: any) {
     // 确定删除
-    const confirmDelete =  await useConfirm(`确定要删除云盘中的「${getFileName(song.name)}」及其歌词吗？（操作会删除其他歌单的此歌曲）`);
+    const confirmDelete = await useConfirm(`确定要删除云盘中的「${getFileName(song.name)}」及其歌词吗？（操作会删除其他歌单的此歌曲）`);
     if (!confirmDelete) {
       hideContextMenu();
       return;
@@ -520,7 +553,7 @@
     }
     
     // 添加新歌单
-    playListData.value.push({ [name]: [] });
+    playListData.value.push({[name]: []});
     
     // 保存到后端
     await updateBackendPlaylist(playListData.value);
@@ -544,13 +577,14 @@
     playlistMenuPosition.x = event.clientX;
     playlistMenuPosition.y = event.clientY;
     showPlaylistMenu.value = true;
+    showContextMenu.value = false;
   }
   
   // 删除歌单
   async function deletePlaylist() {
     if (selectedPlaylistIndex.value === -1) return;
     
-    if ( await useConfirm(`确定要删除歌单「${Object.keys(playListData.value[selectedPlaylistIndex.value])[0]}」吗？`)) {
+    if (await useConfirm(`确定要删除歌单「${Object.keys(playListData.value[selectedPlaylistIndex.value])[0]}」吗？`)) {
       // 删除歌单
       playListData.value.splice(selectedPlaylistIndex.value, 1);
       
@@ -605,7 +639,7 @@
     }
     
     const songs = playListData.value[selectedPlaylistIndex.value][oldPlaylistName.value];
-    playListData.value[selectedPlaylistIndex.value] = { [newName]: songs };
+    playListData.value[selectedPlaylistIndex.value] = {[newName]: songs};
     
     if (currentPlayListIndex.value === selectedPlaylistIndex.value) {
       selectedPlaylist.value = newName;
@@ -681,7 +715,6 @@
   
   .title:hover {
     cursor: default;
-    background-color: var(--md-sys-color-surface-container-low) !important;
   }
   
   /* 主体区域：左右分栏 */
@@ -693,6 +726,20 @@
     align-items: flex-start;
     height: calc(100vh - 260px);
     overflow: hidden; /* 关键点 */
+  }
+  
+  .playlist::-webkit-scrollbar, .songList::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .playlist::-webkit-scrollbar-track, .songList::-webkit-scrollbar-track {
+    background: var(--md-sys-color-surface-container);
+    border-radius: 4px;
+  }
+  
+  .playlist::-webkit-scrollbar-thumb, .songList::-webkit-scrollbar-thumb {
+    background: var(--md-sys-color-outline-variant);
+    border-radius: 4px;
   }
   
   .playlist, .songList {
@@ -729,11 +776,14 @@
     cursor: pointer;
     margin-bottom: 5px;
     transition: all 0.2s ease;
-    display: flex;
     align-items: center;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  
+  .playlist li:last-child {
+    display: flex;
   }
   
   /* 歌单项悬停效果 */
@@ -769,18 +819,6 @@
   }
   
   
-  /* 渐隐遮罩效果 */
-  .playlist ul::after {
-    content: "";
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    height: 30px;
-    width: 100%;
-    pointer-events: none;
-    background: linear-gradient(to top, var(--md-sys-color-surface-container-low), transparent);
-  }
-  
   /* ========== 右侧歌曲列表 ========== */
   .songList {
     width: 83%;
@@ -800,6 +838,11 @@
     z-index: 10;
     font-weight: 600;
     border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  }
+  
+  .songList .title p {
+    color: var(--md-sys-color-primary);
+    font-size: 1.2rem;
   }
   
   .songList li {
@@ -829,33 +872,38 @@
     white-space: nowrap;
   }
   
+  
+  .context-menu:last-child {
+    min-width: 200px; /* 稍宽的最小宽度 */
+  }
+  
+  /* 右键菜单样式 - Material Design 3规范 */
   .context-menu {
     position: fixed;
+    background-color: var(--md-sys-color-surface-container); /* 使用表面容器颜色 */
+    border-radius: 12px; /* 更大的圆角 */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), /* 增强阴影效果 */ 0 2px 6px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--md-sys-color-outline-variant); /* 轮廓变体颜色边框 */
+    padding: 8px; /* 增加垂直内边距 */
     z-index: 1000;
-    background-color: #ffffff;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    padding: 4px 0;
-    width: 150px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    font-size: 0.95rem; /* 合适的字体大小 */
   }
   
   .context-menu li {
-    padding: 8px 16px;
-    cursor: pointer;
+    border-radius: 6px; /* 更大的圆角 */
+    padding: 12px 20px; /* 增加内边距 */
+    color: var(--md-sys-color-on-surface); /* 表面上的文字颜色 */
+    transition: background-color 0.2s ease,
+    color 0.2s ease; /* 平滑过渡效果 */
+    position: relative; /* 为图标定位 */
+    display: flex; /* 使用flex布局 */
+    align-items: center; /* 垂直居中 */
+    gap: 12px; /* 图标和文字间距 */
   }
   
   .context-menu li:hover {
-    background-color: #f5f5f5;
-  }
-  
-  
-  button {
-    margin: 10px;
-  }
-  
-  input[type="checkbox"] {
-    margin-right: 8px;
+    background-color: var(--md-sys-color-surface-container-high); /* 悬停背景色 */
+    color: var(--md-sys-color-primary); /* 悬停文字颜色 */
   }
   
   /* 覆盖 Element Plus 弹窗样式 */
@@ -928,23 +976,38 @@
   :deep(.el-button--primary) {
     background-color: var(--md-sys-color-primary) !important;
     border-color: var(--md-sys-color-primary) !important;
+    
+  }
+  
+  :deep(.el-button--primary span) {
     color: var(--md-sys-color-on-primary) !important;
   }
   
   :deep(.el-button--primary:hover) {
     background-color: var(--md-sys-color-primary-container) !important;
     border-color: var(--md-sys-color-primary-container) !important;
+    
+  }
+  
+  :deep(.el-button--primary:hover span) {
     color: var(--md-sys-color-on-primary-container) !important;
   }
   
   :deep(.el-button:not(.el-button--primary)) {
     background-color: var(--md-sys-color-surface-container-high) !important;
-    border-color: var(--md-sys-color-outline) !important;
+    border-color: var(--md-sys-color-surface-container) !important;
+  }
+  
+  :deep(.el-button:not(.el-button--primary) span) {
     color: var(--md-sys-color-on-surface) !important;
   }
   
   :deep(.el-button:not(.el-button--primary):hover) {
     background-color: var(--md-sys-color-surface-container) !important;
+  }
+  
+  :deep(.el-button:not(.el-button--primary):hover span) {
+    color: var(--md-sys-color-on-primary-container) !important;
   }
   
   /* 错误消息样式 */
