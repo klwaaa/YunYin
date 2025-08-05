@@ -7,11 +7,11 @@
     </router-link>
     <div class="lyric" ref="lyricContainer">
       <p
-              v-for="(line, index) in bilingualLines"
-              :key="index + '-or'"
-              :ref="setLyricRefs"
-              :class="{ active: currentIndex === index }"
-              @click="handleLyricClick(line.time,index)"
+          v-for="(line, index) in bilingualLines"
+          :key="index + '-or'"
+          :ref="setLyricRefs"
+          :class="{ active: currentIndex === index }"
+          @click="handleLyricClick(line.time,index)"
       >
         <span class="original">{{ line.or }}</span><br/>
         <span class="translation" v-if="line.tr">{{ line.tr }}</span>
@@ -22,7 +22,7 @@
       <p>{{ lrcSize }}</p>
       <button @click="zoomOut">A-</button>
     </div>
-    <button v-show="isUserScrolling" @click="track">aaaaaaa</button>
+    <button v-show="isUserScrolling" @click="track" class="followTime">跟随时间</button>
   </div>
 </template>
 
@@ -68,8 +68,7 @@
       or: "未找到",
       tr: ""
     }];
-  }
-  else {
+  } else {
     const config: any = {
       method: "get",
       url,
@@ -179,7 +178,7 @@
     });
   }
   
-  function handleLyricClick(time: number, index:any) {
+  function handleLyricClick(time: number, index: any) {
     currentAudioTime.value = time / 1000;
     currentIndex.value = index;
     isUserScrolling.value = false;
@@ -187,6 +186,15 @@
 </script>
 
 <style scoped>
+  .audioView_view {
+    height: calc(100vh - 260px);
+    position: relative;
+  }
+  
+  .goPlaylist {
+    font-size: 16px;
+  }
+  
   .lyric {
     max-height: 400px;
     overflow-y: auto;
@@ -197,31 +205,107 @@
     font-size: 16px;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     user-select: none;
+    text-align: center;
   }
-
+  
+  .lyric p {
+    margin: 10px;
+  }
+  
   /* 当前行高亮 */
-  .active {
-    color: orange;
-    font-weight: 700;
-    text-shadow: 0 0 3px rgba(255, 165, 0, 0.7);
+  p.active {
+    margin: 15px;
   }
-
+  
+  span {
+    transition: box-shadow 0.25s linear, font-weight 0.25s linear, color 0.25s linear;
+  }
+  
+  .active span {
+    color: var(--md-sys-color-primary);;
+    font-weight: 700;
+    box-shadow: 0 1px 2px 1px rgba(var(--md-sys-color-on-secondary-container),0.4);
+  }
+  
   /* 原文样式 */
   .original {
     font-size: 16px;
     display: inline-block;
     font-weight: 600;
+    color: var(--md-sys-color-primary);
   }
-
+  
   /* 译文样式，颜色更淡 */
   .translation {
     font-size: 16px;
     display: inline-block;
     margin-top: 2px;
-    color: #999;
+    color: var(--md-sys-color-outline);
     font-style: italic;
   }
-  .goPlaylist{
-    font-size: 16px;
+  
+  .lyric-controls {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    left: 5%;
+    top: 100%;
+    gap: 12px;
+    background-color: var(--md-sys-color-surface-container);
+    border-radius: 24px;
+    padding: 8px 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .lyric-controls button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background-color: var(--md-sys-color-surface-container-high);
+    color: var(--md-sys-color-on-surface);
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+  }
+  
+  .lyric-controls button:hover {
+    background-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    transform: scale(1.1);
+  }
+  
+  .lyric-controls p {
+    color: var(--md-sys-color-on-surface);
+    min-width: 40px;
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  .followTime {
+    position: absolute;
+    right: 5%;
+    top: 100%;
+    border-radius: 24px;
+    border: none;
+    background-color: var(--md-sys-color-surface-container-high);
+    color: var(--md-sys-color-on-surface);
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 8px 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .followTime:hover {
+    background-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    transform: scale(1.1);
   }
 </style>

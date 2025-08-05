@@ -211,7 +211,6 @@
   
   /* 路由视图区域 */
   .router-view {
-    flex: 1;
     padding: 24px;
     background-color: var(--md-sys-color-surface);
   }

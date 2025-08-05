@@ -9,7 +9,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AudioControl: typeof import('./src/components/AudioControl.vue')['default']
-    AudioControlTest: typeof import('./src/components/AudioControlTest.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCheckbox: typeof import('element-plus/es')['ElCheckbox']
     ElCheckboxGroup: typeof import('element-plus/es')['ElCheckboxGroup']

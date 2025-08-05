@@ -15,11 +15,10 @@
             {{ item.name }}
           </label>
         </li>
-        <!--    加载中-->
         <li ref="loadMoreRef" class="loading-trigger"></li>
       </ul>
-      
     </div>
+    
     <!--  保存到那个歌单-->
     <el-dialog
         v-model="saveToIsShow"
@@ -219,6 +218,12 @@
   .selected li:hover {
     background-color: var(--md-sys-color-surface-container-high);
     cursor: pointer;
+  }
+  
+  .selected li:last-child {
+    background-color:var(--md-sys-color-outline-variant);
+    padding: 0;
+    margin-bottom: 0;
   }
   
   .selected input[type="checkbox"] {

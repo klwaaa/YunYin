@@ -16,6 +16,7 @@
         <!-- 遍历歌单数据，并过滤搜索匹配项 -->
         <li
             v-for="(playlist, index) in filteredPlaylists"
+            :class="{ active: Object.keys(playlist)[0] === selectedPlaylist }"
             :key="index"
             @click="selectPlaylist(playlist,index)"
             @contextmenu="handlePlaylistContextMenu(index, $event)"
@@ -54,6 +55,7 @@
             @click="selectSong(song, index)"
             @dblclick="router.push('/AudioView')"
             @contextmenu="handleContextMenu(song, $event)"
+            :class="{ active: song.fileId === playingSongKey&&playingPlayList===selectedPlaylist }"
             :title="getFileName(song.name)"
         >
           <p class="number">{{ index + 1 }}</p>
@@ -266,14 +268,8 @@
     // 其他情况返回空数组
     return [];
   }
-  
   // 选择歌单
   function selectPlaylist(playlist:any, index: number) {
-    console.log(Object.keys(playlist)[0],"playlist");
-    console.log(playListData.value, "playListData.value");
-    for (const playlist of playListData.value) {
-      console.log(Object.keys(playlist)[0],"playList");
-    }
     if (!(searchQuery.value === "")) {
       let i: number = 0;
       for (const playlists of playListData.value) {
@@ -289,10 +285,8 @@
     currentPlayListIndex.value = index;
     selectedPlaylist.value = currentPlayListName.value;
   }
-  
   // 点击歌曲
   function selectSong(song: any, index: number) {
-    console.log("selectSong");
     playingSong.value = song.name;
     isPlaying.value = true;
     playingSongKey.value = song.fileId;
@@ -311,7 +305,6 @@
         break;
       }
     }
-    
     if (!(searchQuery.value === "")) {
       let i: number = 0;
       for (const song of songs) {
@@ -772,9 +765,8 @@
   }
   
   .playlist li {
-    padding: 5px;
+    padding: 7px;
     cursor: pointer;
-    margin-bottom: 5px;
     transition: all 0.2s ease;
     align-items: center;
     overflow: hidden;
@@ -792,7 +784,7 @@
   }
   
   /* 歌单项选中效果 */
-  .playlist li.selected {
+  .playlist li.active {
     background-color: var(--md-sys-color-primary-container);
     color: var(--md-sys-color-on-primary-container);
     font-weight: 500;
@@ -859,7 +851,7 @@
   }
   
   /* 歌曲项选中效果 */
-  .songList li.selected {
+  .songList li.active {
     background-color: var(--md-sys-color-secondary-container);
     color: var(--md-sys-color-on-secondary-container);
   }

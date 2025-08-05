@@ -54,7 +54,7 @@
   import {storeToRefs} from "pinia";
   import usePlaybackMode from "../hooks/usePlaybackMode.ts";
   import {useGetPlayList} from "../store/playList.ts";
-  import type {ElSlider} from 'element-plus'; // 引入 Element Plus 的类型定义
+
   
   let change: any = null;
   let controlPlay: any = null;
@@ -140,7 +140,7 @@
   let randomPlaylist = JSON.parse(localStorage.getItem("randomPlaylist") as string);
   console.log(randomPlaylist, "randomPlaylist");
   let controlAudioKeyCount: number = 0;
-  const playingAudio = ref();
+
   
   if (!playList) {
     setTimeout(() => {
@@ -218,7 +218,7 @@
   let source: AudioBufferSourceNode;
   const sourceNodes: AudioBufferSourceNode[] = [];
   let oldSource: any;
-  let globalAudioBuffer: any = ref();
+    let globalAudioBuffer: any = ref();
   const gainNode = audioCtx.createGain();
   
   
@@ -651,7 +651,7 @@
   //     });
   //   }, 6000);
   // }
-  
+  //
   usePlaybackMode();
   
   
