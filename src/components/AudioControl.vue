@@ -7,40 +7,47 @@
       <div class="audioDuration">
         <p class="currentAudioTime">{{ formatTime(currentAudioTime) }}</p>
         <el-slider
-                
-                v-model="currentAudioTime"
-                :max="Number(audioDuration)"
-                :format-tooltip="formatTime"
-                show-tooltip
-                @change="handleChange"
-                style="width: 100%"
+            
+            v-model="currentAudioTime"
+            :max="Number(audioDuration)"
+            :format-tooltip="formatTime"
+            show-tooltip
+            @change="handleChange"
+            style="width: 100%"
         />
         <p class="audioDurationMax">{{ formatTime(audioDuration) }}</p>
       </div>
       <div class="control">
-        <button @click="changePlaybackMode" class="playbackMode" ref="playbackModeRef"></button>
-        <button @click="previousSong();debounceChooseSong();">previousSong</button>
-        <button @click="control">control</button>
-        <button @click="nextSong();debounceChooseSong();">nextSong</button>
+        <button @click="changePlaybackMode" class="playbackMode" ref="playbackModeRef">
+          <span class="iconfont icon-liebiaoxunhuan" v-show="playbackModeIndex===0"></span>
+          <span class="iconfont icon-danquxunhuan" v-show="playbackModeIndex===1"></span>
+          <span class="iconfont icon-suijibofang" v-show="playbackModeIndex===2"></span>
+        </button>
+        <button @click="previousSong();debounceChooseSong();"><span class="iconfont icon-xiangzuo-2"></span></button>
+        <button @click="control">
+          <span class="iconfont icon-zanting" v-show="isPlaying"></span>
+          <span class="iconfont icon-bofang" v-show="!isPlaying"></span>
+        </button>
+        <button @click="nextSong();debounceChooseSong();"><span class="iconfont icon-xiangyou2"></span></button>
       </div>
     </div>
     <div class="volumeControl" ref="volumeControl">
       <transition name="fade">
         <el-slider
-                v-show="showVolume"
-                v-model="volume"
-                :min="0"
-                :max="100"
-                :step="1"
-                @input="updateVolume"
-                show-tooltip
-                vertical
-                height="150px"
-                class="volume-slider"
+            v-show="showVolume"
+            v-model="volume"
+            :min="0"
+            :max="100"
+            :step="1"
+            @input="updateVolume"
+            show-tooltip
+            vertical
+            height="150px"
+            class="volume-slider"
         />
       </transition>
-      <button class="volumeControl-div" @click="showVolumeControl">
-        音量
+      <button class="volumeControlButton" @click="showVolumeControl">
+        <span class="iconfont icon-yinliangzhong"></span>
       </button>
     </div>
   </div>
@@ -54,31 +61,19 @@
   import {storeToRefs} from "pinia";
   import usePlaybackMode from "../hooks/usePlaybackMode.ts";
   import {useGetPlayList} from "../store/playList.ts";
-
+  
   
   let change: any = null;
   let controlPlay: any = null;
   onMounted(() => {
-    console.log("mounted");
-    const playbackModeHtml: any = document.querySelector(".playbackMode");
-    playbackModeHtml.innerHTML = PlaybackMode[playbackModeIndex.value];
-    changePlaybackMode = () => {
-      playbackModeIndex.value++;
-      if (playbackModeIndex.value > 2) {
-        playbackModeIndex.value = 0;
-      }
-      playbackModeHtml.innerHTML = PlaybackMode[playbackModeIndex.value];
-      // usePlaybackMode();
-    };
     document.addEventListener('click', handleClickOutside);
   });
-  
-  const PlaybackMode = [
-    "列表循环",
-    "单曲循环",
-    "随机循环"
-  ];
-  let changePlaybackMode: any;
+  const changePlaybackMode = () => {
+    playbackModeIndex.value++;
+    if (playbackModeIndex.value > 2) {
+      playbackModeIndex.value = 0;
+    }
+  };
   const {
     isPlaying,
     playingSongKey,
@@ -140,7 +135,7 @@
   let randomPlaylist = JSON.parse(localStorage.getItem("randomPlaylist") as string);
   console.log(randomPlaylist, "randomPlaylist");
   let controlAudioKeyCount: number = 0;
-
+  
   
   if (!playList) {
     setTimeout(() => {
@@ -218,7 +213,7 @@
   let source: AudioBufferSourceNode;
   const sourceNodes: AudioBufferSourceNode[] = [];
   let oldSource: any;
-    let globalAudioBuffer: any = ref();
+  let globalAudioBuffer: any = ref();
   const gainNode = audioCtx.createGain();
   
   
@@ -456,7 +451,7 @@
       console.log(controlAudioKeyCount, "playbackModeIndex.value === 2");
       for (let i = 0; i < playList.length; i++) {
         if (playList[i].name.substring(0, playList[i].name.lastIndexOf(".")) ===
-          randomPlaylist[shuffledIndex.value].name.substring(0, randomPlaylist[shuffledIndex.value].name.lastIndexOf("."))) {
+            randomPlaylist[shuffledIndex.value].name.substring(0, randomPlaylist[shuffledIndex.value].name.lastIndexOf("."))) {
           controlAudioKey.value = i;
           break;
         }
@@ -555,47 +550,47 @@
       getSegmentData(),
       getSegmentData()
     ]).then(
-      (audioBlob) => {
-        // 把得到的所有数据合为一个blob
-        for (let i = 0; i < audioBlob.length; i++) {
-          BlobAudioData.push(audioBlob[i]);
-        }
-        const audio = new Blob(BlobAudioData);
-        // 音频链接播放
-        if (iterationsGroup >= iterationsGroupCount) {
-          iterationsGroupCount++;
-          console.log(iterationsGroupCount);
-          setTimeout(() => {
-            getAudioUrl().then((audioData: any) => {
-              audioCtx.decodeAudioData(audioData, function (audioBuffer) {
-                globalAudioBuffer.value = audioBuffer;
-                if (isFirst) {
-                  oldSource = source;
-                  source = audioCtx.createBufferSource();
-                  source.buffer = audioBuffer;
-                  console.log(source.buffer, "fun");
-                  source.connect(gainNode);
-                  gainNode.connect(audioCtx.destination);
-                  console.log(audioTime, "before audioTime");
-                  if (isPlaying.value) {
-                    console.log(currentAudioTime.value, "currentAudioTime.value");
-                    oldSource.stop(audioCtx.currentTime);
-                    source.start(audioCtx.currentTime, currentAudioTime.value + 0.299);
-                    console.log(audioTime, "isPlaying.value");
-                    oldSource.onended = () => {
-                      oldSource = undefined;
-                    };
+        (audioBlob) => {
+          // 把得到的所有数据合为一个blob
+          for (let i = 0; i < audioBlob.length; i++) {
+            BlobAudioData.push(audioBlob[i]);
+          }
+          const audio = new Blob(BlobAudioData);
+          // 音频链接播放
+          if (iterationsGroup >= iterationsGroupCount) {
+            iterationsGroupCount++;
+            console.log(iterationsGroupCount);
+            setTimeout(() => {
+              getAudioUrl().then((audioData: any) => {
+                audioCtx.decodeAudioData(audioData, function (audioBuffer) {
+                  globalAudioBuffer.value = audioBuffer;
+                  if (isFirst) {
+                    oldSource = source;
+                    source = audioCtx.createBufferSource();
+                    source.buffer = audioBuffer;
+                    console.log(source.buffer, "fun");
+                    source.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    console.log(audioTime, "before audioTime");
+                    if (isPlaying.value) {
+                      console.log(currentAudioTime.value, "currentAudioTime.value");
+                      oldSource.stop(audioCtx.currentTime);
+                      source.start(audioCtx.currentTime, currentAudioTime.value + 0.299);
+                      console.log(audioTime, "isPlaying.value");
+                      oldSource.onended = () => {
+                        oldSource = undefined;
+                      };
+                    }
+                    console.log(source, "new");
+                    audioTime = audioBuffer.duration;
+                    sourceNodes.push(source);
                   }
-                  console.log(source, "new");
-                  audioTime = audioBuffer.duration;
-                  sourceNodes.push(source);
-                }
+                });
               });
-            });
-          }, 500);
+            }, 500);
+          }
+          return audio.arrayBuffer();
         }
-        return audio.arrayBuffer();
-      }
     );
   }
   
@@ -605,90 +600,90 @@
   
   let timeout: any;
   console.log(isPlaying.value);
-  // if (isPlaying.value) {
-  //   // 发送请求播放音频
-  //   timeout = setTimeout(() => {
-  //     getAudioUrl().then((audioData: any) => {
-  //       // audioCtx = new AudioContext();
-  //       source = audioCtx.createBufferSource();
-  //       console.log(audioData, "audioData");
-  //       audioCtx.decodeAudioData(audioData, function (audioBuffer) {
-  //         globalAudioBuffer.value = audioBuffer;
-  //         source.buffer = audioBuffer;
-  //         console.log(source.buffer, "nofun");
-  //         console.log(audioBuffer, "audioBuffer");
-  //         source.connect(gainNode);
-  //         gainNode.connect(audioCtx.destination);
-  //         console.log(audioTime, "before audioTime");
-  //         source.start();
-  //         console.log(source, "nofunsource");
-  //         audioTime = audioBuffer.duration;
-  //       });
-  //       fistInterval = setInterval(() => {
-  //         currentAudioTime.value += 1;
-  //       }, 1000);
-  //       console.log(fistInterval, "fistInterval,isplaying");
-  //     });
-  //   }, 6000);
-  //
-  // } else {
-  //   // 发送请求不播放
-  //   timeout = setTimeout(() => {
-  //     getAudioUrl().then((audioData: any) => {
-  //       source = audioCtx.createBufferSource();
-  //       console.log(audioData, "audioData");
-  //       audioCtx.decodeAudioData(audioData, function (audioBuffer) {
-  //         globalAudioBuffer.value = audioBuffer;
-  //         source.buffer = audioBuffer;
-  //         console.log(source.buffer, "nofun");
-  //         console.log(audioBuffer, "audioBuffer");
-  //         source.connect(gainNode);
-  //         gainNode.connect(audioCtx.destination);
-  //         console.log(audioTime, "before audioTime");
-  //         console.log(source, "nofunsource");
-  //         audioTime = audioBuffer.duration;
-  //       });
-  //     });
-  //   }, 6000);
-  // }
-  //
+  if (isPlaying.value) {
+    // 发送请求播放音频
+    timeout = setTimeout(() => {
+      getAudioUrl().then((audioData: any) => {
+        // audioCtx = new AudioContext();
+        source = audioCtx.createBufferSource();
+        console.log(audioData, "audioData");
+        audioCtx.decodeAudioData(audioData, function (audioBuffer) {
+          globalAudioBuffer.value = audioBuffer;
+          source.buffer = audioBuffer;
+          console.log(source.buffer, "nofun");
+          console.log(audioBuffer, "audioBuffer");
+          source.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          console.log(audioTime, "before audioTime");
+          source.start();
+          console.log(source, "nofunsource");
+          audioTime = audioBuffer.duration;
+        });
+        fistInterval = setInterval(() => {
+          currentAudioTime.value += 1;
+        }, 1000);
+        console.log(fistInterval, "fistInterval,isplaying");
+      });
+    }, 6000);
+
+  } else {
+    // 发送请求不播放
+    timeout = setTimeout(() => {
+      getAudioUrl().then((audioData: any) => {
+        source = audioCtx.createBufferSource();
+        console.log(audioData, "audioData");
+        audioCtx.decodeAudioData(audioData, function (audioBuffer) {
+          globalAudioBuffer.value = audioBuffer;
+          source.buffer = audioBuffer;
+          console.log(source.buffer, "nofun");
+          console.log(audioBuffer, "audioBuffer");
+          source.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          console.log(audioTime, "before audioTime");
+          console.log(source, "nofunsource");
+          audioTime = audioBuffer.duration;
+        });
+      });
+    }, 6000);
+  }
+
   usePlaybackMode();
   
   
   watch(
-    [currentAudioTime, globalAudioBuffer],
-    ([newTime, newGlobalAudioBuffer], [oldTime]) => {
-      globalAudioBufferDuration.value = newGlobalAudioBuffer?.duration;
-      if (isPlaying.value) {
-        if (oldTime >= <any>newGlobalAudioBuffer?.duration) {
-          console.log("pause");
-          clearInterval(interval);
-          clearInterval(fistInterval);
-          fistInterval = null;
-        } else {
-          if (fistInterval === null) {
-            console.log("start");
-            fistInterval = setInterval(() => {
-              currentAudioTime.value += 1;
-            }, 1000);
+      [currentAudioTime, globalAudioBuffer],
+      ([newTime, newGlobalAudioBuffer], [oldTime]) => {
+        globalAudioBufferDuration.value = newGlobalAudioBuffer?.duration;
+        if (isPlaying.value) {
+          if (oldTime >= <any>newGlobalAudioBuffer?.duration) {
+            console.log("pause");
+            clearInterval(interval);
+            clearInterval(fistInterval);
+            fistInterval = null;
+          } else {
+            if (fistInterval === null) {
+              console.log("start");
+              fistInterval = setInterval(() => {
+                currentAudioTime.value += 1;
+              }, 1000);
+            }
           }
         }
-      }
-      if (newTime >= audioDuration.value && iterationsGroupCount !== 0) {
-        if (playbackModeIndex.value !== 1) {
-          nextSong();
-          debounceChooseSong();
-        } else {
-          currentAudioTime.value = 0;
-          handleChange();
-          setTimeout(() => {
-            fistInterval = setInterval(() => {
-              currentAudioTime.value += 1;
-            }, 1000);
-          }, 50);
+        if (newTime >= audioDuration.value && iterationsGroupCount !== 0) {
+          if (playbackModeIndex.value !== 1) {
+            nextSong();
+            debounceChooseSong();
+          } else {
+            currentAudioTime.value = 0;
+            handleChange();
+            setTimeout(() => {
+              fistInterval = setInterval(() => {
+                currentAudioTime.value += 1;
+              }, 1000);
+            }, 50);
+          }
         }
-      }
-    }, {deep: true}
+      }, {deep: true}
   );
   
   onUnmounted(() => {
@@ -717,7 +712,6 @@
   }
   
   
-  
   .SongTitle {
     height: 100%;
     width: 25%;
@@ -730,7 +724,7 @@
     overflow: hidden;
     padding: 0 20px;
   }
-
+  
   /* 渐隐遮罩效果 */
   .SongTitle::after {
     content: "";
@@ -742,8 +736,8 @@
     pointer-events: none;
     background: linear-gradient(to right, transparent, var(--md-sys-color-surface-container)); /* white 改为背景色 */
   }
-
-
+  
+  
   .control_AudioDuration {
     margin-bottom: -5px;
     display: flex;
@@ -772,32 +766,43 @@
     justify-content: space-evenly;
   }
   
-  .control button {
+  .control button span {
+    display: block;
     margin: 10px;
     color: var(--md-sys-color-on-surface);
     border-radius: 50%;
+    font-size: 35px;
+    text-align: center;
+    line-height: 40px;
+    width: 40px;
+    height: 40px;
   }
   
-  .control button:hover {
+  .control button span:hover {
     background-color: var(--md-sys-color-surface-container-high);
     color: var(--md-sys-color-primary);
   }
   
-  .control button:nth-child(3) { /* 播放/暂停按钮 */
+  .control button:nth-child(3) span { /* 播放/暂停按钮 */
+    
     background-color: var(--md-sys-color-primary);
     color: var(--md-sys-color-on-primary);
-    width: 48px;
-    height: 48px;
+    width: 45px;
+    height: 45px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    font-size: 30px;
+    line-height: 46px;
   }
   
-  .control button:nth-child(3):hover {
+  .control button:nth-child(3) span:hover {
     background-color: var(--md-sys-color-primary-container);
     color: var(--md-sys-color-on-primary-container);
     transform: scale(1.05);
   }
   
-  
+  .control button:nth-child(3) span.icon-bofang {
+    padding-left: 5px;
+  }
   
   .volumeControl {
     width: 10%;
@@ -811,22 +816,25 @@
     bottom: 120px;
     z-index: 10; /* 新增：确保浮在上方，不被其他元素遮住 */
   }
-
+  
   .fade-enter-active,
   .fade-leave-active {
     transition: opacity 0.3s ease;
   }
-
+  
   .fade-enter-from,
   .fade-leave-to {
     opacity: 0;
   }
-
-  .volumeControl-div {
-    display: block;
-    margin:  7px auto;
-  }
   
+  .volumeControlButton {
+    display: block;
+    margin: 7px auto;
+  }
+  .volumeControlButton span{
+    font-size: 30px;
+    text-align: center;
+  }
   /* 进度条样式覆盖 */
   :deep(.el-slider__runway) {
     background-color: var(--md-sys-color-outline-variant) !important;
@@ -838,7 +846,7 @@
   
   :deep(.el-slider__button) {
     width: 14px !important;
-    height: 14px ;
+    height: 14px;
     border: 2px solid var(--md-sys-color-primary) !important;
     background-color: var(--md-sys-color-surface-container) !important;
   }
@@ -856,7 +864,7 @@
   
   :deep(.el-slider.vertical .el-slider__button) {
     width: 14px !important;
-    height: 14px ;
+    height: 14px;
     border: 2px solid var(--md-sys-color-primary) !important;
     background-color: var(--md-sys-color-surface-container) !important;
   }

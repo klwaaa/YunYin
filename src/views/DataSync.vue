@@ -4,12 +4,23 @@
     <p>此操作会把本地的歌单数据上传到云盘</p>
     <button class="sync-btn download-btn" @click="pullData">拉取数据</button>
     <p>此操作会把云盘的歌单数据拉取到本地</p>
+    <transition name="fade">
+      <div class="custom-message-center" v-show="isShow">
+        <p class="success" ref="success"></p>
+        <p class="error" ref="error"></p>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup lang="ts">
   import axios from 'axios';
   import {invoke} from "@tauri-apps/api/core";
+  import {ref, watch} from "vue";
+  
+  const success: any = ref();
+  const error: any = ref();
+  const isShow = ref(false);
   
   // 拉取数据
   async function pullData() {
@@ -62,15 +73,18 @@
                       invoke("update_playlist_data", {
                         data: data
                       }).then(() => {
-                        console.log("播放列表已传给 Rust 后端");
-                      }).catch(err => {
-                        console.error("传给 Rust 后端失败:", err);
+                        isShow.value = true;
+                        success.value.innerHTML = "拉取成功";
+                      }).catch(() => {
+                        isShow.value = true;
+                        error.value.innerHTML = "拉取失败";
                       });
                     });
               });
         })
         .catch(function (error) {
-          console.log(error);
+          isShow.value = true;
+          error.value.innerHTML = "拉取失败";
         });
   }
   
@@ -92,17 +106,17 @@
         },
         data: uploadData_parent_file_id_data
       };
-      
+
       const {data} = await axios(uploadData_parent_file_id);
       uploadData_parent_file_id = data.file_id;
       localStorage.setItem("uploadData_parent_file_id", data.file_id);
     }
-    
+
     const data = JSON.stringify({
       "drive_id": localStorage.getItem("drive_id"),
       "file_path": "/普听音乐/音乐库/数据同步/data.json"
     });
-    
+
     const config = {
       method: 'post',
       url: '/aliyun-api/adrive/v1.0/openFile/get_by_path',
@@ -120,7 +134,7 @@
             "drive_id": localStorage.getItem("drive_id"),
             "file_id": file_id
           });
-          
+
           const config = {
             method: 'post',
             url: '/aliyun-api/adrive/v1.0/openFile/recyclebin/trash',
@@ -131,7 +145,7 @@
             },
             data: data
           };
-          
+
           axios(config)
               .then(function () {
                 // 开始上传
@@ -188,17 +202,37 @@
                 
                 axios(config)
                     .then(function () {
-                      console.log("上传成功");
+                      isShow.value = true;
+                      success.value.innerHTML = "上传成功";
                     })
                     .catch(function (error) {
-                      console.log(error);
+                      isShow.value = true;
+                      error.value.innerHTML = "上传失败";
                     });
               })
-              .catch((err) => {
-                console.log("上传失败", err);
+              .catch(() => {
+                isShow.value = true;
+                error.value.innerHTML = "上传失败";
               });
-        });
+        }).catch(()=>{
+          isShow.value = true;
+          error.value.innerHTML = "上传失败";
+        })
   }
+  
+  function debounce(fn: any, t: any) {
+    let timer: any;
+    return function () {
+      clearTimeout(timer);
+      timer = setTimeout(fn, t);
+    };
+  }
+  
+  watch(isShow, () => {
+    debounce(() => {
+      isShow.value = false;
+    }, 3000)();
+  });
 </script>
 
 <style scoped>
@@ -246,4 +280,41 @@
     color: var(--md-sys-color-on-surface-variant);
     margin: 15px;
   }
+  
+  /* 顶部居中样式 */
+  .custom-message-center {
+    height: auto;
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    text-align: center;
+    background-color: var(--md-sys-color-surface-container-high);
+    border-radius: 24px;
+    padding: 0 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* 成功绿色文字 */
+  .custom-message-center .success {
+    color: var(--md-sys-color-on-tertiary-fixed-variant);
+  }
+  
+  /* 失败红色文字 */
+  .custom-message-center .error {
+    color: var(--md-sys-color-error);
+  }
+  
+  /* ✅ 添加动画效果 */
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.6s ease;
+  }
+  
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+  }
+  
 </style>
