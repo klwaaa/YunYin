@@ -14,14 +14,14 @@ edition = "2021"
 #name = "app_lib"
 #crate-type = ["staticlib", "cdylib", "rlib"]
 
-[build-dependencies]
-tauri-build = { version = "2", features = [] }
-
 [dependencies]
-tauri = { version = "2", features = [] }
-tauri-plugin-opener = "2"
+tauri = { version = "2.7", features = [] }  # 更新为2.7版本
+tauri-plugin-opener = "2.3.0"  # 确保插件版本兼容
+tauri-plugin-localhost = "2.3.0"  # 确保插件版本兼容
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 indexmap = { version = "2", features = ["serde"] }
 reqwest = { version = "0.12.22", features = ["json"] }
 
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
