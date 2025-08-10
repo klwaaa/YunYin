@@ -42,7 +42,6 @@
     
     await axios(config)
         .then(({data: {file_id}}) => {
-          console.log(file_id,"file_id");
           const data = JSON.stringify({
             "drive_id": localStorage.getItem("drive_id"),
             "file_id": file_id
@@ -71,7 +70,6 @@
                 
                 axios(config)
                     .then(({data}) => {
-                      console.log(data,"data");
                       invoke("update_playlist_data", {
                         data: data
                       }).then(() => {
@@ -90,32 +88,30 @@
         });
   }
   
-  let uploadData_parent_file_id: string = localStorage.getItem("uploadData_parent_file_id") as string;
-  console.log(1111111111111111,"uploadData_parent_file_id");
-  if (uploadData_parent_file_id==="undefined"||!uploadData_parent_file_id) {
-    console.log(22222222222222,"uploadData_parent_file_id");
-    const uploadData_parent_file_id_data = JSON.stringify({
-      "drive_id": localStorage.getItem("drive_id"),
-      "file_path": "/普听音乐/音乐库/数据同步"
-    });
-    let uploadData_parent_file_id = {
-      method: 'post',
-      url: '/aliyun-api/adrive/v1.0/openFile/get_by_path',
-      headers: {
-        'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
-        'Content-Type': 'application/json',
-        'Accept': '*/*',
-      },
-      data: uploadData_parent_file_id_data
-    };
-    
-    const {data} = await axios(uploadData_parent_file_id);
-    uploadData_parent_file_id = data.file_id;
-    localStorage.setItem("uploadData_parent_file_id", data.file_id);
-  }
-  
   // 上传数据
   async function uploadData() {
+    let uploadData_parent_file_id: string = localStorage.getItem("uploadData_parent_file_id") as string;
+    if (!uploadData_parent_file_id) {
+      const uploadData_parent_file_id_data = JSON.stringify({
+        "drive_id": localStorage.getItem("drive_id"),
+        "file_path": "/普听音乐/音乐库/数据同步"
+      });
+      let uploadData_parent_file_id = {
+        method: 'post',
+        url: '/aliyun-api/adrive/v1.0/openFile/get_by_path',
+        headers: {
+          'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
+          'Content-Type': 'application/json',
+          'Accept': '*/*',
+        },
+        data: uploadData_parent_file_id_data
+      };
+
+      const {data} = await axios(uploadData_parent_file_id);
+      uploadData_parent_file_id = data.file_id;
+      localStorage.setItem("uploadData_parent_file_id", data.file_id);
+    }
+
     const data = JSON.stringify({
       "drive_id": localStorage.getItem("drive_id"),
       "file_path": "/普听音乐/音乐库/数据同步/data.json"

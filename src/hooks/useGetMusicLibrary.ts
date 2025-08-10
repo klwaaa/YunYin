@@ -2,9 +2,7 @@ import axios from 'axios';
 
 export default async function (arr: Array<any>, next_marker:string): Promise<any> {
   let parent_file_id = localStorage.getItem("parent_file_id")
-  console.log(1111111111111111111111111,"parent_file_id");
-  if (parent_file_id==="undefined"||!parent_file_id) {
-    console.log(22222222222222222,"parent_file_id");
+  if (!parent_file_id) {
     const parent_file_id_data = JSON.stringify({
       "drive_id": localStorage.getItem("drive_id"),
       "file_path": "/普听音乐/音乐库"
@@ -37,7 +35,7 @@ export default async function (arr: Array<any>, next_marker:string): Promise<any
   
   const config = {
     method: 'post',
-    url: 'https://openapi.alipan.com/adrive/v1.0/openFile/list',
+    url: '/aliyun-api/adrive/v1.0/openFile/list',
     headers: {
       'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
       'Content-Type': 'application/json',
@@ -47,12 +45,9 @@ export default async function (arr: Array<any>, next_marker:string): Promise<any
   };
   
   const {data} = await axios(config);
-  console.log(data,"data");
   if (data === undefined) {
     console.log("错误");
   } else {
-    console.log(data,"data else");
-    console.log(data.items,"data.items");
     for (let i = 0; i < data.items.length; i++) {
       const audioJson = {
         name: data.items[i].name,

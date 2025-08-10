@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-http": "^2.5.1",
     "@tauri-apps/plugin-opener": "^2",
     "axios": "^1.9.0",
     "element-plus": "^2.10.1",
