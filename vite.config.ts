@@ -45,22 +45,6 @@ export default defineConfig(async () => ({
         target: 'https://openapi.alipan.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/aliyun-api/, '')
-      },
-      // 新增北京区域数据代理
-      '/aliyun-audio': {
-        target: 'https://cn-beijing-data.aliyundrive.net',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/aliyun-audio/, ''),
-        headers: {
-          'Referer': 'https://www.aliyundrive.com',
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Origin': 'https://www.aliyundrive.com'
-        },
-        // 处理特殊字符
-        pathRewrite: {
-          '%2F': '/',
-          '%3D': '='
-        }
       }
     }
   },
