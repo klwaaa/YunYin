@@ -278,9 +278,6 @@ async fn put_in_recycle_bin(token: String,drive_id: String, file_id: String) -> 
     let client = reqwest::Client::new();
     let url = "https://openapi.alipan.com/adrive/v1.0/openFile/recyclebin/trash";
 
-    // 构造请求头
-    let mut headers = HeaderMap::new();
-
     let data = json!({
          "drive_id":drive_id,
          "file_id":file_id,
@@ -303,16 +300,10 @@ async fn put_in_recycle_bin(token: String,drive_id: String, file_id: String) -> 
     }
 }
 
-
+// 文件创建
 #[command]
 async fn create_file(drive_id: String, parent_file_id: String, token: String) -> Result<String, String> {
     let client = Client::new();
-
-    // 构造请求头
-    let mut headers = HeaderMap::new();
-    headers.insert("Authorization", format!("Bearer {}", token).parse().unwrap());
-    headers.insert("Content-Type", "application/json".parse().unwrap());
-    headers.insert("Accept", "*/*".parse().unwrap());
 
     // 构造请求体
     let data = json!({
@@ -326,7 +317,7 @@ async fn create_file(drive_id: String, parent_file_id: String, token: String) ->
     // 发送 POST 请求
     let url = "https://openapi.aliyun.com/aliyun-api/adrive/v1.0/openFile/create";  // 使用实际的 URL
     let response = client.post(url)
-        .headers(headers)
+        .header("Authorization", format!("Bearer {}", token))
         .json(&data)
         .send()
         .await
@@ -352,7 +343,8 @@ fn main() {
             get_file_list,
             get_audio_url,
             pull_data_url,
-            put_in_recycle_bin
+            put_in_recycle_bin,
+            create_file
         ])
         .run(tauri::generate_context!())
         .expect("运行 Tauri 应用失败");

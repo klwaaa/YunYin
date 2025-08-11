@@ -216,65 +216,75 @@
   
   // 上传函数
   async function upload(uploadData_parent_file_id: string) {
-    const data = JSON.stringify({
-      "drive_id": localStorage.getItem("drive_id"),
-      "parent_file_id": uploadData_parent_file_id,
-      "name": "data.json",
-      "type": "file",
-      "check_name_mode": "refuse"
-    });
+    try{
+      const data: string = await invoke('create_file', {
+        driveId,
+        parentFileId:uploadData_parent_file_id,
+        token
+      });
+      console.log(JSON.parse(data),"11111111");
+    }catch {
     
-    const config = {
-      method: 'post',
-      url: '/aliyun-api/adrive/v1.0/openFile/create',
-      headers: {
-        'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
-        'Content-Type': 'application/json',
-        'Accept': '*/*',
-      },
-      data: data
-    };
-    
-    await axios(config)
-        .then(function ({data: {part_info_list: [{upload_url}], drive_id, file_id, upload_id}}) {
-          console.log(data);
-          invoke<string>("upload_data_json", {uploadUrl: upload_url})
-              .then(() => {
-                const data = JSON.stringify({
-                  "drive_id": drive_id,
-                  "file_id": file_id,
-                  "upload_id": upload_id
-                });
-                
-                const config = {
-                  method: 'post',
-                  url: '/aliyun-api/adrive/v1.0/openFile/complete',
-                  headers: {
-                    'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
-                    'Content-Type': 'application/json',
-                    'Accept': '*/*',
-                  },
-                  data: data
-                };
-                
-                axios(config)
-                    .then(function () {
-                      isShow.value = true;
-                      success.value.innerHTML = "上传成功";
-                    })
-                    .catch(function (error) {
-                      isShow.value = true;
-                      error.value.innerHTML = "上传失败";
-                    });
-              })
-              .catch(() => {
-                isShow.value = true;
-                error.value.innerHTML = "上传失败";
-              });
-        }).catch(() => {
-          isShow.value = true;
-          error.value.innerHTML = "上传失败";
-        });
+    }
+    // const data = JSON.stringify({
+    //   "drive_id": localStorage.getItem("drive_id"),
+    //   "parent_file_id": uploadData_parent_file_id,
+    //   "name": "data.json",
+    //   "type": "file",
+    //   "check_name_mode": "refuse"
+    // });
+    //
+    // const config = {
+    //   method: 'post',
+    //   url: '/aliyun-api/adrive/v1.0/openFile/create',
+    //   headers: {
+    //     'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
+    //     'Content-Type': 'application/json',
+    //     'Accept': '*/*',
+    //   },
+    //   data: data
+    // };
+    //
+    // await axios(config)
+    //     .then(function ({data: {part_info_list: [{upload_url}], drive_id, file_id, upload_id}}) {
+    //       console.log(data);
+    //       invoke<string>("upload_data_json", {uploadUrl: upload_url})
+    //           .then(() => {
+    //             const data = JSON.stringify({
+    //               "drive_id": drive_id,
+    //               "file_id": file_id,
+    //               "upload_id": upload_id
+    //             });
+    //
+    //             const config = {
+    //               method: 'post',
+    //               url: '/aliyun-api/adrive/v1.0/openFile/complete',
+    //               headers: {
+    //                 'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
+    //                 'Content-Type': 'application/json',
+    //                 'Accept': '*/*',
+    //               },
+    //               data: data
+    //             };
+    //
+    //             axios(config)
+    //                 .then(function () {
+    //                   isShow.value = true;
+    //                   success.value.innerHTML = "上传成功";
+    //                 })
+    //                 .catch(function (error) {
+    //                   isShow.value = true;
+    //                   error.value.innerHTML = "上传失败";
+    //                 });
+    //           })
+    //           .catch(() => {
+    //             isShow.value = true;
+    //             error.value.innerHTML = "上传失败";
+    //           });
+    //     }).catch(() => {
+    //       isShow.value = true;
+    //       error.value.innerHTML = "上传失败";
+    //     });
   }
   
   function debounce(fn: any, t: any) {
