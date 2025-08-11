@@ -53,6 +53,8 @@
     const tokenStore = useGetTokenStore();
     
     let {refresh_token} = storeToRefs(tokenStore);
+    console.log(!localStorage.getItem("token"),"!localStorage.getItem(token)");
+    console.log(localStorage.getItem("token"),"localStorage.getItem(token)");
     if (!localStorage.getItem("token")) {
       localStorage.setItem("token", JSON.stringify({
         access_token: "null",

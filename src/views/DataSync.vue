@@ -22,139 +22,196 @@
   const error: any = ref();
   const isShow = ref(false);
   
+  const token = JSON.parse(<string>localStorage.getItem("token")).access_token;
+  const driveId = localStorage.getItem("drive_id");
+  
   // 拉取数据
   async function pullData() {
-    const data = JSON.stringify({
-      "drive_id": localStorage.getItem("drive_id"),
-      "file_path": "/普听音乐/音乐库/数据同步/data.json"
-    });
-    
-    const config = {
-      method: 'post',
-      url: '/aliyun-api/adrive/v1.0/openFile/get_by_path',
-      headers: {
-        'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
-        'Content-Type': 'application/json',
-        'Accept': '*/*',
-      },
-      data: data
-    };
-    
-    await axios(config)
-        .then(({data: {file_id}}) => {
-          const data = JSON.stringify({
-            "drive_id": localStorage.getItem("drive_id"),
-            "file_id": file_id
-          });
-          
-          const config = {
-            method: 'post',
-            url: '/aliyun-api/adrive/v1.0/openFile/get',
-            headers: {
-              'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
-              'Content-Type': 'application/json',
-              'Accept': '*/*',
-            },
-            data: data
-          };
-          
-          axios(config)
-              .then(({data: {url}}) => {
-                const config = {
-                  method: 'get',
-                  url: url,
-                  headers: {
-                    'Accept': '*/*',
-                  }
-                };
-                
-                axios(config)
-                    .then(({data}) => {
-                      invoke("update_playlist_data", {
-                        data: data
-                      }).then(() => {
-                        isShow.value = true;
-                        success.value.innerHTML = "拉取成功";
-                      }).catch(() => {
-                        isShow.value = true;
-                        error.value.innerHTML = "拉取失败";
-                      });
-                    });
-              });
-        })
-        .catch(function (error) {
-          isShow.value = true;
-          error.value.innerHTML = "拉取失败";
+    // const data = JSON.stringify({
+    //   "drive_id": localStorage.getItem("drive_id"),
+    //   "file_path": "/普听音乐/音乐库/数据同步/data.json"
+    // });
+    //
+    // const config = {
+    //   method: 'post',
+    //   url: '/aliyun-api/adrive/v1.0/openFile/get_by_path',
+    //   headers: {
+    //     'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
+    //     'Content-Type': 'application/json',
+    //     'Accept': '*/*',
+    //   },
+    //   data: data
+    // };
+    //
+    // await axios(config)
+    //     .then(({data: {file_id}}) => {
+    //       const data = JSON.stringify({
+    //         "drive_id": localStorage.getItem("drive_id"),
+    //         "file_id": file_id
+    //       });
+    //
+    //       const config = {
+    //         method: 'post',
+    //         url: '/aliyun-api/adrive/v1.0/openFile/get',
+    //         headers: {
+    //           'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
+    //           'Content-Type': 'application/json',
+    //           'Accept': '*/*',
+    //         },
+    //         data: data
+    //       };
+    //
+    //       axios(config)
+    //           .then(({data: {url}}) => {
+    //             const config = {
+    //               method: 'get',
+    //               url: url,
+    //               headers: {
+    //                 'Accept': '*/*',
+    //               }
+    //             };
+    //
+    //             axios(config)
+    //                 .then(({data}) => {
+    //                   invoke("update_playlist_data", {
+    //                     data: data
+    //                   }).then(() => {
+    //                     isShow.value = true;
+    //                     success.value.innerHTML = "拉取成功";
+    //                   }).catch(() => {
+    //                     isShow.value = true;
+    //                     error.value.innerHTML = "拉取失败";
+    //                   });
+    //                 });
+    //           });
+    //     })
+    //     .catch(function (error) {
+    //       isShow.value = true;
+    //       error.value.innerHTML = "拉取失败";
+    //     });
+    try {
+      const fileId: string = await invoke('using_path_get_data', {
+        driveId,
+        token,
+        filePath: "/普听音乐/音乐库/数据同步/data.json"
+      });
+      try {
+        let url: string = await invoke('pull_data_url', {
+          driveId,
+          fileId: JSON.parse(fileId).file_id,
+          token
         });
+        url = JSON.parse(url).url;
+        // 你可以在这里处理返回的文件数据
+        const config = {
+          method: 'get',
+          url: url,
+          headers: {
+            'Accept': '*/*',
+          }
+        };
+        
+        axios(config)
+            .then(({data}) => {
+              invoke("update_playlist_data", {
+                data: data
+              }).then(() => {
+                isShow.value = true;
+                success.value.innerHTML = "拉取成功";
+              }).catch(() => {
+                isShow.value = true;
+                error.value.innerHTML = "拉取失败";
+              });
+            });
+      } catch {
+        // 处理错误
+        isShow.value = true;
+        error.value.innerHTML = "拉取失败";
+      }
+    } catch {
+      isShow.value = true;
+      error.value.inn;
+    }
   }
   
   // 上传数据
   async function uploadData() {
     let uploadData_parent_file_id: string = localStorage.getItem("uploadData_parent_file_id") as string;
     if (!uploadData_parent_file_id) {
-      const uploadData_parent_file_id_data = JSON.stringify({
-        "drive_id": localStorage.getItem("drive_id"),
-        "file_path": "/普听音乐/音乐库/数据同步"
-      });
-      let uploadData_parent_file_id = {
-        method: 'post',
-        url: '/aliyun-api/adrive/v1.0/openFile/get_by_path',
-        headers: {
-          'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
-          'Content-Type': 'application/json',
-          'Accept': '*/*',
-        },
-        data: uploadData_parent_file_id_data
-      };
-
-      const {data} = await axios(uploadData_parent_file_id);
-      uploadData_parent_file_id = data.file_id;
-      localStorage.setItem("uploadData_parent_file_id", data.file_id);
-    }
-
-    const data = JSON.stringify({
-      "drive_id": localStorage.getItem("drive_id"),
-      "file_path": "/普听音乐/音乐库/数据同步/data.json"
-    });
-
-    const config = {
-      method: 'post',
-      url: '/aliyun-api/adrive/v1.0/openFile/get_by_path',
-      headers: {
-        'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
-        'Content-Type': 'application/json',
-        'Accept': '*/*',
-      },
-      data: data
-    };
-    await axios(config)
-        .then(({data: {file_id}}) => {
-          // 把已有的data.json放入回收站
-          const data = JSON.stringify({
-            "drive_id": localStorage.getItem("drive_id"),
-            "file_id": file_id
-          });
-
-          const config = {
-            method: 'post',
-            url: '/aliyun-api/adrive/v1.0/openFile/recyclebin/trash',
-            headers: {
-              'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
-              'Content-Type': 'application/json',
-              'Accept': '*/*',
-            },
-            data: data
-          };
-
-          axios(config)
-              .then(function () {
-                // 开始上传
-                upload(uploadData_parent_file_id);
-              });
-        })
-        .catch(() => {
-          upload(uploadData_parent_file_id);
+      try {
+        const data: string = await invoke('using_path_get_data', {
+          driveId,
+          token,
+          filePath: "/普听音乐/音乐库/数据同步"
         });
+        
+        uploadData_parent_file_id = JSON.parse(data).file_id;
+        localStorage.setItem("uploadData_parent_file_id", uploadData_parent_file_id);
+      } catch {
+        isShow.value = true;
+        error.value.innerHTML = "上传失败";
+      }
+    }
+    
+    try {
+      const fileId: string = await invoke('using_path_get_data', {
+        driveId,
+        token,
+        filePath: "/普听音乐/音乐库/数据同步/data.json"
+      });
+      await invoke('put_in_recycle_bin', {
+        driveId,
+        token,
+        fileId: JSON.parse(fileId).file_id
+      });
+      await upload(uploadData_parent_file_id);
+    } catch {
+      await upload(uploadData_parent_file_id);
+    }
+    
+    
+    // const data = JSON.stringify({
+    //   "drive_id": localStorage.getItem("drive_id"),
+    //   "file_path": "/普听音乐/音乐库/数据同步/data.json"
+    // });
+    //
+    // const config = {
+    //   method: 'post',
+    //   url: '/aliyun-api/adrive/v1.0/openFile/get_by_path',
+    //   headers: {
+    //     'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
+    //     'Content-Type': 'application/json',
+    //     'Accept': '*/*',
+    //   },
+    //   data: data
+    // };
+    // await axios(config)
+    //     .then(({data: {file_id}}) => {
+    //       // 把已有的data.json放入回收站
+    //       const data = JSON.stringify({
+    //         "drive_id": localStorage.getItem("drive_id"),
+    //         "file_id": file_id
+    //       });
+    //       const config = {
+    //         method: 'post',
+    //         url: '/aliyun-api/adrive/v1.0/openFile/recyclebin/trash',
+    //         headers: {
+    //           'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
+    //           'Content-Type': 'application/json',
+    //           'Accept': '*/*',
+    //         },
+    //         data: data
+    //       };
+    //
+    //       axios(config)
+    //           .then(function () {
+    //             // 开始上传
+    //             upload(uploadData_parent_file_id);
+    //           });
+    //     })
+    //     .catch(() => {
+    //       upload(uploadData_parent_file_id);
+    //     });
   }
   
   // 上传函数
@@ -214,10 +271,10 @@
                 isShow.value = true;
                 error.value.innerHTML = "上传失败";
               });
-        }).catch(()=>{
+        }).catch(() => {
           isShow.value = true;
           error.value.innerHTML = "上传失败";
-        })
+        });
   }
   
   function debounce(fn: any, t: any) {
@@ -316,5 +373,5 @@
   .fade-leave-to {
     opacity: 0;
   }
-  
+
 </style>

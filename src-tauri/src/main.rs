@@ -2,10 +2,10 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 
-
-use reqwest::Client;
 use serde_json::json;
 use tauri::command;
+
+use reqwest::Client;
 
 use std::fs;
 use std::fs::File;
@@ -13,6 +13,7 @@ use std::io::{Read, Write};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
+
 
 /// 阿里云 token 接口地址
 const TOKEN_URL: &str = "https://openapi.alipan.com/oauth/access_token";
@@ -52,8 +53,8 @@ async fn get_token_by_code(code: String) -> Result<String, String> {
         .map_err(|e| format!("请求失败：{}", e))?;
 
     if res.status().is_success() {
-        let result = res.text().await.map_err(|e| e.to_string())?;
-        Ok(result)
+        let response_text = res.text().await.map_err(|e| e.to_string())?;
+        Ok(response_text)
     } else {
         Err(format!("请求失败，状态码: {}", res.status()))
     }
@@ -79,8 +80,8 @@ async fn get_token_by_refresh(refresh_token: String) -> Result<String, String> {
         .map_err(|e| format!("请求失败：{}", e))?;
 
     if res.status().is_success() {
-        let result = res.text().await.map_err(|e| e.to_string())?;
-        Ok(result)
+        let response_text = res.text().await.map_err(|e| e.to_string())?;
+        Ok(response_text)
     } else {
         Err(format!("请求失败，状态码: {}", res.status()))
     }
@@ -105,7 +106,7 @@ fn update_playlist_data(data: PlayListData) -> Result<(), String> {
     file.write_all(json.as_bytes())
         .map_err(|e| format!("写入文件失败: {}", e))?;
 
-    println!("✅ 播放列表已写入 D:/Programming Exercises/app/data.json");
+    println!("播放列表已写入 D:/Programming Exercises/app/data.json");
     Ok(())
 }
 
@@ -121,15 +122,15 @@ async fn upload_data_json(upload_url: String) -> Result<String, String> {
         .map_err(|e| format!("读取文件失败: {}", e))?;
 
     let client = reqwest::Client::new();
-    let response = client
+    let res = client
         .put(&upload_url)
         .body(buffer)
         .send()
         .await
         .map_err(|e| format!("请求失败: {}", e))?;
 
-    if response.status().is_success() {
-        let etag = response
+    if res.status().is_success() {
+        let etag = res
             .headers()
             .get("ETag")
             .and_then(|v| v.to_str().ok())
@@ -138,14 +139,204 @@ async fn upload_data_json(upload_url: String) -> Result<String, String> {
 
         Ok(format!("✅ 分片上传成功! ETag: {}", etag))
     } else {
-        let status = response.status();
-        let text = response
+        let status = res.status();
+        let text = res
             .text()
             .await
             .unwrap_or_else(|_| "无响应内容".to_string());
-        Err(format!("❌ 上传失败 ({}): {}", status, text))
+        Err(format!("上传失败 ({}): {}", status, text))
     }
 }
+
+// 通过get_by_path得到数据
+#[command]
+async fn using_path_get_data(
+    drive_id: String,
+    token: String,
+    file_path: String,
+) -> Result<String, String> {
+    let client = Client::new();
+    let url = "https://openapi.alipan.com/adrive/v1.0/openFile/get_by_path";
+
+    let body = json!({
+        "drive_id": drive_id,
+        "file_path": file_path
+    });
+
+    let res = client
+        .post(url)
+        .header("Authorization", format!("Bearer {}", token))
+        .json(&body)
+        .send()
+        .await
+        .map_err(|e| format!("请求失败：{}", e))?;
+
+    if res.status().is_success() {
+        // 无论是拉取数据还是获取文件信息，都返回响应文本
+        let response_text = res.text().await.map_err(|e| e.to_string())?;
+        Ok(response_text)
+    } else {
+        Err(format!("请求失败，状态码: {}", res.status()))
+    }
+}
+
+/// 得到音乐库数据
+#[command]
+async fn get_file_list(drive_id: String, parent_file_id: String, next_marker: String, token: String) -> Result<String, String> {
+    let client = Client::new();
+
+    let body = json!({
+        "drive_id": drive_id,
+        "parent_file_id": parent_file_id,
+        "limit": 3,
+        "category": "audio",
+        "type": "file",
+        "marker": next_marker
+    });
+
+    let res = client
+        .post("https://openapi.alipan.com/adrive/v1.0/openFile/list")
+        .header("Authorization", format!("Bearer {}", token))
+        .header("Content-Type", "application/json")
+        .json(&body)
+        .send()
+        .await
+        .map_err(|e| format!("请求失败：{}", e))?;
+
+    if res.status().is_success() {
+        let response_text = res.text().await.map_err(|e| format!("解析失败: {}", e))?;
+        Ok(response_text)
+    } else {
+        Err(format!("请求失败，状态码: {}", res.status()))
+    }
+}
+
+// 得到歌曲下载连接与大小
+#[command]
+async fn get_audio_url(
+    drive_id: String,
+    file_id: String,
+    token: String,
+) -> Result<String, String> {
+
+    // 创建 HTTP 客户端
+    let client = Client::new();
+
+    // 构造请求体
+    let body = serde_json::json!({
+        "drive_id": drive_id,
+        "file_id": file_id
+    });
+
+    // 发送请求并直接返回文本
+    let resp = client
+        .post("https://openapi.alipan.com/adrive/v1.0/openFile/getDownloadUrl")
+        .header("Authorization", token)
+        .header("Content-Type", "application/json")
+        .json(&body)
+        .send() // ✅ 先发出去
+        .await
+        .map_err(|e| format!("请求失败: {}", e))?
+        .text() // ✅ 直接取文本
+        .await
+        .map_err(|e| format!("读取响应失败: {}", e))?;
+
+    Ok(resp)
+}
+
+// 得到拉取数据的网址
+#[command]
+async fn pull_data_url(drive_id: String, file_id: String, token: String) -> Result<String, String> {
+    let client = Client::new();
+    let url = "https://openapi.alipan.com/adrive/v1.0/openFile/get"; // 根据你实际的 URL 来调整
+
+    let data = json!({
+        "drive_id":drive_id,
+        "file_id":file_id,
+    });
+
+    let response = client
+        .post(url)
+        .header("Authorization", format!("Bearer {}", token))
+        .json(&data)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if response.status().is_success() {
+        let response_text = response.text().await.map_err(|e| e.to_string())?;
+        Ok(response_text)
+    } else {
+        Err("Failed to fetch file data".to_string())
+    }
+}
+
+// 上传时把之前的data.json放入回收站
+#[command]
+async fn put_in_recycle_bin(token: String,drive_id: String, file_id: String) -> Result<String, String> {
+
+    let client = reqwest::Client::new();
+    let url = "https://openapi.alipan.com/adrive/v1.0/openFile/recyclebin/trash";
+
+    // 构造请求头
+    let mut headers = HeaderMap::new();
+
+    let data = json!({
+         "drive_id":drive_id,
+         "file_id":file_id,
+    });
+
+    // 发送请求
+    let response = client
+        .post(url)
+        .header("Authorization", format!("Bearer {}", token))
+        .json(&data)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if response.status().is_success() {
+       let response_text = response.text().await.map_err(|e| e.to_string())?;
+       Ok(response_text)
+    } else {
+        Err(format!("Failed with status: {}", response.status()))
+    }
+}
+
+
+#[command]
+async fn create_file(drive_id: String, parent_file_id: String, token: String) -> Result<String, String> {
+    let client = Client::new();
+
+    // 构造请求头
+    let mut headers = HeaderMap::new();
+    headers.insert("Authorization", format!("Bearer {}", token).parse().unwrap());
+    headers.insert("Content-Type", "application/json".parse().unwrap());
+    headers.insert("Accept", "*/*".parse().unwrap());
+
+    // 构造请求体
+    let data = json!({
+        "drive_id": drive_id,
+        "parent_file_id": parent_file_id,
+        "name": "data.json",
+        "type": "file",
+        "check_name_mode": "refuse"
+    });
+
+    // 发送 POST 请求
+    let url = "https://openapi.aliyun.com/aliyun-api/adrive/v1.0/openFile/create";  // 使用实际的 URL
+    let response = client.post(url)
+        .headers(headers)
+        .json(&data)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    // 返回响应文本
+    let response_text = response.text().await.map_err(|e| e.to_string())?;
+    Ok(response_text)
+}
+
 
 /// ✅ Tauri 主函数入口
 fn main() {
@@ -157,6 +348,11 @@ fn main() {
             get_all_audio_data,
             update_playlist_data,
             upload_data_json,
+            using_path_get_data,
+            get_file_list,
+            get_audio_url,
+            pull_data_url,
+            put_in_recycle_bin
         ])
         .run(tauri::generate_context!())
         .expect("运行 Tauri 应用失败");

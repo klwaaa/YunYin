@@ -54,13 +54,13 @@
 </template>
 
 <script setup lang="ts">
-  import useGetAudiosUrl from "../hooks/useGetAudiosUrl.ts";
   import axios from "axios";
   import {onMounted, onUnmounted, reactive, ref, watch} from "vue";
   import {useGetAudio} from "../store/audio.ts";
   import {storeToRefs} from "pinia";
   import usePlaybackMode from "../hooks/usePlaybackMode.ts";
   import {useGetPlayList} from "../store/playList.ts";
+  import {invoke} from "@tauri-apps/api/core";
   
   
   let change: any = null;
@@ -184,17 +184,31 @@
   
   // 得到文件下载链接
   let audioUrl: any, audioSize: any;
-  await useGetAudiosUrl(playingSongKey.value).then((data) => {
-    console.log(data, "https://openapi.alipan.com");
-    audioUrl = data.audioUrl;
-    audioSize = data.audioSize;
-  }).catch((err) => {
-    console.log(err);
+  
+  await invoke<string>("get_audio_url", {
+    driveId:localStorage.getItem("drive_id"),
+    fileId:playingSongKey.value,
+    token:JSON.parse(<string>localStorage.getItem("token")).access_token
+  }).then((data: any) => {
+    data = JSON.parse(data);
+    audioUrl = data.url;
+    audioSize = data.size;
   });
+  
+  console.log(audioUrl,"audioUrl");
+  console.log(audioSize,"audioSize");
+  // await useGetAudiosUrl(playingSongKey.value).then((data) => {
+  //   console.log(data, "https://openapi.alipan.com");
+  //   audioUrl = data.audioUrl;
+  //   audioSize = data.audioSize;
+  //   console.log(audioSize,"audioSize");
+  //   console.log(audioUrl, "audioUrl");
+  // }).catch((err) => {
+  //   console.log(err);
+  // });
   console.log(playList);
   const originalAudioSize = audioSize;
   let audioTime: number = 0;
-  console.log(audioSize,"audioSize");
   // 确定分片大小和数据请求位置
   let dataPosition: number = 0;
   let dataSize: number = 800000;
@@ -523,7 +537,7 @@
       responseType: 'blob',
       signal: controller.signal
     };
-    
+    console.log("getSegmentData111111111111111111");
     try {
       const {data} = await axios(<any>config);
       return data;
@@ -598,52 +612,52 @@
   
   let timeout: any;
   console.log(isPlaying.value);
-  // if (isPlaying.value) {
-  //   // 发送请求播放音频
-  //   timeout = setTimeout(() => {
-  //     getAudioUrl().then((audioData: any) => {
-  //       // audioCtx = new AudioContext();
-  //       source = audioCtx.createBufferSource();
-  //       console.log(audioData, "audioData");
-  //       audioCtx.decodeAudioData(audioData, function (audioBuffer) {
-  //         globalAudioBuffer.value = audioBuffer;
-  //         source.buffer = audioBuffer;
-  //         console.log(source.buffer, "nofun");
-  //         console.log(audioBuffer, "audioBuffer");
-  //         source.connect(gainNode);
-  //         gainNode.connect(audioCtx.destination);
-  //         console.log(audioTime, "before audioTime");
-  //         source.start();
-  //         console.log(source, "nofunsource");
-  //         audioTime = audioBuffer.duration;
-  //       });
-  //       fistInterval = setInterval(() => {
-  //         currentAudioTime.value += 1;
-  //       }, 1000);
-  //       console.log(fistInterval, "fistInterval,isplaying");
-  //     });
-  //   }, 6000);
-  //
-  // } else {
-  //   // 发送请求不播放
-  //   timeout = setTimeout(() => {
-  //     getAudioUrl().then((audioData: any) => {
-  //       source = audioCtx.createBufferSource();
-  //       console.log(audioData, "audioData");
-  //       audioCtx.decodeAudioData(audioData, function (audioBuffer) {
-  //         globalAudioBuffer.value = audioBuffer;
-  //         source.buffer = audioBuffer;
-  //         console.log(source.buffer, "nofun");
-  //         console.log(audioBuffer, "audioBuffer");
-  //         source.connect(gainNode);
-  //         gainNode.connect(audioCtx.destination);
-  //         console.log(audioTime, "before audioTime");
-  //         console.log(source, "nofunsource");
-  //         audioTime = audioBuffer.duration;
-  //       });
-  //     });
-  //   }, 6000);
-  // }
+  if (isPlaying.value) {
+    // 发送请求播放音频
+    timeout = setTimeout(() => {
+      getAudioUrl().then((audioData: any) => {
+        // audioCtx = new AudioContext();
+        source = audioCtx.createBufferSource();
+        console.log(audioData, "audioData");
+        audioCtx.decodeAudioData(audioData, function (audioBuffer) {
+          globalAudioBuffer.value = audioBuffer;
+          source.buffer = audioBuffer;
+          console.log(source.buffer, "nofun");
+          console.log(audioBuffer, "audioBuffer");
+          source.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          console.log(audioTime, "before audioTime");
+          source.start();
+          console.log(source, "nofunsource");
+          audioTime = audioBuffer.duration;
+        });
+        fistInterval = setInterval(() => {
+          currentAudioTime.value += 1;
+        }, 1000);
+        console.log(fistInterval, "fistInterval,isplaying");
+      });
+    }, 6000);
+
+  } else {
+    // 发送请求不播放
+    timeout = setTimeout(() => {
+      getAudioUrl().then((audioData: any) => {
+        source = audioCtx.createBufferSource();
+        console.log(audioData, "audioData");
+        audioCtx.decodeAudioData(audioData, function (audioBuffer) {
+          globalAudioBuffer.value = audioBuffer;
+          source.buffer = audioBuffer;
+          console.log(source.buffer, "nofun");
+          console.log(audioBuffer, "audioBuffer");
+          source.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          console.log(audioTime, "before audioTime");
+          console.log(source, "nofunsource");
+          audioTime = audioBuffer.duration;
+        });
+      });
+    }, 6000);
+  }
   
   usePlaybackMode();
   

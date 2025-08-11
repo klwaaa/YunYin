@@ -1,7 +1,7 @@
 <template>
   <div class="musicLibrary_view">
     <div ref="selectedRef" class="selected">
-      <button  class="btn-primary"  @click="saveToIsShow = true">保存音频</button>
+      <button class="btn-primary" @click="saveToIsShow = true">保存音频</button>
       <button class="btn-secondary" @click="clickAll">全选</button>
       
       <ul>
@@ -39,7 +39,8 @@
       <template #footer>
     <span class="dialog-footer">
       <el-button @click="saveToIsShow = false">取消</el-button>
-      <el-button type="primary" @click="enterSaveTo(selectedPlayList, playListData, undefined, selectedAudios);selectedPlayList=[]">确定</el-button>
+      <el-button type="primary"
+                 @click="enterSaveTo(selectedPlayList, playListData, undefined, selectedAudios);selectedPlayList=[]">确定</el-button>
     </span>
       </template>
     </el-dialog>
@@ -65,7 +66,7 @@
   
   //用户当前勾选的歌单
   const selectedPlayList = ref<any[]>([]);
-
+  
   // 选择区域
   const selectedRef = ref<HTMLElement | null>(null);
   // 所有展示的音频
@@ -88,6 +89,7 @@
   // 获取新数据并追加展示
   async function getNewAudios() {
     const {arr, next_marker} = await useGetAudioFiles(oldArr, oldNext_marker);
+    console.log(arr);
     oldArr = arr;
     oldNext_marker = next_marker;
     
@@ -127,7 +129,7 @@
 </script>
 
 <style scoped>
-  .musicLibrary_view{
+  .musicLibrary_view {
     height: calc(100vh - 260px);
   }
   
@@ -211,17 +213,19 @@
     background-color: var(--md-sys-color-surface-container);
     user-select: none;
   }
-  .selected li label{
+  
+  .selected li label {
     width: 100%;
     cursor: pointer;
   }
+  
   .selected li:hover {
     background-color: var(--md-sys-color-surface-container-high);
     cursor: pointer;
   }
   
   .selected li:last-child {
-    background-color:var(--md-sys-color-outline-variant);
+    background-color: var(--md-sys-color-outline-variant);
     padding: 0;
     margin-bottom: 0;
   }
@@ -232,6 +236,7 @@
     height: 20px;
     accent-color: var(--md-sys-color-primary);
   }
+  
   .selected li:hover input[type="checkbox"] {
     border-color: var(--md-sys-color-primary);
     transform: scale(1.1);
@@ -303,7 +308,7 @@
     
   }
   
-  :deep(.el-button--primary span){
+  :deep(.el-button--primary span) {
     color: var(--md-sys-color-on-primary) !important;
   }
   
@@ -312,7 +317,7 @@
     border-color: var(--md-sys-color-primary-container) !important;
   }
   
-  :deep(.el-button--primary:hover span){
+  :deep(.el-button--primary:hover span) {
     color: var(--md-sys-color-on-primary-container) !important;
   }
   
@@ -321,7 +326,7 @@
     border-color: var(--md-sys-color-outline) !important;
   }
   
-  :deep(.el-button:not(.el-button--primary) span){
+  :deep(.el-button:not(.el-button--primary) span) {
     color: var(--md-sys-color-on-surface) !important;
   }
   
@@ -330,7 +335,7 @@
     
   }
   
-  :deep(.el-button:not(.el-button--primary):hover span){
+  :deep(.el-button:not(.el-button--primary):hover span) {
     color: var(--md-sys-color-on-primary-container) !important;
   }
 </style>
