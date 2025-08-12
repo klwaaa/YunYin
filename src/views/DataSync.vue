@@ -96,16 +96,15 @@
         filePath: "/普听音乐/音乐库/数据同步/data.json"
       });
       try {
-        let url: string = await invoke('pull_data_url', {
+        const url: string = await invoke('get_data_url', {
           driveId,
           fileId: JSON.parse(fileId).file_id,
           token
         });
-        url = JSON.parse(url).url;
         // 你可以在这里处理返回的文件数据
         const config = {
           method: 'get',
-          url: url,
+          url: JSON.parse(url).url,
           headers: {
             'Accept': '*/*',
           }
@@ -216,15 +215,31 @@
   
   // 上传函数
   async function upload(uploadData_parent_file_id: string) {
-    try{
-      const data: string = await invoke('create_file', {
+    try {
+      console.log(1111111111);
+      let data: any = await invoke('create_file', {
         driveId,
-        parentFileId:uploadData_parent_file_id,
+        parentFileId: uploadData_parent_file_id,
         token
       });
-      console.log(JSON.parse(data),"11111111");
-    }catch {
-    
+      data = JSON.parse(data);
+      try {
+        await invoke("upload_data_json", {uploadUrl: data.part_info_list[0].upload_url});
+        await invoke('complete_upload', {
+          driveId,
+          fileId: data.file_id,
+          uploadId: data.upload_id,
+          token
+        });
+        isShow.value = true;
+        success.value.innerHTML = "上传成功";
+      } catch {
+        isShow.value = true;
+        error.value.innerHTML = "上传失败";
+      }
+    } catch {
+      isShow.value = true;
+      error.value.innerHTML = "上传失败";
     }
     // const data = JSON.stringify({
     //   "drive_id": localStorage.getItem("drive_id"),

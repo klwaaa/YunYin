@@ -176,7 +176,7 @@
   import {storeToRefs} from "pinia";
   import router from "../router";
   import {invoke} from "@tauri-apps/api/core";
-  import axios from "axios";
+  // import axios from "axios";
   import useSaveTo from "../hooks/useSaveTo.ts";
   
   // 引入 Pinia 中的状态
@@ -434,58 +434,84 @@
     }
     
     // 删除云盘操作
-    const data = JSON.stringify({
-      "drive_id": localStorage.getItem("drive_id"),
-      "file_id": song.fileId
-    });
-    
-    const config = {
-      method: 'post',
-      url: '/aliyun-api/adrive/v1.0/openFile/recyclebin/trash',
-      headers: {
-        'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
-        'Content-Type': 'application/json',
-        'Accept': '*/*',
-      },
-      data: data
-    };
-    
-    axios(config).then(() => {
-      const body = JSON.stringify({
-        "drive_id": localStorage.getItem("drive_id"),
-        "file_path": `/1/${song.name.substring(0, song.name.lastIndexOf("."))}.lrc`
+    await invoke("put_in_recycle_bin",{
+      token:JSON.parse(<string>localStorage.getItem("token")).access_token,
+      driveId: localStorage.getItem("drive_id"),
+      fileId: song.fileId
+    })
+    try {
+      const fileId: string = await invoke('using_path_get_data', {
+        driveId: localStorage.getItem("drive_id"),
+        token: JSON.parse(<string>localStorage.getItem("token")).access_token,
+        filePath: `/1/${song.name.substring(0, song.name.lastIndexOf("."))}.lrc`
       });
       
-      const config = {
-        method: 'post',
-        url: '/aliyun-api/adrive/v1.0/openFile/get_by_path',
-        headers: {
-          'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
-          'Content-Type': 'application/json',
-          'Accept': '*/*'
-        },
-        data: body
-      };
-      axios(config).then(({data: {file_id}}) => {
-        const data = JSON.stringify({
-          "drive_id": localStorage.getItem("drive_id"),
-          "file_id": file_id
+      // 确保 fileId 成功返回并且不是空值
+      if (fileId) {
+        await invoke("put_in_recycle_bin", {
+          token: JSON.parse(<string>localStorage.getItem("token")).access_token,
+          driveId: localStorage.getItem("drive_id"),
+          fileId: JSON.parse(fileId).fileId
         });
-        
-        const config = {
-          method: 'post',
-          url: '/aliyun-api/adrive/v1.0/openFile/recyclebin/trash',
-          headers: {
-            'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
-            'Content-Type': 'application/json',
-            'Accept': '*/*',
-          },
-          data: data
-        };
-        axios(config);
-      });
-      
-    });
+      } else {
+        console.error("fileId 为空，无法执行回收站操作");
+      }
+    } catch (error) {
+      console.error("执行操作时出错:", error);
+    }
+    
+    // const data = JSON.stringify({
+    //   "drive_id": localStorage.getItem("drive_id"),
+    //   "file_id": song.fileId
+    // });
+    //
+    // const config = {
+    //   method: 'post',
+    //   url: '/aliyun-api/adrive/v1.0/openFile/recyclebin/trash',
+    //   headers: {
+    //     'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
+    //     'Content-Type': 'application/json',
+    //     'Accept': '*/*',
+    //   },
+    //   data: data
+    // };
+    //
+    // axios(config).then(() => {
+    //   const body = JSON.stringify({
+    //     "drive_id": localStorage.getItem("drive_id"),
+    //     "file_path": `/1/${song.name.substring(0, song.name.lastIndexOf("."))}.lrc`
+    //   });
+    //
+    //   const config = {
+    //     method: 'post',
+    //     url: '/aliyun-api/adrive/v1.0/openFile/get_by_path',
+    //     headers: {
+    //       'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
+    //       'Content-Type': 'application/json',
+    //       'Accept': '*/*'
+    //     },
+    //     data: body
+    //   };
+    //   axios(config).then(({data: {file_id}}) => {
+    //     const data = JSON.stringify({
+    //       "drive_id": localStorage.getItem("drive_id"),
+    //       "file_id": file_id
+    //     });
+    //
+    //     const config = {
+    //       method: 'post',
+    //       url: '/aliyun-api/adrive/v1.0/openFile/recyclebin/trash',
+    //       headers: {
+    //         'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
+    //         'Content-Type': 'application/json',
+    //         'Accept': '*/*',
+    //       },
+    //       data: data
+    //     };
+    //     axios(config);
+    //   });
+    //
+    // });
     
     // 从所有歌单中删除歌曲
     for (let i = 0; i < playListData.value.length; i++) {

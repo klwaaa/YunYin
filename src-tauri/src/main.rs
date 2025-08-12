@@ -14,6 +14,7 @@ use std::io::{Read, Write};
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
+use std::path::Path;
 
 /// 阿里云 token 接口地址
 const TOKEN_URL: &str = "https://openapi.alipan.com/oauth/access_token";
@@ -36,8 +37,8 @@ type PlayListData = Vec<PlaylistItem>;
 /// ✅ 使用授权码换取 token
 #[command]
 async fn get_token_by_code(code: String) -> Result<String, String> {
-    let client_id = "f3bc86ad8618424d99beb9da421d5526";
-    let client_secret = "2def6c4b6b034206811689b6115b5bc2";
+    let client_id = "应用id";
+    let client_secret = "应用密钥";
 
     let client = Client::new();
     let res = client
@@ -63,8 +64,8 @@ async fn get_token_by_code(code: String) -> Result<String, String> {
 /// ✅ 使用 refresh_token 刷新 token
 #[command]
 async fn get_token_by_refresh(refresh_token: String) -> Result<String, String> {
-    let client_id = "f3bc86ad8618424d99beb9da421d5526";
-    let client_secret = "2def6c4b6b034206811689b6115b5bc2";
+    let client_id = "应用id";
+    let client_secret = "应用密钥";
 
     let client = Client::new();
     let res = client
@@ -246,7 +247,7 @@ async fn get_audio_url(
 
 // 得到拉取数据的网址
 #[command]
-async fn pull_data_url(drive_id: String, file_id: String, token: String) -> Result<String, String> {
+async fn get_data_url(drive_id: String, file_id: String, token: String) -> Result<String, String> {
     let client = Client::new();
     let url = "https://openapi.alipan.com/adrive/v1.0/openFile/get"; // 根据你实际的 URL 来调整
 
@@ -271,7 +272,7 @@ async fn pull_data_url(drive_id: String, file_id: String, token: String) -> Resu
     }
 }
 
-// 上传时把之前的data.json放入回收站
+// 时把文件放入回收站
 #[command]
 async fn put_in_recycle_bin(token: String,drive_id: String, file_id: String) -> Result<String, String> {
 
@@ -315,7 +316,7 @@ async fn create_file(drive_id: String, parent_file_id: String, token: String) ->
     });
 
     // 发送 POST 请求
-    let url = "https://openapi.aliyun.com/aliyun-api/adrive/v1.0/openFile/create";  // 使用实际的 URL
+    let url = "https://openapi.alipan.com/adrive/v1.0/openFile/create";  // 使用实际的 URL
     let response = client.post(url)
         .header("Authorization", format!("Bearer {}", token))
         .json(&data)
@@ -328,9 +329,45 @@ async fn create_file(drive_id: String, parent_file_id: String, token: String) ->
     Ok(response_text)
 }
 
+// 标记上传完毕
+#[command]
+async fn complete_upload(drive_id: String, file_id: String, upload_id: String, token: String) -> Result<String, String> {
+    let client = Client::new();
+
+    let url = "https://openapi.alipan.com/adrive/v1.0/openFile/complete";
+
+    let data = json!({
+        "drive_id": drive_id,
+        "file_id": file_id,
+        "upload_id": upload_id,
+    });
+
+    let response = client.post(url)
+        .header("Authorization", format!("Bearer {}", token))
+        .json(&data)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if response.status().is_success() {
+        let response_text = response.text().await.map_err(|e| e.to_string())?;
+        Ok(response_text)
+    } else {
+        Err(format!("Error: {}", response.status()))
+    }
+}
 
 /// ✅ Tauri 主函数入口
 fn main() {
+
+    // 首次启动创建data文件
+    let file_path = "./data.json";
+
+    if !Path::new(file_path).exists() {
+        // 文件不存在，创建文件
+        fs::File::create(file_path).expect("Failed to create file");
+    }
+
     tauri::Builder::default()
         .plugin(tauri_plugin_localhost::Builder::new(1420).build()) // ✅ 注册 Localhost 插件
         .invoke_handler(tauri::generate_handler![
@@ -342,9 +379,10 @@ fn main() {
             using_path_get_data,
             get_file_list,
             get_audio_url,
-            pull_data_url,
+            get_data_url,
             put_in_recycle_bin,
-            create_file
+            create_file,
+            complete_upload
         ])
         .run(tauri::generate_context!())
         .expect("运行 Tauri 应用失败");

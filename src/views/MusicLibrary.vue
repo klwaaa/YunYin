@@ -130,7 +130,8 @@
 
 <style scoped>
   .musicLibrary_view {
-    height: calc(100vh - 260px);
+    height: calc(100vh - 150px);
+    overflow: hidden;
   }
   
   button {
@@ -174,31 +175,29 @@
   
   
   .selected {
+    overflow-y: auto;
+    max-height: 100%;
     background-color: var(--md-sys-color-surface-container-low);
     border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 24px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   }
   
   .selected ul {
     list-style: none;
-    max-height: 400px;
-    overflow-y: auto;
     padding-right: 10px;
     margin-top: 20px;
   }
   
-  .selected ul::-webkit-scrollbar {
+  .selected::-webkit-scrollbar {
     width: 8px;
   }
   
-  .selected ul::-webkit-scrollbar-track {
+  .selected::-webkit-scrollbar-track {
     background: var(--md-sys-color-surface-container);
     border-radius: 4px;
   }
   
-  .selected ul::-webkit-scrollbar-thumb {
+  .selected::-webkit-scrollbar-thumb {
     background: var(--md-sys-color-outline-variant);
     border-radius: 4px;
   }

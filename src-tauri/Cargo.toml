@@ -15,7 +15,7 @@ edition = "2021"
 #crate-type = ["staticlib", "cdylib", "rlib"]
 
 [dependencies]
-tauri = { version = "2.7", features = ["devtools"] }  # 更新为2.7版本
+tauri = { version = "2.7", features = [] }  # 更新为2.7版本
 tauri-plugin-opener = "2.3.0"  # 确保插件版本兼容
 tauri-plugin-localhost = "2.3.0"  # 确保插件版本兼容
 serde = { version = "1.0", features = ["derive"] }

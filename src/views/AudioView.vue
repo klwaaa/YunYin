@@ -2,8 +2,8 @@
   <div class="audioView_view">
     <router-link :to="{
             path: '/PlayList',
-          }" class="goPlaylist">
-      <
+          }">
+      <span class="iconfont icon-fanhui"></span>
     </router-link>
     <div class="lyric" ref="lyricContainer">
       <p
@@ -22,7 +22,9 @@
       <p>{{ lrcSize }}</p>
       <button @click="zoomOut">A-</button>
     </div>
-    <button v-show="isUserScrolling" @click="track" class="followTime">跟随时间</button>
+    <button v-show="isUserScrolling" @click="track" class="followTime">
+      跟随时间
+    </button>
   </div>
 </template>
 
@@ -191,8 +193,9 @@
     position: relative;
   }
   
-  .goPlaylist {
-    font-size: 16px;
+  .icon-fanhui {
+    font-size: 30px;
+    color: var(--md-sys-color-primary);
   }
   
   .lyric {
@@ -222,7 +225,7 @@
   }
   
   .active span {
-    color: var(--md-sys-color-primary);;
+    color: var(--md-sys-color-primary);
     font-weight: 700;
     box-shadow: 0 1px 2px 1px rgba(var(--md-sys-color-on-secondary-container),0.4);
   }
@@ -288,11 +291,11 @@
   .followTime {
     position: absolute;
     right: 5%;
-    top: 100%;
+    top: calc(100% + 20px);
     border-radius: 24px;
     border: none;
     background-color: var(--md-sys-color-surface-container-high);
-    color: var(--md-sys-color-on-surface);
+    color: var(--md-sys-color-primary);
     font-weight: bold;
     cursor: pointer;
     display: flex;
@@ -306,6 +309,5 @@
   .followTime:hover {
     background-color: var(--md-sys-color-primary);
     color: var(--md-sys-color-on-primary);
-    transform: scale(1.1);
   }
 </style>

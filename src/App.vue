@@ -79,6 +79,9 @@
       isPlaying.value = false;
       
     });
+    document.addEventListener('contextmenu', function(event) {
+      event.preventDefault(); // 阻止右键菜单的弹出
+    });
   });
   if (!localStorage.getItem("audio")) {
     localStorage.setItem("audio", JSON.stringify([]));

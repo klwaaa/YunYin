@@ -26,7 +26,8 @@ const router = createRouter({
     {
       name:"AudioView",
       path:"/AudioView",
-      component: AudioView
+      component: AudioView,
+      meta: { transition: "AudioView" },
     },
     {
       name:"DataSync",
