@@ -29,7 +29,7 @@ export default function usePlaybackMode() {
   const playListData = useGetPlayList();
   
   
-  watch([playListData,playingPlayList], () => {
+  watch([playListData, playingPlayList], () => {
     for (let i = 0; i < playListData.playListData.length; i++) {
       if (Object.keys(playListData.playListData[i])[0] === playingPlayList.value) {
         playList.value = playListData.playListData[i][Object.keys(playListData.playListData[i])[0]];
@@ -45,7 +45,7 @@ export default function usePlaybackMode() {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-    console.log(shuffled,"shuffled");
+    console.log(shuffled, "shuffled");
     randomPlaylist = shuffled;
     localStorage.setItem("randomPlaylist", JSON.stringify(shuffled));
     playList.value = randomPlaylist;
@@ -62,35 +62,7 @@ export default function usePlaybackMode() {
   // 处理歌曲结束逻辑
   const handleTrackEnd = () => {
     
-    // if (playbackModeIndex.value!==2){
-    //   for (let i = 0; i < playListData.playListData.length; i++) {
-    //     if (Object.keys(playListData.playListData[i])[0] === playingPlayList.value) {
-    //       playList.value = playListData.playListData[i][Object.keys(playListData.playListData[i])[0]];
-    //       break;
-    //     }
-    //   }
-    // }
-    
-    
-    // currentAudioTime.value = 0;
     switch (playbackModeIndex.value) {
-      // case 0: // 顺序播放
-      //   intervalId = setInterval(() => {
-      //     if (currentAudioTime.value >= audioDuration.value) {
-      //       controlAudioKey.value++;
-      //       if (controlAudioKey.value >= playList.value.length) {
-      //         controlAudioKey.value = 0;
-      //       }
-      //       console.log(controlAudioKey.value, "controlAudioKey.value");
-      //       playingSongKey.value = playList.value[controlAudioKey.value].fileId;
-      //       playingSong.value = playList.value[controlAudioKey.value].name.substring(
-      //         0,
-      //         playList.value[controlAudioKey.value].name.lastIndexOf(".")
-      //       );
-      //       clearInterval(<any>intervalId);
-      //     }
-      //   }, 1000);
-      //   break;
       
       case 2: // 随机播放
         console.log(count.value, "count.value");
@@ -99,30 +71,9 @@ export default function usePlaybackMode() {
         }
         
         // 监听是否切换歌单
-        watch([playingPlayList,playListData], () => {
-          shuffled()
+        watch([playingPlayList, playListData], () => {
+          shuffled();
         });
-      
-      // for (let i = 0; i < randomPlaylist.length; i++) {
-      //   if (randomPlaylist[i].name.substring(0, randomPlaylist[i].name.lastIndexOf(".")) ===
-      //     playingSong.value) {
-      //     console.log(i,"i");
-      //     shuffledIndex.value = i;
-      //     break;
-      //   }
-      // }
-      
-      //     intervalId = setInterval(() => {
-      //       if (currentAudioTime.value >= audioDuration.value) {
-      //         shuffledIndex.value++;
-      //         if (shuffledIndex.value >= randomPlaylist.length) {
-      //           randomPlaylist.value = 0;
-      //         }
-      //
-      //         clearInterval(<any>intervalId);
-      //       }
-      //     }, 1000);
-      //     break;
     }
   };
   
@@ -133,25 +84,7 @@ export default function usePlaybackMode() {
     handleTrackEnd();
   }, {immediate: true});
   
-  // // 监听是否切换歌单
-  // watch(playingPlayList, () => {
-  //   count.value++;
-  //   console.log(count.value,"count.value");
-  //   handleTrackEnd();
-  //   // for (let i = 0; i < randomPlaylist.length; i++) {
-  //   //   console.log(playingSong.value,"playingSong.value");
-  //   //   console.log(randomPlaylist[i].name.substring(0, randomPlaylist[i].name.lastIndexOf(".")));
-  //   //   if (randomPlaylist[i].name.substring(0, randomPlaylist[i].name.lastIndexOf(".")) ===
-  //   //     playingSong.value) {
-  //   //     console.log(i,"i");
-  //   //     shuffledIndex.value = i;
-  //   //     break;
-  //   //   }
-  //   // }
-  // });
   
-  
-  // 歌名乱跳问题原因
   // 单独监听随机播放下标
   watch(controlAudioKey, () => {
     if (playbackModeIndex.value !== 2) {
@@ -163,13 +96,6 @@ export default function usePlaybackMode() {
           break;
         }
       }
-      
-      // for (let i = 0; i < playList.value.length; i++) {
-      //   if (playList.value[i].name === randomPlaylist[shuffledIndex.value].name) {
-      //     controlAudioKey.value = i;
-      //     break;
-      //   }
-      // }
     }
   });
   

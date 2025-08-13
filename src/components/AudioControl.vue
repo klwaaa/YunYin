@@ -107,7 +107,6 @@
       controlAudioKeyCount = shuffledIndex.value;
     } else {
       controlAudioKeyCount = controlAudioKey.value;
-      // playingAudio.value = playList[controlAudioKeyCount].name;
     }
   });
   
@@ -149,12 +148,9 @@
       console.log(playListData.playListData);
       if (playbackModeIndex.value === 2) {
         controlAudioKeyCount = shuffledIndex.value;
-        // playingAudio.value = randomPlaylist[controlAudioKeyCount].name;
       } else {
         controlAudioKeyCount = controlAudioKey.value;
-        // playingAudio.value = playList[controlAudioKeyCount].name;
       }
-      // playingAudio.value = playList[controlAudioKey.value].name;
       for (let i = 0; i < playList.length; i++) {
         if (playList[i].name.substring(0, playList[i].name.lastIndexOf(".")) === playingSong.value) {
           audioDuration.value = Number(playList[i].duration);
@@ -166,12 +162,9 @@
   } else {
     if (playbackModeIndex.value === 2) {
       controlAudioKeyCount = shuffledIndex.value;
-      // playingAudio.value = randomPlaylist[controlAudioKeyCount].name;
     } else {
       controlAudioKeyCount = controlAudioKey.value;
-      // playingAudio.value = playList[controlAudioKeyCount].name;
     }
-    // playingAudio.value = playList[controlAudioKey.value].name;
     for (let i = 0; i < playList.length; i++) {
       if (playList[i].name.substring(0, playList[i].name.lastIndexOf(".")) === playingSong.value) {
         audioDuration.value = Number(playList[i].duration);
@@ -197,15 +190,6 @@
   
   console.log(audioUrl,"audioUrl");
   console.log(audioSize,"audioSize");
-  // await useGetAudiosUrl(playingSongKey.value).then((data) => {
-  //   console.log(data, "https://openapi.alipan.com");
-  //   audioUrl = data.audioUrl;
-  //   audioSize = data.audioSize;
-  //   console.log(audioSize,"audioSize");
-  //   console.log(audioUrl, "audioUrl");
-  // }).catch((err) => {
-  //   console.log(err);
-  // });
   console.log(playList);
   const originalAudioSize = audioSize;
   let audioTime: number = 0;
@@ -264,7 +248,7 @@
           newSource.buffer = globalAudioBuffer.value;
           newSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          newSource?.start(0, currentAudioTime.value + 0.3);
+          newSource?.start(0, currentAudioTime.value + 0.31);
         });
       } else {
         newSource?.stop();
@@ -282,7 +266,7 @@
       }
       newSource.connect(gainNode);
       gainNode.connect(audioCtx.destination);
-      newSource.start(audioCtx.currentTime, currentAudioTime.value + 0.3);
+      newSource.start(audioCtx.currentTime, currentAudioTime.value + 0.31);
     }
   };
   
@@ -394,7 +378,7 @@
           oldSource.buffer = globalAudioBuffer.value;
           oldSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          oldSource.start(audioCtx.currentTime, currentAudioTime.value + 0.3);
+          oldSource.start(audioCtx.currentTime, currentAudioTime.value + 0.31);
         } else {
           console.log("newSource");
           if (controlPlay !== null) {
@@ -412,7 +396,7 @@
               newSource.buffer = globalAudioBuffer.value;
               newSource.connect(gainNode);
               gainNode.connect(audioCtx.destination);
-              newSource.start(0, currentAudioTime.value + 0.3);
+              newSource.start(0, currentAudioTime.value + 0.31);
             }
           });
           
@@ -420,7 +404,7 @@
           newSource.buffer = globalAudioBuffer.value;
           newSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          newSource?.start(audioCtx.currentTime, currentAudioTime.value + 0.3);
+          newSource?.start(audioCtx.currentTime, currentAudioTime.value + 0.31);
         }
       }
       isPlaying.value = true;
@@ -470,13 +454,6 @@
       }
     } else {
       controlAudioKey.value = controlAudioKeyCount;
-      // for (let i = 0; i < randomPlaylist.length; i++) {
-      //   if (randomPlaylist[i].name.substring(0, randomPlaylist[i].name.lastIndexOf(".")) ===
-      //     playList[controlAudioKey.value].name.substring(0, playList[controlAudioKey.value].name.lastIndexOf("."))) {
-      //     shuffledIndex.value = i;
-      //     break;
-      //   }
-      // }
     }
     playingSongKey.value = playList[controlAudioKey.value].fileId;
     console.log(playList[controlAudioKey.value]);
@@ -489,14 +466,6 @@
     isPlaying.value = true;
   }
   
-  // 选歌防抖
-  // function debounceChoose() {
-  //   let timer: any;
-  //   return function () {
-  //     clearTimeout(timer);
-  //     timer = setTimeout(changeSong, 2000);
-  //   };
-  // }
   function debounceChoose(fn: any, t: any) {
     let timer: any;
     return function () {
@@ -586,7 +555,7 @@
                     if (isPlaying.value) {
                       console.log(currentAudioTime.value, "currentAudioTime.value");
                       oldSource.stop(audioCtx.currentTime);
-                      source.start(audioCtx.currentTime, currentAudioTime.value + 0.3);
+                      source.start(audioCtx.currentTime, currentAudioTime.value + 0.31);
                       console.log(audioTime, "isPlaying.value");
                       oldSource.onended = () => {
                         oldSource = undefined;

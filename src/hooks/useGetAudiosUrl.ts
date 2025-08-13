@@ -1,9 +1,7 @@
 import axios from 'axios';
 
 let controller: AbortController | null = null;
-// function sleep(ms: number) {
-//   return new Promise(resolve => setTimeout(resolve, ms));
-// }
+
 
 export default async function getAudioUrl(file_id: any): Promise<any> {
   // 如果上一个请求存在，取消它
@@ -32,7 +30,6 @@ export default async function getAudioUrl(file_id: any): Promise<any> {
   };
   
   try {
-    // await sleep(200);
     const { data } = await axios(config);
     if (!data) {
       console.log('错误');

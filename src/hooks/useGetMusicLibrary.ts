@@ -9,7 +9,7 @@ export default async function (arr: Array<any>, next_marker: string): Promise<an
       token: JSON.parse(<string>localStorage.getItem("token")).access_token,
       filePath: "/普听音乐/音乐库"
     });
-    console.log(JSON.parse(parentFileId).file_id,"JSON.parse(parentFileId).file_id");
+    console.log(JSON.parse(parentFileId).file_id, "JSON.parse(parentFileId).file_id");
     parent_file_id = JSON.parse(parentFileId).file_id;
     localStorage.setItem("parent_file_id", parent_file_id);
   }
@@ -43,27 +43,4 @@ export default async function (arr: Array<any>, next_marker: string): Promise<an
       next_marker: "err"
     };
   }
-
-// const body = JSON.stringify({
-//   "drive_id": localStorage.getItem("drive_id"),
-//   "parent_file_id": parent_file_id,
-//   "limit": 3,
-//   "category": "audio",
-//   "type":"file",
-//   "marker":next_marker
-// });
-//
-// const config = {
-//   method: 'post',
-//   url: '/aliyun-api/adrive/v1.0/openFile/list',
-//   headers: {
-//     'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
-//     'Content-Type': 'application/json',
-//     'Accept': '*/*',
-//   },
-//   data: body
-// };
-// console.log(config.url,"config.url");
-// const {data} = await axios(config);
-// console.log(data,"111111111");
 }

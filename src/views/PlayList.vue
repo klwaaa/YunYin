@@ -176,7 +176,6 @@
   import {storeToRefs} from "pinia";
   import router from "../router";
   import {invoke} from "@tauri-apps/api/core";
-  // import axios from "axios";
   import useSaveTo from "../hooks/useSaveTo.ts";
   
   // 引入 Pinia 中的状态
@@ -459,59 +458,6 @@
     } catch (error) {
       console.error("执行操作时出错:", error);
     }
-    
-    // const data = JSON.stringify({
-    //   "drive_id": localStorage.getItem("drive_id"),
-    //   "file_id": song.fileId
-    // });
-    //
-    // const config = {
-    //   method: 'post',
-    //   url: '/aliyun-api/adrive/v1.0/openFile/recyclebin/trash',
-    //   headers: {
-    //     'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
-    //     'Content-Type': 'application/json',
-    //     'Accept': '*/*',
-    //   },
-    //   data: data
-    // };
-    //
-    // axios(config).then(() => {
-    //   const body = JSON.stringify({
-    //     "drive_id": localStorage.getItem("drive_id"),
-    //     "file_path": `/1/${song.name.substring(0, song.name.lastIndexOf("."))}.lrc`
-    //   });
-    //
-    //   const config = {
-    //     method: 'post',
-    //     url: '/aliyun-api/adrive/v1.0/openFile/get_by_path',
-    //     headers: {
-    //       'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
-    //       'Content-Type': 'application/json',
-    //       'Accept': '*/*'
-    //     },
-    //     data: body
-    //   };
-    //   axios(config).then(({data: {file_id}}) => {
-    //     const data = JSON.stringify({
-    //       "drive_id": localStorage.getItem("drive_id"),
-    //       "file_id": file_id
-    //     });
-    //
-    //     const config = {
-    //       method: 'post',
-    //       url: '/aliyun-api/adrive/v1.0/openFile/recyclebin/trash',
-    //       headers: {
-    //         'Authorization': JSON.parse(<string>localStorage.getItem("token")).access_token,
-    //         'Content-Type': 'application/json',
-    //         'Accept': '*/*',
-    //       },
-    //       data: data
-    //     };
-    //     axios(config);
-    //   });
-    //
-    // });
     
     // 从所有歌单中删除歌曲
     for (let i = 0; i < playListData.value.length; i++) {

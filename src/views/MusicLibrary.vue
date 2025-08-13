@@ -75,9 +75,6 @@
   // 用户当前勾选的
   const selectedAudios = ref<any[]>([]);
   
-  // ✅ 模拟 localStorage 的已保存音频记录
-  // const savedAudios: any = [];
-  
   // 分页控制
   let oldArr: Array<any> = [];
   let oldNext_marker: string = "";
@@ -93,7 +90,7 @@
     oldArr = arr;
     oldNext_marker = next_marker;
     
-    // ✅ fileId 去重，只添加新数据
+    // fileId 去重，只添加新数据
     const existingIds = new Set(displayedList.value.map(item => item.fileId));
     const filteredNewItems = arr.filter((item: any) => !existingIds.has(item.fileId));
     displayedList.value.push(...filteredNewItems);
@@ -101,7 +98,7 @@
     if (!next_marker) observer.disconnect();
   }
   
-  // ✅ 全选所有
+  // 全选所有
   function clickAll() {
     selectedAudios.value = [...displayedList.value];
   }
