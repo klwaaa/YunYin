@@ -13,9 +13,6 @@ export default function () {
     // 遍历用户选中的歌单索引列表
     for (const index of selectedPlayList) {
       
-      // 防止索引越界
-      if (index < 0 || index >= playListData.length) continue;
-      
       // 获取当前歌单对象的 key（例如 "歌单1"）
       for (let i = 0; i < playListData.length; i++) {
         if (!playListData[i][index]) {

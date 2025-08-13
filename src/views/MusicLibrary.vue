@@ -3,7 +3,7 @@
     <div ref="selectedRef" class="selected">
       <button class="btn-primary" @click="saveToIsShow = true">保存音频</button>
       <button class="btn-secondary" @click="clickAll">全选</button>
-      
+      <p class="prompt">一次最大显示100个请下滑加载更多</p>
       <ul>
         <li v-for="(item) in displayedList" :key="item.fileId">
           <label>
@@ -133,7 +133,11 @@
     height: calc(100vh - 150px);
     overflow: hidden;
   }
-  
+  .prompt {
+    color: var(--md-sys-color-error);
+    font-size: 20px;
+    margin-left: 10px;
+  }
   button {
     margin: 10px;
     padding: 12px 24px;
@@ -208,6 +212,7 @@
     padding: 12px 16px;
     border-radius: 12px;
     margin-bottom: 8px;
+    margin-left: 5px;
     transition: all 0.2s ease;
     background-color: var(--md-sys-color-surface-container);
     user-select: none;

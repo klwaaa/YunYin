@@ -2,7 +2,7 @@
   <div class="app">
     <div class="app-header">
       <div class="logo">
-        logo
+        <img src="../assets/logo.png" alt="">
       </div>
       <div class="nav-items">
         <div class="login">
@@ -39,16 +39,16 @@
       </template>
     </suspense>
     
-        <div class="audioControl">
-          <Suspense>
-            <template v-slot:default>
-              <AudioControl :key="controlAudioKey-count"></AudioControl>
-            </template>
-            <template v-slot:fallback>
-              加载中
-            </template>
-          </Suspense>
-        </div>
+    <div class="audioControl">
+      <Suspense>
+        <template v-slot:default>
+          <AudioControl :key="controlAudioKey-count"></AudioControl>
+        </template>
+        <template v-slot:fallback>
+          加载中
+        </template>
+      </Suspense>
+    </div>
   </div>
 </template>
 
@@ -158,10 +158,10 @@
     border-bottom: 1px solid var(--md-sys-color-outline-variant);
   }
   
-  .logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--md-sys-color-primary);
+  .logo img {
+    margin-top: 8px;
+    width: 60px;
+    height: 40px;
   }
   
   .nav-items {
