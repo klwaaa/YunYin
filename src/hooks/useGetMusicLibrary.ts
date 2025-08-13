@@ -9,6 +9,7 @@ export default async function (arr: Array<any>, next_marker: string): Promise<an
       token: JSON.parse(<string>localStorage.getItem("token")).access_token,
       filePath: "/普听音乐/音乐库"
     });
+    console.log(JSON.parse(parentFileId).file_id,"JSON.parse(parentFileId).file_id");
     parent_file_id = JSON.parse(parentFileId).file_id;
     localStorage.setItem("parent_file_id", parent_file_id);
   }

@@ -191,6 +191,7 @@
   .audioView_view {
     height: calc(100vh - 260px);
     position: relative;
+    max-width: 100vw;
   }
   
   .icon-fanhui {
@@ -199,16 +200,17 @@
   }
   
   .lyric {
-    max-height: 400px;
+    height: 100%;
     overflow-y: auto;
     position: relative;
     scroll-behavior: smooth;
-    padding: 16px 24px;
+    padding: 16px 24px 24px 100px;
     line-height: 1.6;
     font-size: 16px;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     user-select: none;
     text-align: center;
+    overflow-x: hidden;
   }
   
   .lyric p {
@@ -218,6 +220,7 @@
   /* 当前行高亮 */
   p.active {
     margin: 15px;
+    transform: scale(1.1);
   }
   
   span {

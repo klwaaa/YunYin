@@ -72,7 +72,7 @@
   const code = getCode.split("?code=")[1];
   localStorage.setItem("code", code);
   // 通过code获取token
-  if (getCode.length > 1 && tokenStore.refresh_token === "null") {
+  if (getCode.length > 1 && localStorage.getItem("drive_id")===null) {
     tokenStore.useCodeGetToken().then(() => {
       useGetDriveID();
     });
@@ -90,12 +90,11 @@
   }
   
   watch(token, () => {
-    setTimeout(() => {
-      const token: any = localStorage.getItem("token");
-      const parsed = JSON.parse(token);
-      console.log(parsed.access_token, "{access_token:null}");
-      isLoggedIn.value = parsed.access_token !== "null";
-    }, 300);
+    const token: any = localStorage.getItem("token");
+    const parsed = JSON.parse(token);
+    console.log(parsed, "111111111111111");
+    isLoggedIn.value = parsed.access_token !== "null";
+    
   }, {immediate: true, deep: true});
 </script>
 

@@ -537,7 +537,6 @@
       responseType: 'blob',
       signal: controller.signal
     };
-    console.log("getSegmentData111111111111111111");
     try {
       const {data} = await axios(<any>config);
       return data;

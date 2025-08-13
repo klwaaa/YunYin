@@ -38,14 +38,6 @@ export default defineConfig(async () => ({
     watch: {
       // 3. tell vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"],
-    },
-    proxy: {
-      // 阿里云盘API代理
-      '/aliyun-api': {
-        target: 'https://openapi.alipan.com',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/aliyun-api/, '')
-      }
     }
   },
 }));
