@@ -1,6 +1,6 @@
 <template>
   <div class="audio-control">
-    <p class="SongTitle" :title="playingSong">
+    <p class="SongTitle" :title="playingSong" @dblclick="router.push('/AudioView')">
       {{ playingSong }}
     </p>
     <div class="control_AudioDuration">
@@ -61,6 +61,7 @@
   import usePlaybackMode from "../hooks/usePlaybackMode.ts";
   import {useGetPlayList} from "../store/playList.ts";
   import {invoke} from "@tauri-apps/api/core";
+  import router from "../router";
   
   
   let change: any = null;
@@ -172,7 +173,6 @@
       }
     }
   }
-  
   
   // 得到文件下载链接
   let audioUrl: any, audioSize: any;
@@ -341,7 +341,6 @@
   
   // 暂停
   const pause = () => {
-    console.log(11111111111111);
     if (oldSource !== undefined) {
       console.log(oldSource);
       oldSource?.stop();
@@ -349,15 +348,11 @@
       if (isFirst) {
         source?.stop();
         isFirst = false;
-        console.log(isFirst, "isFirstture");
       } else {
-        console.log(isFirst, "isFirst");
         newSource?.stop();
       }
     }
-    console.log(interval, "interval");
     clearInterval(interval);
-    console.log(fistInterval, "fistInterval");
     clearInterval(fistInterval);
   };
   
