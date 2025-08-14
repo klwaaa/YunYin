@@ -34,7 +34,7 @@ type PlaylistItem = IndexMap<String, Vec<AudioFile>>;
 /// ✅ 整体播放列表是多个歌单项组成的数组
 type PlayListData = Vec<PlaylistItem>;
 
-/// ✅ 使用授权码换取 token
+/// 使用授权码换取 token
 #[command]
 async fn get_token_by_code(code: String) -> Result<String, String> {
     let client_id = "应用id";
@@ -61,7 +61,7 @@ async fn get_token_by_code(code: String) -> Result<String, String> {
     }
 }
 
-/// ✅ 使用 refresh_token 刷新 token
+/// 使用 refresh_token 刷新 token
 #[command]
 async fn get_token_by_refresh(refresh_token: String) -> Result<String, String> {
     let client_id = "应用id";
@@ -88,7 +88,30 @@ async fn get_token_by_refresh(refresh_token: String) -> Result<String, String> {
     }
 }
 
-/// ✅ 读取本地 data.json 数据
+// 获取driveId
+#[command]
+async fn get_drive_id(token: String) -> Result<String, String> {
+    let client = Client::new();
+
+    // 发送 POST 请求
+    let url = "https://openapi.alipan.com/adrive/v1.0/user/getDriveInfo";  // 使用实际的 URL
+    let response = client.post(url)
+        .header("Authorization", format!("Bearer {}", token))
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    // 检查请求是否成功
+    if response.status().is_success() {
+        // 直接返回响应的纯文本内容
+        let response_text = response.text().await.map_err(|e| e.to_string())?;
+        Ok(response_text)
+    } else {
+        Err(format!("Request failed with status: {}", response.status()))
+    }
+}
+
+///读取本地 data.json 数据
 #[command]
 fn get_all_audio_data() -> Result<PlayListData, String> {
     let path = "./data.json";
@@ -373,6 +396,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             get_token_by_code,
             get_token_by_refresh,
+            get_drive_id,
             get_all_audio_data,
             update_playlist_data,
             upload_data_json,

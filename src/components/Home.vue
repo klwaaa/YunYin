@@ -56,11 +56,11 @@
   import AudioControl from "./AudioControl.vue";
   import {useRoute} from 'vue-router';
   import {useGetTokenStore} from "../store/token.ts";
-  import useGetDriveID from "../hooks/useGetDriveID.ts";
   import {useGetAudio} from "../store/audio.ts";
   import {storeToRefs} from "pinia";
   import {RouterView, RouterLink} from "vue-router";
   import {ref, watch} from "vue";
+  import {invoke} from "@tauri-apps/api/core";
   
   const count = ref(0);
   const route = useRoute();
@@ -72,9 +72,12 @@
   const code = getCode.split("?code=")[1];
   localStorage.setItem("code", code);
   // 通过code获取token
-  if (getCode.length > 1 && tokenStore.refresh_token === "null") {
-    tokenStore.useCodeGetToken().then(() => {
-      useGetDriveID();
+  if (getCode.length > 1 && tokenStore.access_token === "null") {
+    tokenStore.useCodeGetToken().then(async () => {
+      const responseText:string = await invoke('get_drive_id', {
+        token:JSON.parse(<string>localStorage.getItem("token")).access_token
+      });
+      localStorage.setItem("drive_id", JSON.parse(responseText).backup_drive_id);
     });
   }
   // 刷新AudioControl
