@@ -132,7 +132,6 @@
   
   
   let randomPlaylist = JSON.parse(localStorage.getItem("randomPlaylist") as string);
-  console.log(randomPlaylist, "randomPlaylist");
   let controlAudioKeyCount: number = 0;
   
   
@@ -248,7 +247,7 @@
           newSource.buffer = globalAudioBuffer.value;
           newSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          newSource?.start(0, currentAudioTime.value + 0.31);
+          newSource?.start(0, currentAudioTime.value + 0.32);
         });
       } else {
         newSource?.stop();
@@ -266,7 +265,7 @@
       }
       newSource.connect(gainNode);
       gainNode.connect(audioCtx.destination);
-      newSource.start(audioCtx.currentTime, currentAudioTime.value + 0.31);
+      newSource.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
     }
   };
   
@@ -378,7 +377,7 @@
           oldSource.buffer = globalAudioBuffer.value;
           oldSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          oldSource.start(audioCtx.currentTime, currentAudioTime.value + 0.31);
+          oldSource.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
         } else {
           console.log("newSource");
           if (controlPlay !== null) {
@@ -396,7 +395,7 @@
               newSource.buffer = globalAudioBuffer.value;
               newSource.connect(gainNode);
               gainNode.connect(audioCtx.destination);
-              newSource.start(0, currentAudioTime.value + 0.31);
+              newSource.start(0, currentAudioTime.value + 0.32);
             }
           });
           
@@ -404,7 +403,7 @@
           newSource.buffer = globalAudioBuffer.value;
           newSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          newSource?.start(audioCtx.currentTime, currentAudioTime.value + 0.31);
+          newSource?.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
         }
       }
       isPlaying.value = true;
@@ -555,7 +554,7 @@
                     if (isPlaying.value) {
                       console.log(currentAudioTime.value, "currentAudioTime.value");
                       oldSource.stop(audioCtx.currentTime);
-                      source.start(audioCtx.currentTime, currentAudioTime.value + 0.31);
+                      source.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
                       console.log(audioTime, "isPlaying.value");
                       oldSource.onended = () => {
                         oldSource = undefined;
