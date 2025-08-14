@@ -240,12 +240,12 @@
             controlPlay();
           }
           console.log(BlobAudioData, "isPlaying.value");
-          newSource?.stop(audioCtx.currentTime);
+          newSource?.stop(audioCtx.currentTime+0.05);
           newSource = audioCtx.createBufferSource();
           newSource.buffer = globalAudioBuffer.value;
           newSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          newSource?.start(0, currentAudioTime.value + 0.325);
+          newSource?.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
         });
       } else {
         newSource?.stop();
@@ -262,7 +262,7 @@
       }
       newSource.connect(gainNode);
       gainNode.connect(audioCtx.destination);
-      newSource.start(audioCtx.currentTime, currentAudioTime.value + 0.325);
+      newSource.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
     }
   };
   
@@ -369,7 +369,7 @@
           oldSource.buffer = globalAudioBuffer.value;
           oldSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          oldSource.start(audioCtx.currentTime, currentAudioTime.value + 0.325);
+          oldSource.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
         } else {
           console.log("newSource");
           if (controlPlay !== null) {
@@ -387,7 +387,7 @@
               newSource.buffer = globalAudioBuffer.value;
               newSource.connect(gainNode);
               gainNode.connect(audioCtx.destination);
-              newSource.start(0, currentAudioTime.value + 0.325);
+              newSource.start(0, currentAudioTime.value + 0.32);
             }
           });
           
@@ -395,7 +395,7 @@
           newSource.buffer = globalAudioBuffer.value;
           newSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          newSource?.start(audioCtx.currentTime, currentAudioTime.value + 0.325);
+          newSource?.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
         }
       }
       isPlaying.value = true;
@@ -545,8 +545,8 @@
                     console.log(audioTime, "before audioTime");
                     if (isPlaying.value) {
                       console.log(currentAudioTime.value, "currentAudioTime.value");
-                      oldSource.stop(audioCtx.currentTime);
-                      source.start(audioCtx.currentTime, currentAudioTime.value + 0.325);
+                      oldSource.stop(audioCtx.currentTime+0.05);
+                      source.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
                       console.log(audioTime, "isPlaying.value");
                       oldSource.onended = () => {
                         oldSource = undefined;
