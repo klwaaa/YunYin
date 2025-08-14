@@ -189,7 +189,6 @@
   
   console.log(audioUrl,"audioUrl");
   console.log(audioSize,"audioSize");
-  console.log(playList);
   const originalAudioSize = audioSize;
   let audioTime: number = 0;
   // 确定分片大小和数据请求位置
@@ -226,7 +225,6 @@
   
   //控制音频时间
   const handleChange = () => {
-    console.log('绑定变量值为:', currentAudioTime.value); // 也可以直接从 ref 中拿
     if (isPlaying.value) {
       console.log(isPlaying.value, "isPlaying.value");
       if (oldSource !== undefined) {
@@ -247,14 +245,13 @@
           newSource.buffer = globalAudioBuffer.value;
           newSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          newSource?.start(0, currentAudioTime.value + 0.32);
+          newSource?.start(0, currentAudioTime.value + 0.325);
         });
       } else {
         newSource?.stop();
       }
       newSource = audioCtx.createBufferSource();
       newSource.buffer = globalAudioBuffer.value;
-      console.log(newSource.buffer, "handleChange");
       for (const source of sourceNodes) {
         try {
           source.stop(); // 会立即停止播放或取消排程
@@ -265,7 +262,7 @@
       }
       newSource.connect(gainNode);
       gainNode.connect(audioCtx.destination);
-      newSource.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
+      newSource.start(audioCtx.currentTime, currentAudioTime.value + 0.325);
     }
   };
   
@@ -277,7 +274,7 @@
     };
   }
   
-  watch(currentAudioTime, debounce(handleChange, 600));
+  watch(currentAudioTime, debounce(handleChange, 800));
   // 初始化音量滑块
   gainNode.gain.value = volume.value / 100;
   const showVolume = ref(false);
@@ -372,7 +369,7 @@
           oldSource.buffer = globalAudioBuffer.value;
           oldSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          oldSource.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
+          oldSource.start(audioCtx.currentTime, currentAudioTime.value + 0.325);
         } else {
           console.log("newSource");
           if (controlPlay !== null) {
@@ -390,7 +387,7 @@
               newSource.buffer = globalAudioBuffer.value;
               newSource.connect(gainNode);
               gainNode.connect(audioCtx.destination);
-              newSource.start(0, currentAudioTime.value + 0.32);
+              newSource.start(0, currentAudioTime.value + 0.325);
             }
           });
           
@@ -398,7 +395,7 @@
           newSource.buffer = globalAudioBuffer.value;
           newSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          newSource?.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
+          newSource?.start(audioCtx.currentTime, currentAudioTime.value + 0.325);
         }
       }
       isPlaying.value = true;
@@ -549,7 +546,7 @@
                     if (isPlaying.value) {
                       console.log(currentAudioTime.value, "currentAudioTime.value");
                       oldSource.stop(audioCtx.currentTime);
-                      source.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
+                      source.start(audioCtx.currentTime, currentAudioTime.value + 0.325);
                       console.log(audioTime, "isPlaying.value");
                       oldSource.onended = () => {
                         oldSource = undefined;
