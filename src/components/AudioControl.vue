@@ -124,10 +124,13 @@
       playingSongKey.value = playList[controlAudioKey.value].fileId;
       playingSong.value = playList[controlAudioKey.value].name;
     }, 100);
-  }, {deep: true});
+  }, {deep: true,immediate:true});
   
   
-  let randomPlaylist = JSON.parse(localStorage.getItem("randomPlaylist") as string);
+  let randomPlaylist:any;
+  setTimeout(()=>{
+    randomPlaylist = JSON.parse(localStorage.getItem("randomPlaylist") as string)
+  },200)
   let controlAudioKeyCount: number = 0;
   
   
@@ -179,7 +182,6 @@
   });
   
   const originalAudioSize = audioSize;
-  let audioTime: number = 0;
   // 确定分片大小和数据请求位置
   let dataPosition: number = 0;
   let dataSize: number = 800000;
@@ -213,10 +215,6 @@
   //控制音频时间
   const handleChange = () => {
     if (isPlaying.value) {
-      if (oldSource !== undefined) {
-        source?.stop();
-        oldSource = undefined;
-      }
       if (isFirst) {
         isFirst = false;
         source?.stop();
@@ -521,7 +519,6 @@
                         oldSource = undefined;
                       };
                     }
-                    audioTime = audioBuffer.duration;
                     sourceNodes.push(source);
                   }
                 });
@@ -550,7 +547,6 @@
           source.connect(gainNode);
           gainNode.connect(audioCtx.destination);
           source.start();
-          audioTime = audioBuffer.duration;
         });
         fistInterval = setInterval(() => {
           currentAudioTime.value += 1;
@@ -568,7 +564,6 @@
           source.buffer = audioBuffer;
           source.connect(gainNode);
           gainNode.connect(audioCtx.destination);;
-          audioTime = audioBuffer.duration;
         });
       });
     }, 6000);

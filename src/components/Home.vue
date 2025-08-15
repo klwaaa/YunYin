@@ -42,7 +42,7 @@
     <div class="audioControl">
       <Suspense>
         <template v-slot:default>
-          <AudioControl :key="controlAudioKey-count"></AudioControl>
+          <AudioControl :key="controlAudioKey+count"></AudioControl>
         </template>
         <template v-slot:fallback>
           加载中
@@ -65,7 +65,6 @@
   const count = ref(0);
   const route = useRoute();
   const loginRef: any = ref();
-  
   // 获取得到的code
   const tokenStore = useGetTokenStore();
   const getCode = location.search;

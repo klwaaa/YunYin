@@ -311,6 +311,7 @@
       }
     }
     controlAudioKey.value = index;
+    emit('update:count', props.count + 0.1)
   }
   
   
@@ -629,7 +630,7 @@
         return;
       }
       setTimeout(() => {
-        emit('update:count', props.count + 1);
+        emit('update:count', props.count + 0.1);
       }, 150);
     }
   }
