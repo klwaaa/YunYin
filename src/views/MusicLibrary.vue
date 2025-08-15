@@ -86,7 +86,6 @@
   // 获取新数据并追加展示
   async function getNewAudios() {
     const {arr, next_marker} = await useGetAudioFiles(oldArr, oldNext_marker);
-    console.log(arr);
     oldArr = arr;
     oldNext_marker = next_marker;
     

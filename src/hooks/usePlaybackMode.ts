@@ -33,7 +33,6 @@ export default function usePlaybackMode() {
     for (let i = 0; i < playListData.playListData.length; i++) {
       if (Object.keys(playListData.playListData[i])[0] === playingPlayList.value) {
         playList.value = playListData.playListData[i][Object.keys(playListData.playListData[i])[0]];
-        console.log(playList.value);
         break;
       }
     }
@@ -45,7 +44,6 @@ export default function usePlaybackMode() {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
-    console.log(shuffled, "shuffled");
     randomPlaylist = shuffled;
     localStorage.setItem("randomPlaylist", JSON.stringify(shuffled));
     playList.value = randomPlaylist;
@@ -65,7 +63,6 @@ export default function usePlaybackMode() {
     switch (playbackModeIndex.value) {
       
       case 2: // 随机播放
-        console.log(count.value, "count.value");
         if (count.value > 1) {
           shuffled();
         }

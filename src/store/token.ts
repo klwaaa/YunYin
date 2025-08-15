@@ -17,7 +17,6 @@ export const useGetTokenStore = defineStore("token", () => {
       try {
         const result = await invoke<string>("get_token_by_code", { code });
         const token = JSON.parse(result);
-        console.log("access_token:", token.access_token);
         access_token.value = token.access_token;
         refresh_token.value = token.refresh_token;
       } catch (err) {
@@ -33,7 +32,6 @@ export const useGetTokenStore = defineStore("token", () => {
       try {
         const result = await invoke<string>("get_token_by_refresh", { refreshToken: refresh_token.value });
         const token = JSON.parse(result);
-        console.log("刷新后 access_token:", token.access_token);
         access_token.value = token.access_token;
         refresh_token.value = token.refresh_token;
       } catch (err) {

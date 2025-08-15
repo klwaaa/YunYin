@@ -53,7 +53,6 @@ export default function () {
       await invoke("update_playlist_data", {
         data: playListData
       });
-      console.log("歌单数据已更新到后端");
     } catch (err) {
       console.error("更新后端失败:", err);
     }

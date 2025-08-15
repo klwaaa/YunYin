@@ -152,7 +152,6 @@
       });
       
       watch(isPlaying, (newValue) => {
-        console.log(newValue, "isPlayingnewValue");
         if (!newValue) {
           lrc.pause();
         }

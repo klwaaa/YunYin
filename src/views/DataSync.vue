@@ -110,7 +110,6 @@
   // 上传函数
   async function upload(uploadData_parent_file_id: string) {
     try {
-      console.log(1111111111);
       let data: any = await invoke('create_file', {
         driveId,
         parentFileId: uploadData_parent_file_id,

@@ -95,12 +95,8 @@
     
     if (playbackModeIndex.value === 2) {
       randomPlaylist = JSON.parse(localStorage.getItem("randomPlaylist") as string);
-      console.log(randomPlaylist, "randomPlaylist watch");
       for (let i = 0; i < randomPlaylist.length; i++) {
-        console.log(playingSong.value, "playingSong.value");
-        console.log(randomPlaylist[i].name.substring(0, randomPlaylist[i].name.lastIndexOf(".")));
         if (randomPlaylist[i].name === playingSong.value) {
-          console.log(i, "i");
           shuffledIndex.value = i;
           break;
         }
@@ -121,7 +117,6 @@
     for (let i = 0; i < playListData.playListData.length; i++) {
       if (Object.keys(playListData.playListData[i])[0] === playingPlayList.value) {
         playList = playListData.playListData[i][Object.keys(playListData.playListData[i])[0]];
-        console.log(playList);
         break;
       }
     }
@@ -141,11 +136,9 @@
       for (let i = 0; i < playListData.playListData.length; i++) {
         if (Object.keys(playListData.playListData[i])[0] === playingPlayList.value) {
           playList = playListData.playListData[i][Object.keys(playListData.playListData[i])[0]];
-          console.log(playList);
           break;
         }
       }
-      console.log(playListData.playListData);
       if (playbackModeIndex.value === 2) {
         controlAudioKeyCount = shuffledIndex.value;
       } else {
@@ -154,7 +147,6 @@
       for (let i = 0; i < playList.length; i++) {
         if (playList[i].name.substring(0, playList[i].name.lastIndexOf(".")) === playingSong.value) {
           audioDuration.value = Number(playList[i].duration);
-          console.log("audioDuration", audioDuration.value);
           break;
         }
       }
@@ -168,7 +160,6 @@
     for (let i = 0; i < playList.length; i++) {
       if (playList[i].name.substring(0, playList[i].name.lastIndexOf(".")) === playingSong.value) {
         audioDuration.value = Number(playList[i].duration);
-        console.log("audioDuration", audioDuration.value);
         break;
       }
     }
@@ -187,8 +178,6 @@
     audioSize = data.size;
   });
   
-  console.log(audioUrl,"audioUrl");
-  console.log(audioSize,"audioSize");
   const originalAudioSize = audioSize;
   let audioTime: number = 0;
   // 确定分片大小和数据请求位置
@@ -196,9 +185,7 @@
   let dataSize: number = 800000;
   // 确定分成几片
   const iterations: number = Math.floor(audioSize / dataSize);
-  console.log(iterations);
   const iterationsGroup: number = Math.floor(audioSize / (dataSize * 6));
-  console.log(iterationsGroup);
   
   let iterationsCount: number = 0;
   let iterationsGroupCount: number = 0;
@@ -226,7 +213,6 @@
   //控制音频时间
   const handleChange = () => {
     if (isPlaying.value) {
-      console.log(isPlaying.value, "isPlaying.value");
       if (oldSource !== undefined) {
         source?.stop();
         oldSource = undefined;
@@ -234,18 +220,16 @@
       if (isFirst) {
         isFirst = false;
         source?.stop();
-        console.log(isFirst, "isFirst");
         change = watch(globalAudioBuffer, () => {
           if (controlPlay !== null) {
             controlPlay();
           }
-          console.log(BlobAudioData, "isPlaying.value");
-          newSource?.stop(audioCtx.currentTime+0.05);
+          newSource?.stop(audioCtx.currentTime);
           newSource = audioCtx.createBufferSource();
           newSource.buffer = globalAudioBuffer.value;
           newSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          newSource?.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
+          newSource?.start(0, currentAudioTime.value + 0.32);
         });
       } else {
         newSource?.stop();
@@ -339,7 +323,6 @@
   // 暂停
   const pause = () => {
     if (oldSource !== undefined) {
-      console.log(oldSource);
       oldSource?.stop();
     } else {
       if (isFirst) {
@@ -360,18 +343,15 @@
       isPlaying.value = false;
     } else {
       if (isFirst) {
-        console.log("source");
         isFirst = false;
       } else {
         if (oldSource !== undefined) {
-          console.log("oldSource");
           oldSource = audioCtx.createBufferSource();
           oldSource.buffer = globalAudioBuffer.value;
           oldSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
           oldSource.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
         } else {
-          console.log("newSource");
           if (controlPlay !== null) {
             controlPlay();
           }
@@ -379,9 +359,7 @@
             if (change !== null) {
               change();
             }
-            console.log(isPlaying.value, "controlPlay = watch(globalAudioBuffer");
             if (isPlaying.value) {
-              console.log(BlobAudioData, "isPlaying.value");
               newSource?.stop(audioCtx.currentTime);
               newSource = audioCtx.createBufferSource();
               newSource.buffer = globalAudioBuffer.value;
@@ -409,7 +387,6 @@
   
   // 下一首
   function nextSong() {
-    console.log("nextSong");
     cancelAllRequests();
     controlAudioKeyCount++;
     if (controlAudioKeyCount >= playList.length) {
@@ -435,7 +412,6 @@
   function changeSong() {
     if (playbackModeIndex.value === 2) {
       shuffledIndex.value = controlAudioKeyCount;
-      console.log(controlAudioKeyCount, "playbackModeIndex.value === 2");
       for (let i = 0; i < playList.length; i++) {
         if (playList[i].name.substring(0, playList[i].name.lastIndexOf(".")) ===
             randomPlaylist[shuffledIndex.value].name.substring(0, randomPlaylist[shuffledIndex.value].name.lastIndexOf("."))) {
@@ -447,9 +423,7 @@
       controlAudioKey.value = controlAudioKeyCount;
     }
     playingSongKey.value = playList[controlAudioKey.value].fileId;
-    console.log(playList[controlAudioKey.value]);
     playingSong.value = playList[controlAudioKey.value].name;
-    console.log(playingSong.value, "playingSong.value changeSong");
     currentAudioTime.value = playList[controlAudioKey.value].duration;
     currentAudioTime.value = 0;
     
@@ -530,7 +504,6 @@
           // 音频链接播放
           if (iterationsGroup >= iterationsGroupCount) {
             iterationsGroupCount++;
-            console.log(iterationsGroupCount);
             setTimeout(() => {
               getAudioUrl().then((audioData: any) => {
                 audioCtx.decodeAudioData(audioData, function (audioBuffer) {
@@ -539,20 +512,15 @@
                     oldSource = source;
                     source = audioCtx.createBufferSource();
                     source.buffer = audioBuffer;
-                    console.log(source.buffer, "fun");
                     source.connect(gainNode);
                     gainNode.connect(audioCtx.destination);
-                    console.log(audioTime, "before audioTime");
                     if (isPlaying.value) {
-                      console.log(currentAudioTime.value, "currentAudioTime.value");
-                      oldSource.stop(audioCtx.currentTime+0.05);
+                      oldSource.stop(audioCtx.currentTime);
                       source.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
-                      console.log(audioTime, "isPlaying.value");
                       oldSource.onended = () => {
                         oldSource = undefined;
                       };
                     }
-                    console.log(source, "new");
                     audioTime = audioBuffer.duration;
                     sourceNodes.push(source);
                   }
@@ -570,30 +538,23 @@
   let fistInterval: any = null;
   
   let timeout: any;
-  console.log(isPlaying.value);
   if (isPlaying.value) {
     // 发送请求播放音频
     timeout = setTimeout(() => {
       getAudioUrl().then((audioData: any) => {
         // audioCtx = new AudioContext();
         source = audioCtx.createBufferSource();
-        console.log(audioData, "audioData");
         audioCtx.decodeAudioData(audioData, function (audioBuffer) {
           globalAudioBuffer.value = audioBuffer;
           source.buffer = audioBuffer;
-          console.log(source.buffer, "nofun");
-          console.log(audioBuffer, "audioBuffer");
           source.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          console.log(audioTime, "before audioTime");
           source.start();
-          console.log(source, "nofunsource");
           audioTime = audioBuffer.duration;
         });
         fistInterval = setInterval(() => {
           currentAudioTime.value += 1;
         }, 1000);
-        console.log(fistInterval, "fistInterval,isplaying");
       });
     }, 6000);
 
@@ -602,16 +563,11 @@
     timeout = setTimeout(() => {
       getAudioUrl().then((audioData: any) => {
         source = audioCtx.createBufferSource();
-        console.log(audioData, "audioData");
         audioCtx.decodeAudioData(audioData, function (audioBuffer) {
           globalAudioBuffer.value = audioBuffer;
           source.buffer = audioBuffer;
-          console.log(source.buffer, "nofun");
-          console.log(audioBuffer, "audioBuffer");
           source.connect(gainNode);
-          gainNode.connect(audioCtx.destination);
-          console.log(audioTime, "before audioTime");
-          console.log(source, "nofunsource");
+          gainNode.connect(audioCtx.destination);;
           audioTime = audioBuffer.duration;
         });
       });
@@ -627,14 +583,12 @@
         globalAudioBufferDuration.value = newGlobalAudioBuffer?.duration;
         if (isPlaying.value) {
           if (oldTime >= <any>newGlobalAudioBuffer?.duration) {
-            console.log("pause");
             clearInterval(interval);
             clearInterval(fistInterval);
             fistInterval = null;
             interval = null;
           } else {
             if (fistInterval === null && interval === null) {
-              console.log("start");
               fistInterval = setInterval(() => {
                 currentAudioTime.value += 1;
               }, 1000);
@@ -660,12 +614,9 @@
   
   onUnmounted(() => {
     cancelAllRequests();
-    console.log(fistInterval, "beforclear");
     clearInterval(fistInterval);
-    console.log(interval, "beforeclear");
     clearInterval(interval);
     clearTimeout(timeout);
-    console.log('unmounted');
     audioCtx.close();
   });
 </script>

@@ -170,7 +170,7 @@
 </template>
 
 <script setup lang="ts">
-  import {ref, reactive, onMounted, onBeforeUnmount, computed} from 'vue';
+  import {computed, onBeforeUnmount, onMounted, reactive, ref} from 'vue';
   import {useGetAudio} from "../store/audio.ts";
   import {useGetPlayList} from "../store/playList.ts";
   import {storeToRefs} from "pinia";
@@ -236,13 +236,9 @@
   // 获取本地播放状态初始化
   onMounted(async () => {
     await invoke("get_all_audio_data").then((result: any) => {
-      console.log("从后端获取的原始数据:", result);
       
       // 将后端数据转换为新的数组格式
-      const transformedData = transformData(result);
-      console.log("转换后的数据:", transformedData);
-      
-      playListData.value = transformedData;
+      playListData.value = transformData(result);
       
       const saved = JSON.parse(localStorage.getItem("audio") as string);
       const savedIndex = playListData.value.findIndex((playlist: any) =>
@@ -622,14 +618,12 @@
   function selectIsPlaying() {
     let playList;
     if (selectedSong.value.fileId === playingSongKey.value) {
-      console.log("selectIsPlaying");
       for (let i = 0; i < playListData.value.length; i++) {
         if (Object.keys(playListData.value[i])[0] === playingPlayList.value) {
           playList = (playListData.value[i][Object.keys(playListData.value[i])[0]]).length;
           break;
         }
       }
-      console.log(playListData.value);
       if (controlAudioKey.value >= playList) {
         controlAudioKey.value = 0;
         return;

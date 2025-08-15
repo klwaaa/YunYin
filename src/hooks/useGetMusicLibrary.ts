@@ -3,13 +3,11 @@ import {invoke} from "@tauri-apps/api/core";
 export default async function (arr: Array<any>, next_marker: string): Promise<any> {
   let parent_file_id: any = localStorage.getItem("parent_file_id");
   if (!parent_file_id) {
-    console.log(1111111111111111);
     const parentFileId: any = await invoke('using_path_get_data', {
       driveId: localStorage.getItem("drive_id"),
       token: JSON.parse(<string>localStorage.getItem("token")).access_token,
       filePath: "/普听音乐/音乐库"
     });
-    console.log(JSON.parse(parentFileId).file_id, "JSON.parse(parentFileId).file_id");
     parent_file_id = JSON.parse(parentFileId).file_id;
     localStorage.setItem("parent_file_id", parent_file_id);
   }
@@ -37,7 +35,6 @@ export default async function (arr: Array<any>, next_marker: string): Promise<an
       next_marker: data.next_marker
     };
   } catch (err) {
-    console.log(err);
     return {
       arr: "err",
       next_marker: "err"
