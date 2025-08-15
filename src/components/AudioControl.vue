@@ -227,7 +227,7 @@
           newSource.buffer = globalAudioBuffer.value;
           newSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          newSource?.start(0, currentAudioTime.value + 0.32);
+          newSource?.start(0, currentAudioTime.value );
         });
       } else {
         newSource?.stop();
@@ -244,7 +244,7 @@
       }
       newSource.connect(gainNode);
       gainNode.connect(audioCtx.destination);
-      newSource.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
+      newSource.start(audioCtx.currentTime, currentAudioTime.value );
     }
   };
   
@@ -348,7 +348,7 @@
           oldSource.buffer = globalAudioBuffer.value;
           oldSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          oldSource.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
+          oldSource.start(audioCtx.currentTime, currentAudioTime.value );
         } else {
           if (controlPlay !== null) {
             controlPlay();
@@ -363,7 +363,7 @@
               newSource.buffer = globalAudioBuffer.value;
               newSource.connect(gainNode);
               gainNode.connect(audioCtx.destination);
-              newSource.start(0, currentAudioTime.value + 0.32);
+              newSource.start(0, currentAudioTime.value );
             }
           });
           
@@ -371,7 +371,7 @@
           newSource.buffer = globalAudioBuffer.value;
           newSource.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          newSource?.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
+          newSource?.start(audioCtx.currentTime, currentAudioTime.value );
         }
       }
       isPlaying.value = true;
@@ -506,21 +506,7 @@
               getAudioUrl().then((audioData: any) => {
                 audioCtx.decodeAudioData(audioData, function (audioBuffer) {
                   globalAudioBuffer.value = audioBuffer;
-                  if (isFirst) {
-                    oldSource = source;
-                    source = audioCtx.createBufferSource();
-                    source.buffer = audioBuffer;
-                    source.connect(gainNode);
-                    gainNode.connect(audioCtx.destination);
-                    if (isPlaying.value) {
-                      oldSource.stop(audioCtx.currentTime);
-                      source.start(audioCtx.currentTime, currentAudioTime.value + 0.32);
-                      oldSource.onended = () => {
-                        oldSource = undefined;
-                      };
-                    }
-                    sourceNodes.push(source);
-                  }
+                  
                 });
               });
             }, 500);
