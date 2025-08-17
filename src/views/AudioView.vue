@@ -212,6 +212,20 @@
     overflow-x: hidden;
   }
   
+  .lyric::-webkit-scrollbar, .songList::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .lyric::-webkit-scrollbar-track, .songList::-webkit-scrollbar-track {
+    background: var(--md-sys-color-surface-container);
+    border-radius: 4px;
+  }
+  
+  .lyric::-webkit-scrollbar-thumb, .songList::-webkit-scrollbar-thumb {
+    background: var(--md-sys-color-outline-variant);
+    border-radius: 4px;
+  }
+  
   .lyric p {
     margin: 10px;
   }
