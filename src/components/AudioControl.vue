@@ -5,10 +5,10 @@
     </p>
     <div class="control_AudioDuration">
       <div class="audioDuration">
-        <p class="currentAudioTime">{{ formatTime(currentAudioTime) }}</p>
+        <p class="currentAudioTime">{{ formatTime(displayTime) }}</p>
         <el-slider
             
-            v-model="currentAudioTime"
+            v-model="displayTime"
             :max="Number(audioDuration)"
             :format-tooltip="formatTime"
             show-tooltip
@@ -24,7 +24,7 @@
           <span class="iconfont icon-suijibofang" v-show="playbackModeIndex===2"></span>
         </button>
         <button @click="previousSong();debounceChooseSong();"><span class="iconfont icon-xiangzuo-2"></span></button>
-        <button @click="control" :class="{loadingButton: globalAudioBufferDuration<=currentAudioTime}">
+        <button @click="control" :class="{loadingButton: globalAudioBufferDuration<=displayTime}">
           <span class="iconfont icon-zanting" v-show="isPlaying"></span>
           <span class="iconfont icon-bofang" v-show="!isPlaying"></span>
         </button>
@@ -63,9 +63,6 @@
   import {invoke} from "@tauri-apps/api/core";
   import router from "../router";
   
-  
-  let change: any = null;
-  let controlPlay: any = null;
   onMounted(() => {
     globalAudioBufferDuration.value = 0;
     document.addEventListener('click', handleClickOutside);
@@ -124,13 +121,13 @@
       playingSongKey.value = playList[controlAudioKey.value].fileId;
       playingSong.value = playList[controlAudioKey.value].name;
     }, 100);
-  }, {deep: true,immediate:true});
+  }, {deep: true, immediate: true});
   
   
-  let randomPlaylist:any;
-  setTimeout(()=>{
-    randomPlaylist = JSON.parse(localStorage.getItem("randomPlaylist") as string)
-  },200)
+  let randomPlaylist: any;
+  setTimeout(() => {
+    randomPlaylist = JSON.parse(localStorage.getItem("randomPlaylist") as string);
+  }, 200);
   let controlAudioKeyCount: number = 0;
   
   
@@ -172,9 +169,9 @@
   let audioUrl: any, audioSize: any;
   
   await invoke<string>("get_audio_url", {
-    driveId:localStorage.getItem("drive_id"),
-    fileId:playingSongKey.value,
-    token:JSON.parse(<string>localStorage.getItem("token")).access_token
+    driveId: localStorage.getItem("drive_id"),
+    fileId: playingSongKey.value,
+    token: JSON.parse(<string>localStorage.getItem("token")).access_token
   }).then((data: any) => {
     data = JSON.parse(data);
     audioUrl = data.url;
@@ -194,17 +191,14 @@
   
   const BlobAudioData: Blob[] = reactive([]);
   let audioCtx: AudioContext = new AudioContext();
-  let source: AudioBufferSourceNode;
-  const sourceNodes: AudioBufferSourceNode[] = [];
-  let oldSource: any;
   let globalAudioBuffer: any = ref();
   const gainNode = audioCtx.createGain();
   
   
   //初始化音频时间滑块
   currentAudioTime.value = 0;
-  let newSource: AudioBufferSourceNode;
-  let isFirst: boolean = true;
+  let source: AudioBufferSourceNode;
+  // let isFirst: boolean = true;
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60).toString().padStart(2, '0');
@@ -214,49 +208,18 @@
   
   //控制音频时间
   const handleChange = () => {
+    console.log("handleChange");
     if (isPlaying.value) {
-      if (isFirst) {
-        isFirst = false;
-        source?.stop();
-        change = watch(globalAudioBuffer, () => {
-          if (controlPlay !== null) {
-            controlPlay();
-          }
-          newSource?.stop(audioCtx.currentTime);
-          newSource = audioCtx.createBufferSource();
-          newSource.buffer = globalAudioBuffer.value;
-          newSource.connect(gainNode);
-          gainNode.connect(audioCtx.destination);
-          newSource?.start(0, currentAudioTime.value );
-        });
-      } else {
-        newSource?.stop();
-      }
-      newSource = audioCtx.createBufferSource();
-      newSource.buffer = globalAudioBuffer.value;
-      for (const source of sourceNodes) {
-        try {
-          source.stop(); // 会立即停止播放或取消排程
-        } catch (e) {
-          console.warn('Failed to stop source:', e);
-          sourceNodes.length = 0;
-        }
-      }
-      newSource.connect(gainNode);
+      source?.stop();
+      source = audioCtx.createBufferSource();
+      source.buffer = globalAudioBuffer.value;
+      source.connect(gainNode);
       gainNode.connect(audioCtx.destination);
-      newSource.start(audioCtx.currentTime, currentAudioTime.value );
+      source?.start(audioCtx.currentTime, displayTime.value);
     }
+    currentAudioTime.value = displayTime.value;
   };
   
-  function debounce(fun: any, time: any) {
-    let timer: any;
-    return function () {
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(fun, time);
-    };
-  }
-  
-  watch(currentAudioTime, debounce(handleChange, 800));
   // 初始化音量滑块
   gainNode.gain.value = volume.value / 100;
   const showVolume = ref(false);
@@ -302,13 +265,6 @@
     if (controlAudioKeyCount < 0) {
       controlAudioKeyCount = playList.length - 1;
     }
-    for (const source of sourceNodes) {
-      try {
-        source.stop(); // 会立即停止播放或取消排程
-      } catch (e) {
-        console.warn('Failed to stop source:', e);
-      }
-    }
     if (playbackModeIndex.value === 2) {
       playingSong.value = randomPlaylist[controlAudioKeyCount].name;
       audioDuration.value = randomPlaylist[controlAudioKeyCount].duration;
@@ -320,16 +276,7 @@
   
   // 暂停
   const pause = () => {
-    if (oldSource !== undefined) {
-      oldSource?.stop();
-    } else {
-      if (isFirst) {
-        source?.stop();
-        isFirst = false;
-      } else {
-        newSource?.stop();
-      }
-    }
+    source?.stop();
     clearInterval(interval);
     clearInterval(fistInterval);
   };
@@ -337,48 +284,19 @@
   // 控制播放
   function control() {
     if (isPlaying.value) {
-      pause();
       isPlaying.value = false;
+      pause();
     } else {
-      if (isFirst) {
-        isFirst = false;
-      } else {
-        if (oldSource !== undefined) {
-          oldSource = audioCtx.createBufferSource();
-          oldSource.buffer = globalAudioBuffer.value;
-          oldSource.connect(gainNode);
-          gainNode.connect(audioCtx.destination);
-          oldSource.start(audioCtx.currentTime, currentAudioTime.value );
-        } else {
-          if (controlPlay !== null) {
-            controlPlay();
-          }
-          controlPlay = watch(globalAudioBuffer, () => {
-            if (change !== null) {
-              change();
-            }
-            if (isPlaying.value) {
-              newSource?.stop(audioCtx.currentTime);
-              newSource = audioCtx.createBufferSource();
-              newSource.buffer = globalAudioBuffer.value;
-              newSource.connect(gainNode);
-              gainNode.connect(audioCtx.destination);
-              newSource.start(0, currentAudioTime.value );
-            }
-          });
-          
-          newSource = audioCtx.createBufferSource();
-          newSource.buffer = globalAudioBuffer.value;
-          newSource.connect(gainNode);
-          gainNode.connect(audioCtx.destination);
-          newSource?.start(audioCtx.currentTime, currentAudioTime.value );
-        }
-      }
       isPlaying.value = true;
+      source = audioCtx.createBufferSource();
+      source.buffer = globalAudioBuffer.value;
+      source.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      source?.start(audioCtx.currentTime, currentAudioTime.value);
       if (currentAudioTime.value < globalAudioBufferDuration.value) {
         interval = setInterval(() => {
-          currentAudioTime.value += 1;
-        }, 1000);
+          currentAudioTime.value += 0.05;
+        }, 50);
       }
     }
   }
@@ -389,13 +307,6 @@
     controlAudioKeyCount++;
     if (controlAudioKeyCount >= playList.length) {
       controlAudioKeyCount = 0;
-    }
-    for (const source of sourceNodes) {
-      try {
-        source.stop(); // 会立即停止播放或取消排程
-      } catch (e) {
-        console.warn('Failed to stop source:', e);
-      }
     }
     if (playbackModeIndex.value === 2) {
       playingSong.value = randomPlaylist[controlAudioKeyCount].name;
@@ -484,7 +395,7 @@
   
   
   // 分段获取音频文件
-  async function getAudioUrl() {
+  async function getAudioData() {
     return Promise.all([
       getSegmentData(),
       getSegmentData(),
@@ -503,10 +414,18 @@
           if (iterationsGroup >= iterationsGroupCount) {
             iterationsGroupCount++;
             setTimeout(() => {
-              getAudioUrl().then((audioData: any) => {
+              getAudioData().then((audioData: any) => {
                 audioCtx.decodeAudioData(audioData, function (audioBuffer) {
                   globalAudioBuffer.value = audioBuffer;
-                  
+                  source?.stop();
+                  source = audioCtx.createBufferSource();
+                  source.buffer = globalAudioBuffer.value;
+                  source.connect(gainNode);
+                  gainNode.connect(audioCtx.destination);
+                  console.log(isPlaying.value);
+                  if (isPlaying.value) {
+                    source?.start(audioCtx.currentTime, currentAudioTime.value);
+                  }
                 });
               });
             }, 500);
@@ -524,42 +443,44 @@
   if (isPlaying.value) {
     // 发送请求播放音频
     timeout = setTimeout(() => {
-      getAudioUrl().then((audioData: any) => {
-        // audioCtx = new AudioContext();
-        source = audioCtx.createBufferSource();
-        audioCtx.decodeAudioData(audioData, function (audioBuffer) {
+      getAudioData().then((arrayBuffer) => {
+        audioCtx.decodeAudioData(arrayBuffer, function (audioBuffer) {
           globalAudioBuffer.value = audioBuffer;
-          source.buffer = audioBuffer;
+          source = audioCtx.createBufferSource();
+          source.buffer = globalAudioBuffer.value;
           source.connect(gainNode);
           gainNode.connect(audioCtx.destination);
-          source.start();
+          source?.start(audioCtx.currentTime, currentAudioTime.value);
         });
-        fistInterval = setInterval(() => {
-          currentAudioTime.value += 1;
-        }, 1000);
       });
     }, 6000);
-
+    
   } else {
     // 发送请求不播放
     timeout = setTimeout(() => {
-      getAudioUrl().then((audioData: any) => {
-        source = audioCtx.createBufferSource();
-        audioCtx.decodeAudioData(audioData, function (audioBuffer) {
+      getAudioData().then((arrayBuffer) => {
+        audioCtx.decodeAudioData(arrayBuffer, function (audioBuffer) {
           globalAudioBuffer.value = audioBuffer;
-          source.buffer = audioBuffer;
+          source = audioCtx.createBufferSource();
+          source.buffer = globalAudioBuffer.value;
           source.connect(gainNode);
-          gainNode.connect(audioCtx.destination);;
+          gainNode.connect(audioCtx.destination);
+          if (isPlaying.value) {
+            source?.start(audioCtx.currentTime, currentAudioTime.value);
+          }
         });
       });
     }, 6000);
   }
   
   usePlaybackMode();
-  
+  let displayTime = ref(0);
+  setInterval(() => {
+    displayTime.value = currentAudioTime.value;
+  }, 1000);
   
   watch(
-      [currentAudioTime, globalAudioBuffer],
+      [displayTime, globalAudioBuffer],
       ([newTime, newGlobalAudioBuffer], [oldTime]) => {
         globalAudioBufferDuration.value = newGlobalAudioBuffer?.duration;
         if (isPlaying.value) {
@@ -571,8 +492,8 @@
           } else {
             if (fistInterval === null && interval === null) {
               fistInterval = setInterval(() => {
-                currentAudioTime.value += 1;
-              }, 1000);
+                currentAudioTime.value += 0.05;
+              }, 50);
             }
           }
         }
@@ -585,8 +506,8 @@
             handleChange();
             setTimeout(() => {
               fistInterval = setInterval(() => {
-                currentAudioTime.value += 1;
-              }, 1000);
+                currentAudioTime.value += 0.05;
+              }, 50);
             }, 50);
           }
         }
