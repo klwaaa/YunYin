@@ -467,6 +467,8 @@
     // 保存到后端
     await updateBackendPlaylist(playListData.value);
     
+    selectIsPlaying()
+    
     hideContextMenu();
   }
   
