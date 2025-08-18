@@ -207,7 +207,6 @@
   
   //控制音频时间
   const handleChange = () => {
-    console.log("handleChange");
     if (isPlaying.value) {
       source?.stop();
       source = audioCtx.createBufferSource();
@@ -426,7 +425,6 @@
                   source.buffer = globalAudioBuffer.value;
                   source.connect(gainNode);
                   gainNode.connect(audioCtx.destination);
-                  console.log(isPlaying.value);
                   if (isPlaying.value) {
                     source?.start(audioCtx.currentTime, currentAudioTime.value);
                   }
