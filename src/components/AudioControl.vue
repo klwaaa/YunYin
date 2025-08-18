@@ -54,7 +54,6 @@
 </template>
 
 <script setup lang="ts">
-  import axios from "axios";
   import {onMounted, onUnmounted, reactive, ref, watch} from "vue";
   import {useGetAudio} from "../store/audio.ts";
   import {storeToRefs} from "pinia";
@@ -371,23 +370,28 @@
       return null; // 超出则不再请求
     }
     
-    const config = {
-      method: 'get',
-      url: audioUrl,
-      headers: {
-        'Range': rangeHeader
-      },
-      responseType: 'blob',
-      signal: controller.signal
-    };
     try {
-      const {data} = await axios(<any>config);
-      return data;
+      const response = await fetch(audioUrl, {
+        method: "GET",
+        cache: "no-store",
+        headers: {
+          "Range": rangeHeader
+        },
+        signal: controller.signal
+      });
+      
+      if (!response.ok) {
+        console.error(`请求失败: ${response.status} ${response.statusText}`);
+        return null;
+      }
+
+      return await response.blob();
+      
     } catch (err: any) {
-      if (err.name === 'CanceledError') {
-        console.warn('请求已取消:', rangeHeader);
+      if (err.name === "AbortError") {
+        console.warn("请求已取消:", rangeHeader);
       } else {
-        console.error('请求出错:', err);
+        console.error("请求出错:", err);
       }
       return null;
     }
@@ -407,7 +411,7 @@
         (audioBlob) => {
           // 把得到的所有数据合为一个blob
           for (let i = 0; i < audioBlob.length; i++) {
-            BlobAudioData.push(audioBlob[i]);
+            BlobAudioData.push(<Blob>audioBlob[i]);
           }
           const audio = new Blob(BlobAudioData);
           // 音频链接播放
