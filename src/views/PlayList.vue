@@ -263,12 +263,13 @@
     // 其他情况返回空数组
     return [];
   }
+  
   // 选择歌单
-  function selectPlaylist(playlist:any, index: number) {
+  function selectPlaylist(playlist: any, index: number) {
     if (!(searchQuery.value === "")) {
       let i: number = 0;
       for (const playlists of playListData.value) {
-        if (Object.keys(playlists)[0]===Object.keys(playlist)[0]){
+        if (Object.keys(playlists)[0] === Object.keys(playlist)[0]) {
           currentPlayListIndex.value = i;
           selectedPlaylist.value = Object.keys(playlist)[0];
           return;
@@ -276,10 +277,11 @@
         i++;
       }
     }
-
+    
     currentPlayListIndex.value = index;
     selectedPlaylist.value = currentPlayListName.value;
   }
+  
   // 点击歌曲
   function selectSong(song: any, index: number) {
     playingSong.value = song.name;
@@ -311,7 +313,7 @@
       }
     }
     controlAudioKey.value = index;
-    emit('update:count', props.count + 0.1)
+    emit('update:count', props.count + 0.1);
   }
   
   
@@ -422,6 +424,7 @@
   
   // 删除云盘歌曲
   async function handleDeleteCloudDrive(song: any) {
+    console.log(`/普听音乐/音乐库/${song.name.substring(0, song.name.lastIndexOf("."))}.lrc`);
     // 确定删除
     const confirmDelete = await useConfirm(`确定要删除云盘中的「${getFileName(song.name)}」及其歌词吗？（操作会删除其他歌单的此歌曲）`);
     if (!confirmDelete) {
@@ -447,7 +450,7 @@
         await invoke("put_in_recycle_bin", {
           token: JSON.parse(<string>localStorage.getItem("token")).access_token,
           driveId: localStorage.getItem("drive_id"),
-          fileId: JSON.parse(fileId).fileId
+          fileId: JSON.parse(fileId).file_id
         });
       } else {
         console.error("fileId 为空，无法执行回收站操作");
@@ -460,14 +463,14 @@
     for (let i = 0; i < playListData.value.length; i++) {
       const playlistKey = Object.keys(playListData.value[i])[0];
       const songs = playListData.value[i][playlistKey];
-      
+
       playListData.value[i][playlistKey] = songs.filter((s: any) => s.fileId !== song.fileId);
     }
     
     // 保存到后端
     await updateBackendPlaylist(playListData.value);
     
-    selectIsPlaying()
+    selectIsPlaying();
     
     hideContextMenu();
   }
