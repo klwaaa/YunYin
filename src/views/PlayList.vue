@@ -424,7 +424,6 @@
   
   // 删除云盘歌曲
   async function handleDeleteCloudDrive(song: any) {
-    console.log(`/普听音乐/音乐库/${song.name.substring(0, song.name.lastIndexOf("."))}.lrc`);
     // 确定删除
     const confirmDelete = await useConfirm(`确定要删除云盘中的「${getFileName(song.name)}」及其歌词吗？（操作会删除其他歌单的此歌曲）`);
     if (!confirmDelete) {
