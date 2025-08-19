@@ -50,7 +50,7 @@
         </li>
         <!-- 遍历当前歌单中的歌曲，并过滤搜索匹配项 -->
         <li
-            v-for="(song, index) in filteredSongs"
+            v-for="(song, index) in filteredSongs.toReversed()"
             :key="song.fileId"
             @click="selectSong(song, index)"
             @dblclick="router.push('/AudioView')"
