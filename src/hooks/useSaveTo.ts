@@ -31,7 +31,7 @@ export default function () {
         // 如果有新歌曲需要添加
         if (filtered.length > 0) {
           // 将新歌曲添加到歌单中
-          songs.push(...filtered);
+          songs.unshift(...filtered);
           
           // 触发 Vue 的响应式更新（必须重新赋值）
           playListData[i][index] = [...songs];
