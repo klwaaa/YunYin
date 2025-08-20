@@ -25,7 +25,7 @@ export default async function (arr: Array<any>, next_marker: string): Promise<an
       const audioJson = {
         name: data.items[i].name,
         fileId: data.items[i].file_id,
-        duration: data.items[i].video_preview_metadata.duration
+        duration: data.items[i].video_preview_metadata?.duration
       };
       arr.push(audioJson);
     }
