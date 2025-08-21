@@ -10,7 +10,7 @@
           v-for="(line, index) in bilingualLines"
           :key="index + '-or'"
           :ref="setLyricRefs"
-          :class="{ active: currentIndex === index }"
+          :class="{ 'active': currentIndex === index, 'lyricLine':true}"
           @click="handleLyricClick(line.time,index)"
       >
         <span class="original">{{ line.or }}</span><br/>
@@ -237,7 +237,10 @@
     margin: 15px;
     transform: scale(1.1);
   }
-  
+  /*悬停提示可选择*/
+  p.lyricLine{
+    cursor: pointer;
+  }
   span {
     transition: box-shadow 0.25s linear, font-weight 0.25s linear, color 0.25s linear;
   }
