@@ -35,6 +35,7 @@
     <suspense>
       <template v-slot:default>
         <router-view class="router-view" v-if="route.name === 'PlayList'" v-model:count="count"/>
+        <router-view class="router-view" v-else-if="route.name === 'AudioView'" :key="controlAudioKey+count"/>
         <router-view class="router-view" v-else/>
       </template>
     </suspense>
