@@ -556,9 +556,13 @@
       
       // 如果删除的是当前选中的歌单，切换到第一个歌单
       if (currentPlayListIndex.value === selectedPlaylistIndex.value) {
-        currentPlayListIndex.value = playListData.value.length > 0 ? 0 : -1;
-        selectedPlaylist.value = Object.keys(playListData.value[currentPlayListIndex.value])[0];
-        playingPlayList.value = selectedPlaylist.value;
+        if (playListData.value.length > 0){
+          currentPlayListIndex.value = 0;
+          selectedPlaylist.value = Object.keys(playListData.value[currentPlayListIndex.value])[0];
+          playingPlayList.value = selectedPlaylist.value;
+        }else {
+          currentPlayListIndex.value = -1;
+        }
       }
       
       // 保存到后端
