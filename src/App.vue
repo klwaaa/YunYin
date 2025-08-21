@@ -36,6 +36,8 @@
       await tokenStore.useRefreshTokenGetToken();
       isTokenLoaded.value = true;
       setInterval(tokenStore.useRefreshTokenGetToken, 6480000);
+    } else {
+      isTokenLoaded.value = true;
     }
     
     // 页面刷新 / 浏览器关闭时停止播放
