@@ -6,6 +6,7 @@ export const useGetAudio = defineStore("audio", () => {
     const selectedPlaylist = ref("");
     const playingSongKey = ref("");
     const currentAudioTime = ref(0);
+    const displayTime = ref((0))
     const playingSong = ref("");
     const controlAudioKey = ref(0);
     const isPlaying = ref(false);
@@ -20,6 +21,7 @@ export const useGetAudio = defineStore("audio", () => {
       selectedPlaylist,
       playingSong,
       currentAudioTime,
+      displayTime,
       globalAudioBufferDuration,
       playingSongKey,
       controlAudioKey,

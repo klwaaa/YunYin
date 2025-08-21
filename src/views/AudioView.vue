@@ -35,11 +35,12 @@
   import useGetLyric from "../hooks/useGetLrcUrl.ts";
   import {useGetAudio} from "../store/audio.ts";
   import {storeToRefs} from "pinia";
+  import emitter from "../utils/emitter.ts";
   
   let zoomIn: any, zoomOut: any;
   
   
-  const {currentAudioTime, isPlaying, globalAudioBufferDuration, lrcSize} = storeToRefs(useGetAudio());
+  const {displayTime, isPlaying, globalAudioBufferDuration, lrcSize} = storeToRefs(useGetAudio());
   
   const lyricRefs = ref<HTMLElement[]>([]);
   const setLyricRefs: any = (el: HTMLElement | null) => {
@@ -143,7 +144,7 @@
       
       bilingualLines.value = parsed;
       
-      watch(currentAudioTime, (newValue) => {
+      watch(displayTime, (newValue) => {
         if (isPlaying.value && newValue < globalAudioBufferDuration.value) {
           lrc.play(newValue * 1000);
         } else {
@@ -180,8 +181,9 @@
   }
   
   function handleLyricClick(time: number, index: any) {
-    currentAudioTime.value = time / 1000;
+    displayTime.value = time / 1000;
     currentIndex.value = index;
+    emitter.emit("handleChange");
     isUserScrolling.value = false;
   }
 </script>

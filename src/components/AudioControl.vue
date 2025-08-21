@@ -61,6 +61,7 @@
   import {useGetPlayList} from "../store/playList.ts";
   import {invoke} from "@tauri-apps/api/core";
   import router from "../router";
+  import emitter from "../utils/emitter.ts";
   
   onMounted(() => {
     globalAudioBufferDuration.value = 0;
@@ -81,6 +82,7 @@
     volume,
     globalAudioBufferDuration,
     currentAudioTime,
+    displayTime,
     controlAudioKey,
     audioDuration,
     playingPlayList
@@ -217,6 +219,8 @@
     }
     currentAudioTime.value = displayTime.value;
   };
+  
+  emitter.on("handleChange", handleChange);
   
   // 初始化音量滑块
   gainNode.gain.value = volume.value / 100;
@@ -476,7 +480,6 @@
   }
   
   usePlaybackMode();
-  let displayTime = ref(0);
   setInterval(() => {
     displayTime.value = currentAudioTime.value;
   }, 1000);
