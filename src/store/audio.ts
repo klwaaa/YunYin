@@ -11,7 +11,7 @@ export const useGetAudio = defineStore("audio", () => {
     const controlAudioKey = ref(0);
     const isPlaying = ref(false);
     const playbackModeIndex = ref(0);
-    const audioDuration = ref(0);
+    const audioDuration:any = ref(0);
     const shuffledIndex = ref(0);
     const volume = ref(50);
     const globalAudioBufferDuration = ref(0);
