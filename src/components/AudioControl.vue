@@ -387,7 +387,7 @@
         console.error(`请求失败: ${response.status} ${response.statusText}`);
         return null;
       }
-
+      
       return await response.blob();
       
     } catch (err: any) {
@@ -423,6 +423,9 @@
             setTimeout(() => {
               getAudioData().then((audioData: any) => {
                 audioCtx.decodeAudioData(audioData, function (audioBuffer) {
+                  if (audioDuration.value === globalAudioBuffer.value?.duration) {
+                    audioDuration.value = audioBuffer.duration;
+                  }
                   globalAudioBuffer.value = audioBuffer;
                   source?.stop();
                   source = audioCtx.createBufferSource();
@@ -445,39 +448,23 @@
   let interval: any = null;
   let fistInterval: any = null;
   
-  let timeout: any;
-  if (isPlaying.value) {
-    // 发送请求播放音频
-    timeout = setTimeout(() => {
-      getAudioData().then((arrayBuffer) => {
-        audioCtx.decodeAudioData(arrayBuffer, function (audioBuffer) {
-          globalAudioBuffer.value = audioBuffer;
-          source = audioCtx.createBufferSource();
-          source.buffer = globalAudioBuffer.value;
-          source.connect(gainNode);
-          gainNode.connect(audioCtx.destination);
+  const timeout = setTimeout(() => {
+    getAudioData().then((arrayBuffer) => {
+      audioCtx.decodeAudioData(arrayBuffer, function (audioBuffer) {
+        if (audioDuration.value === "unknow") {
+          audioDuration.value = audioBuffer.duration;
+        }
+        globalAudioBuffer.value = audioBuffer;
+        source = audioCtx.createBufferSource();
+        source.buffer = globalAudioBuffer.value;
+        source.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        if (isPlaying.value) {
           source?.start(audioCtx.currentTime, currentAudioTime.value);
-        });
+        }
       });
-    }, 6000);
-    
-  } else {
-    // 发送请求不播放
-    timeout = setTimeout(() => {
-      getAudioData().then((arrayBuffer) => {
-        audioCtx.decodeAudioData(arrayBuffer, function (audioBuffer) {
-          globalAudioBuffer.value = audioBuffer;
-          source = audioCtx.createBufferSource();
-          source.buffer = globalAudioBuffer.value;
-          source.connect(gainNode);
-          gainNode.connect(audioCtx.destination);
-          if (isPlaying.value) {
-            source?.start(audioCtx.currentTime, currentAudioTime.value);
-          }
-        });
-      });
-    }, 6000);
-  }
+    });
+  }, 6000);
   
   usePlaybackMode();
   setInterval(() => {
