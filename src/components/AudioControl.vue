@@ -203,7 +203,6 @@
   //初始化音频时间滑块
   currentAudioTime.value = 0;
   let source: AudioBufferSourceNode;
-  // let isFirst: boolean = true;
   const formatTime = (time: number) => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60).toString().padStart(2, '0');
@@ -280,18 +279,13 @@
     }
   }
   
-  // 暂停
-  const pause = () => {
-    source?.stop();
-    clearInterval(interval);
-    clearInterval(fistInterval);
-  };
   
   // 控制播放
   function control() {
     if (isPlaying.value) {
       isPlaying.value = false;
-      pause();
+      source?.stop();
+      clearInterval(interval);
     } else {
       isPlaying.value = true;
       source = audioCtx.createBufferSource();
@@ -451,7 +445,6 @@
   
   
   let interval: any = null;
-  let fistInterval: any = null;
   
   const timeout = setTimeout(() => {
     getAudioData().then((arrayBuffer) => {
@@ -467,7 +460,7 @@
         gainNode.connect(audioCtx.destination);
         if (isPlaying.value) {
           source?.start(audioCtx.currentTime, currentAudioTime.value);
-          fistInterval = setInterval(() => {
+          interval = setInterval(() => {
             currentAudioTime.value += 0.05;
           }, 50);
         }
@@ -486,12 +479,10 @@
         if (isPlaying.value) {
           if (oldTime >= globalAudioBufferDuration.value) {
             clearInterval(interval);
-            clearInterval(fistInterval);
-            fistInterval = null;
             interval = null;
           } else {
-            if (fistInterval === null && interval === null) {
-              fistInterval = setInterval(() => {
+            if (interval === null) {
+              interval = setInterval(() => {
                 currentAudioTime.value += 0.05;
               }, 50);
             }
@@ -505,7 +496,7 @@
             currentAudioTime.value = 0;
             handleChange();
             setTimeout(() => {
-              fistInterval = setInterval(() => {
+              interval = setInterval(() => {
                 currentAudioTime.value += 0.05;
               }, 50);
             }, 50);
@@ -516,7 +507,6 @@
   
   onUnmounted(() => {
     cancelAllRequests();
-    clearInterval(fistInterval);
     clearInterval(interval);
     clearTimeout(timeout);
     audioCtx.close();
