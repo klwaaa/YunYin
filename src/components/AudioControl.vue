@@ -64,6 +64,7 @@
   import emitter from "../utils/emitter.ts";
   
   onMounted(() => {
+    displayTime.value = 0;
     globalAudioBufferDuration.value = 0;
     document.addEventListener('click', handleClickOutside);
   });
@@ -423,6 +424,7 @@
             setTimeout(() => {
               getAudioData().then((audioData: any) => {
                 audioCtx.decodeAudioData(audioData, function (audioBuffer) {
+                  globalAudioBufferDuration.value = audioBuffer.duration;
                   if (audioDuration.value === globalAudioBuffer.value?.duration) {
                     audioDuration.value = audioBuffer.duration;
                   }
@@ -451,6 +453,7 @@
   const timeout = setTimeout(() => {
     getAudioData().then((arrayBuffer) => {
       audioCtx.decodeAudioData(arrayBuffer, function (audioBuffer) {
+        globalAudioBufferDuration.value = audioBuffer.duration;
         if (audioDuration.value === "unknow") {
           audioDuration.value = audioBuffer.duration;
         }
@@ -461,6 +464,9 @@
         gainNode.connect(audioCtx.destination);
         if (isPlaying.value) {
           source?.start(audioCtx.currentTime, currentAudioTime.value);
+          fistInterval = setInterval(() => {
+            currentAudioTime.value += 0.05;
+          }, 50);
         }
       });
     });
@@ -472,11 +478,10 @@
   }, 1000);
   
   watch(
-      [displayTime, globalAudioBuffer],
-      ([newTime, newGlobalAudioBuffer], [oldTime]) => {
-        globalAudioBufferDuration.value = newGlobalAudioBuffer?.duration;
+      displayTime,
+      (newTime, oldTime) => {
         if (isPlaying.value) {
-          if (oldTime >= <any>newGlobalAudioBuffer?.duration) {
+          if (oldTime >= globalAudioBufferDuration.value) {
             clearInterval(interval);
             clearInterval(fistInterval);
             fistInterval = null;
