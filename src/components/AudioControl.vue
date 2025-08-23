@@ -180,7 +180,7 @@
     audioSize = data.size;
   }).catch(() => {
     audioUrl = "unknow";
-    audioSize ="unknow";
+    audioSize = "unknow";
   });
   
   const originalAudioSize = audioSize;
@@ -408,39 +408,37 @@
       getSegmentData(),
       getSegmentData(),
       getSegmentData()
-    ]).then(
-        (audioBlob) => {
-          // 把得到的所有数据合为一个blob
-          for (let i = 0; i < audioBlob.length; i++) {
-            BlobAudioData.push(<Blob>audioBlob[i]);
-          }
-          const audio = new Blob(BlobAudioData);
-          // 音频链接播放
-          if (iterationsGroup >= iterationsGroupCount) {
-            iterationsGroupCount++;
-            setTimeout(() => {
-              getAudioData().then((audioData: any) => {
-                audioCtx.decodeAudioData(audioData, function (audioBuffer) {
-                  globalAudioBufferDuration.value = audioBuffer.duration;
-                  if (audioDuration.value === globalAudioBuffer.value?.duration) {
-                    audioDuration.value = audioBuffer.duration;
-                  }
-                  globalAudioBuffer.value = audioBuffer;
-                  source?.stop();
-                  source = audioCtx.createBufferSource();
-                  source.buffer = globalAudioBuffer.value;
-                  source.connect(gainNode);
-                  gainNode.connect(audioCtx.destination);
-                  if (isPlaying.value) {
-                    source?.start(audioCtx.currentTime, currentAudioTime.value);
-                  }
-                });
-              });
-            }, 500);
-          }
-          return audio.arrayBuffer();
-        }
-    );
+    ]).then((audioBlob) => {
+      // 把得到的所有数据合为一个blob
+      for (let i = 0; i < audioBlob.length; i++) {
+        BlobAudioData.push(<Blob>audioBlob[i]);
+      }
+      const audio = new Blob(BlobAudioData);
+      // 音频链接播放
+      if (iterationsGroup >= iterationsGroupCount) {
+        iterationsGroupCount++;
+        setTimeout(() => {
+          getAudioData().then((audioData: any) => {
+            audioCtx.decodeAudioData(audioData, function (audioBuffer) {
+              globalAudioBufferDuration.value = audioBuffer.duration;
+              if (audioDuration.value === globalAudioBuffer.value?.duration) {
+                audioDuration.value = audioBuffer.duration;
+              }
+              globalAudioBuffer.value = audioBuffer;
+              source?.stop();
+              source = audioCtx.createBufferSource();
+              source.buffer = globalAudioBuffer.value;
+              source.connect(gainNode);
+              gainNode.connect(audioCtx.destination);
+              if (isPlaying.value) {
+                source?.start(audioCtx.currentTime, currentAudioTime.value);
+              }
+            });
+          });
+        }, 500);
+      }
+      return audio.arrayBuffer();
+    })
   }
   
   
