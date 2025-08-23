@@ -178,6 +178,9 @@
     data = JSON.parse(data);
     audioUrl = data.url;
     audioSize = data.size;
+  }).catch(() => {
+    audioUrl = "unknow";
+    audioSize ="unknow";
   });
   
   const originalAudioSize = audioSize;
