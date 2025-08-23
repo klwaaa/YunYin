@@ -1,9 +1,7 @@
 <h1 align="center">云音</h1>
-<hr>
 
 ## 应用介绍：
-应用是基于Tauri 2.0 + Vue 3的阿里云盘音乐播放器
-<hr>
+    应用是基于Tauri 2.0 + Vue 3的阿里云盘音乐播放器
 
 ## 二次开发须知：
 ### _请把项目中main.rs中的client_id和client_secret改为自己的App Id和App Secret_
@@ -11,8 +9,6 @@
 `npm run tauri dev`
 ### 构建安装包（Windows）
 `npm run tauri build`
-
-<hr>
 
 ## 未来可能新增：
 * 更多主题配色
