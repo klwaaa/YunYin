@@ -410,39 +410,35 @@
       getSegmentData(),
       getSegmentData(),
       getSegmentData()
-    ]).then((audioBlob) => {
+    ]).then(async (audioBlob) => {
       // 把得到的所有数据合为一个blob
       for (let i = 0; i < audioBlob.length; i++) {
         BlobAudioData.push(<Blob>audioBlob[i]);
       }
       const audio = new Blob(BlobAudioData);
+      
+      await audioCtx.decodeAudioData(await audio.arrayBuffer(), function (audioBuffer) {
+        globalAudioBufferDuration.value = audioBuffer.duration;
+        if (audioDuration.value === globalAudioBuffer.value?.duration) {
+          audioDuration.value = audioBuffer.duration;
+        }
+        globalAudioBuffer.value = audioBuffer;
+        source?.stop();
+        source = audioCtx.createBufferSource();
+        source.buffer = globalAudioBuffer.value;
+        source.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        if (isPlaying.value) {
+          source?.start(audioCtx.currentTime, currentAudioTime.value);
+        }
+      });
       // 音频链接播放
       if (iterationsGroup >= iterationsGroupCount) {
         iterationsGroupCount++;
-        setTimeout(() => {
-          getAudioData().then((audioData: any) => {
-            audioCtx.decodeAudioData(audioData, function (audioBuffer) {
-              globalAudioBufferDuration.value = audioBuffer.duration;
-              if (audioDuration.value === globalAudioBuffer.value?.duration) {
-                audioDuration.value = audioBuffer.duration;
-              }
-              globalAudioBuffer.value = audioBuffer;
-              source?.stop();
-              source = audioCtx.createBufferSource();
-              source.buffer = globalAudioBuffer.value;
-              source.connect(gainNode);
-              gainNode.connect(audioCtx.destination);
-              if (isPlaying.value) {
-                source?.start(audioCtx.currentTime, currentAudioTime.value);
-              }
-            });
-          });
-        }, 500);
+        setTimeout(getAudioData, 500);
       }
-      return audio.arrayBuffer();
     }).catch(() => {
       setTimeout(getAudioData, 5000);
-      throw new Error(`请求失败`);
     });
   }
   
@@ -450,26 +446,12 @@
   let interval: any = null;
   
   const timeout = setTimeout(() => {
-    getAudioData().then((arrayBuffer) => {
-      audioCtx.decodeAudioData(arrayBuffer, function (audioBuffer) {
-        globalAudioBufferDuration.value = audioBuffer.duration;
-        if (audioDuration.value === "unknow") {
-          audioDuration.value = audioBuffer.duration;
-        }
-        globalAudioBuffer.value = audioBuffer;
-        source = audioCtx.createBufferSource();
-        source.buffer = globalAudioBuffer.value;
-        source.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        if (isPlaying.value) {
-          source?.start(audioCtx.currentTime, currentAudioTime.value);
-          interval = setInterval(() => {
-            currentAudioTime.value += 0.05;
-          }, 50);
-        }
-      });
-    }).catch(() => {
-      setTimeout(getAudioData, 5000);
+    getAudioData().then(() => {
+      if (isPlaying.value) {
+        interval = setInterval(() => {
+          currentAudioTime.value += 0.05;
+        }, 50);
+      }
     });
   }, 6000);
   
