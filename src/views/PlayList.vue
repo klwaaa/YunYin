@@ -441,7 +441,7 @@
       const fileId: string = await invoke('using_path_get_data', {
         driveId: localStorage.getItem("drive_id"),
         token: JSON.parse(<string>localStorage.getItem("token")).access_token,
-        filePath: `/普听音乐/音乐库/${song.name.substring(0, song.name.lastIndexOf("."))}.lrc`
+        filePath: `/云音/${song.name.substring(0, song.name.lastIndexOf("."))}.lrc`
       });
       
       // 确保 fileId 成功返回并且不是空值

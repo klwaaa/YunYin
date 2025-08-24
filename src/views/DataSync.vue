@@ -31,7 +31,7 @@
       const fileId: string = await invoke('using_path_get_data', {
         driveId,
         token,
-        filePath: "/普听音乐/音乐库/数据同步/data.json"
+        filePath: "/云音/数据同步/data.json"
       });
       try {
         const url: string = await invoke('get_data_url', {
@@ -79,7 +79,7 @@
         const data: string = await invoke('using_path_get_data', {
           driveId,
           token,
-          filePath: "/普听音乐/音乐库/数据同步"
+          filePath: "/云音/数据同步"
         });
         
         uploadData_parent_file_id = JSON.parse(data).file_id;
@@ -94,7 +94,7 @@
       const fileId: string = await invoke('using_path_get_data', {
         driveId,
         token,
-        filePath: "/普听音乐/音乐库/数据同步/data.json"
+        filePath: "/云音/数据同步/data.json"
       });
       await invoke('put_in_recycle_bin', {
         driveId,

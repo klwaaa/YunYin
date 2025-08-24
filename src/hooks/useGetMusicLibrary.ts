@@ -6,7 +6,7 @@ export default async function (arr: Array<any>, next_marker: string): Promise<an
     const parentFileId: any = await invoke('using_path_get_data', {
       driveId: localStorage.getItem("drive_id"),
       token: JSON.parse(<string>localStorage.getItem("token")).access_token,
-      filePath: "/普听音乐/音乐库"
+      filePath: "/云音"
     });
     parent_file_id = JSON.parse(parentFileId).file_id;
     localStorage.setItem("parent_file_id", parent_file_id);

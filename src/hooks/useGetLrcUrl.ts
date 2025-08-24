@@ -9,7 +9,7 @@ export default async function (): Promise<any> {
     const data: string = await invoke('using_path_get_data', {
       driveId,
       token,
-      filePath: `/普听音乐/音乐库/${playingAudio.playingSong.substring(
+      filePath: `/云音/${playingAudio.playingSong.substring(
         0,
         playingAudio.playingSong.lastIndexOf(".")
       )}.lrc`
