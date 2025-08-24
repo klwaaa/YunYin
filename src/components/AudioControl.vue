@@ -358,15 +358,14 @@
     controllers.push(controller);
     
     let rangeHeader: string;
-    
-    if (iterationsCount === iterations) {
-      dataPosition += dataSize;
-      iterationsCount++;
-      rangeHeader = `bytes=${dataPosition - dataSize}-${originalAudioSize - 1}`;
-    } else if (iterationsCount < iterations) {
+    if (iterationsCount < iterations) {
       dataPosition += dataSize;
       iterationsCount++;
       rangeHeader = `bytes=${dataPosition - dataSize}-${dataPosition - 1}`;
+    } else if (iterationsCount === iterations) {
+      dataPosition += dataSize;
+      iterationsCount++;
+      rangeHeader = `bytes=${dataPosition - dataSize}-${originalAudioSize - 1}`;
     } else {
       return null; // 超出则不再请求
     }
@@ -383,18 +382,21 @@
       
       if (!response.ok) {
         console.error(`请求失败: ${response.status} ${response.statusText}`);
-        return null;
+        dataPosition -= 800000;
+        iterationsCount--;
+        throw new Error(`请求失败: ${response.status}`);
       }
-      
       return await response.blob();
       
     } catch (err: any) {
       if (err.name === "AbortError") {
         console.warn("请求已取消:", rangeHeader);
       } else {
+        dataPosition -= 800000;
+        iterationsCount--;
         console.error("请求出错:", err);
       }
-      return null;
+      throw new Error(`请求失败`);
     }
   }
   
@@ -438,7 +440,10 @@
         }, 500);
       }
       return audio.arrayBuffer();
-    })
+    }).catch(() => {
+      setTimeout(getAudioData, 5000);
+      throw new Error(`请求失败`);
+    });
   }
   
   
@@ -463,6 +468,8 @@
           }, 50);
         }
       });
+    }).catch(() => {
+      setTimeout(getAudioData, 5000);
     });
   }, 6000);
   
