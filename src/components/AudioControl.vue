@@ -395,11 +395,12 @@
         dataPosition -= 800000;
         iterationsCount--;
         console.error("请求出错:", err);
+        throw new Error(`请求失败`);
       }
-      throw new Error(`请求失败`);
     }
   }
   
+  let getAudioDataErr: any;
   
   // 分段获取音频文件
   async function getAudioData() {
@@ -438,7 +439,7 @@
         setTimeout(getAudioData, 500);
       }
     }).catch(() => {
-      setTimeout(getAudioData, 5000);
+      getAudioDataErr = setTimeout(getAudioData, 5000);
     });
   }
   
@@ -456,7 +457,7 @@
   }, 6000);
   
   usePlaybackMode();
-  setInterval(() => {
+  const displayTimeInterval = setInterval(() => {
     displayTime.value = currentAudioTime.value;
   }, 1000);
   
@@ -494,8 +495,10 @@
   
   onUnmounted(() => {
     cancelAllRequests();
+    clearTimeout(getAudioDataErr);
     clearInterval(interval);
     clearTimeout(timeout);
+    clearInterval(displayTimeInterval);
     audioCtx.close();
   });
 </script>
