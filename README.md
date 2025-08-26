@@ -23,5 +23,5 @@
 
 ## 赞助
 
-<img src="./mm_facetoface_collect_qrcode_1756199128781.png" width="300">
-<img src="./1756199156048.jpg" width="300">
+<img src="赞助/mm_facetoface_collect_qrcode_1756199128781.png" width="300">
+<img src="赞助/1756199156048.jpg" width="300">
