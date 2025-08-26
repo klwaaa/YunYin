@@ -20,3 +20,8 @@
 * 应用更新检查
 * 支持歌曲内嵌歌词
 * 区分加载完成的音频与没有加载的音频
+
+## 赞助
+
+<img src="./mm_facetoface_collect_qrcode_1756199128781.png" width="300">
+<img src="./1756199156048.jpg" width="300">
