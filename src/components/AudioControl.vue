@@ -420,7 +420,7 @@
       
       await audioCtx.decodeAudioData(await audio.arrayBuffer(), function (audioBuffer) {
         globalAudioBufferDuration.value = audioBuffer.duration;
-        if (audioDuration.value === globalAudioBuffer.value?.duration) {
+        if (audioDuration.value === globalAudioBuffer.value?.duration || audioDuration.value === "unknow") {
           audioDuration.value = audioBuffer.duration;
         }
         globalAudioBuffer.value = audioBuffer;
