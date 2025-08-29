@@ -431,6 +431,11 @@
         gainNode.connect(audioCtx.destination);
         if (isPlaying.value) {
           source?.start(audioCtx.currentTime, currentAudioTime.value);
+          if (interval === null) {
+            interval = setInterval(() => {
+              currentAudioTime.value += 0.05;
+            }, 50);
+          }
         }
       });
       // 音频链接播放
@@ -446,15 +451,7 @@
   
   let interval: any = null;
   
-  const timeout = setTimeout(() => {
-    getAudioData().then(() => {
-      if (isPlaying.value) {
-        interval = setInterval(() => {
-          currentAudioTime.value += 0.05;
-        }, 50);
-      }
-    });
-  }, 6000);
+  const timeout = setTimeout(getAudioData, 6000);
   
   usePlaybackMode();
   const displayTimeInterval = setInterval(() => {
