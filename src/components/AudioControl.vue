@@ -122,6 +122,7 @@
     setTimeout(() => {
       playingSongKey.value = playList[controlAudioKey.value].fileId;
       playingSong.value = playList[controlAudioKey.value].name;
+      audioDuration.value =playList[controlAudioKey.value].duration;
     }, 100);
   }, {deep: true, immediate: true});
   
