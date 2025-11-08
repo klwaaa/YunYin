@@ -15,7 +15,7 @@ export default function usePlaybackMode() {
     playingPlayList,
   } = storeToRefs(useGetAudio());
   onMounted(()=>{
-    console.log(`onMounted: ${playingSongKey}`);
+    console.log(`onMounted: ${playingSongKey.value}`);
   })
   
   const playList = ref<any[]>([]);
@@ -102,6 +102,6 @@ export default function usePlaybackMode() {
   onUnmounted(() => {
     clearPlaybackInterval();
     currentAudioTime.value = 0;
-    console.log(`onUnmounted: ${currentAudioTime.value}`);
+    console.log(`onUnmounted: ${playingSongKey.value}`);
   });
 }

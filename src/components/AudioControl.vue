@@ -7,13 +7,13 @@
       <div class="audioDuration">
         <p class="currentAudioTime">{{ formatTime(displayTime) }}</p>
         <el-slider
-                
-                v-model="displayTime"
-                :max="Number(audioDuration)"
-                :format-tooltip="formatTime"
-                show-tooltip
-                @change="handleChange"
-                style="width: 100%"
+            
+            v-model="displayTime"
+            :max="Number(audioDuration)"
+            :format-tooltip="formatTime"
+            show-tooltip
+            @change="handleChange"
+            style="width: 100%"
         />
         <p class="audioDurationMax">{{ formatTime(audioDuration) }}</p>
       </div>
@@ -34,16 +34,16 @@
     <div class="volumeControl" ref="volumeControl">
       <transition name="fade">
         <el-slider
-                v-show="showVolume"
-                v-model="volume"
-                :min="0"
-                :max="100"
-                :step="1"
-                @input="updateVolume"
-                show-tooltip
-                vertical
-                height="150px"
-                class="volume-slider"
+            v-show="showVolume"
+            v-model="volume"
+            :min="0"
+            :max="100"
+            :step="1"
+            @input="updateVolume"
+            show-tooltip
+            vertical
+            height="150px"
+            class="volume-slider"
         />
       </transition>
       <button class="volumeControlButton" @click="showVolumeControl">
@@ -210,11 +210,20 @@
     return `${minutes}:${seconds}`;
   };
   
+  // AudioBufferSourceNode 清理函数
+  function clearAudioBufferSourceNode() {
+    source?.stop();
+    source?.disconnect();
+    if (source !== undefined) {
+      source.buffer = null;
+      source.onended = null;
+    }
+  }
   
   //控制音频时间
   const handleChange = () => {
     if (isPlaying.value) {
-      source?.stop();
+      clearAudioBufferSourceNode();
       source = audioCtx.createBufferSource();
       source.buffer = globalAudioBuffer.value;
       source.connect(gainNode);
@@ -285,7 +294,7 @@
   function control() {
     if (isPlaying.value) {
       isPlaying.value = false;
-      source?.stop();
+      clearAudioBufferSourceNode();
       clearInterval(interval);
     } else {
       isPlaying.value = true;
@@ -324,7 +333,7 @@
       shuffledIndex.value = controlAudioKeyCount;
       for (let i = 0; i < playList.length; i++) {
         if (playList[i].name.substring(0, playList[i].name.lastIndexOf(".")) ===
-          randomPlaylist[shuffledIndex.value].name.substring(0, randomPlaylist[shuffledIndex.value].name.lastIndexOf("."))) {
+            randomPlaylist[shuffledIndex.value].name.substring(0, randomPlaylist[shuffledIndex.value].name.lastIndexOf("."))) {
           controlAudioKey.value = i;
           break;
         }
@@ -425,7 +434,7 @@
           audioDuration.value = audioBuffer.duration;
         }
         globalAudioBuffer.value = audioBuffer;
-        source?.stop();
+        clearAudioBufferSourceNode();
         source = audioCtx.createBufferSource();
         source.buffer = globalAudioBuffer.value;
         source.connect(gainNode);
@@ -460,35 +469,35 @@
   }, 1000);
   
   watch(
-    displayTime,
-    (newTime, oldTime) => {
-      if (isPlaying.value) {
-        if (oldTime >= globalAudioBufferDuration.value) {
-          clearInterval(interval);
-          interval = null;
-        } else {
-          if (interval === null) {
-            interval = setInterval(() => {
-              currentAudioTime.value += 0.05;
+      displayTime,
+      (newTime, oldTime) => {
+        if (isPlaying.value) {
+          if (oldTime >= globalAudioBufferDuration.value) {
+            clearInterval(interval);
+            interval = null;
+          } else {
+            if (interval === null) {
+              interval = setInterval(() => {
+                currentAudioTime.value += 0.05;
+              }, 50);
+            }
+          }
+        }
+        if (newTime >= audioDuration.value && iterationsGroupCount !== 0) {
+          if (playbackModeIndex.value !== 1) {
+            nextSong();
+            debounceChooseSong();
+          } else {
+            currentAudioTime.value = 0;
+            handleChange();
+            setTimeout(() => {
+              interval = setInterval(() => {
+                currentAudioTime.value += 0.05;
+              }, 50);
             }, 50);
           }
         }
-      }
-      if (newTime >= audioDuration.value && iterationsGroupCount !== 0) {
-        if (playbackModeIndex.value !== 1) {
-          nextSong();
-          debounceChooseSong();
-        } else {
-          currentAudioTime.value = 0;
-          handleChange();
-          setTimeout(() => {
-            interval = setInterval(() => {
-              currentAudioTime.value += 0.05;
-            }, 50);
-          }, 50);
-        }
-      }
-    }, {deep: true}
+      }, {deep: true}
   );
   
   onUnmounted(() => {
@@ -497,15 +506,16 @@
     clearInterval(interval);
     clearTimeout(timeout);
     clearInterval(displayTimeInterval);
+    clearAudioBufferSourceNode();
     audioCtx.close()
-      .then(() => {
-        console.log("audioCtx.close success");
-      })
-      .catch(
-        (err) => {
-          console.log(`audioCtx.close err: ${err}`);
-        }
-      );
+        .then(() => {
+          console.log("audioCtx.close success");
+        })
+        .catch(
+            (err) => {
+              console.log(`audioCtx.close err: ${err}`);
+            }
+        );
   });
 </script>
 
@@ -521,8 +531,8 @@
     position: relative;
     height: 80px;
   }
-
-
+  
+  
   .SongTitle {
     height: 100%;
     width: 25%;
@@ -535,7 +545,7 @@
     overflow: hidden;
     padding: 0 20px;
   }
-
+  
   /* 渐隐遮罩效果 */
   .SongTitle::after {
     content: "";
@@ -547,15 +557,15 @@
     pointer-events: none;
     background: linear-gradient(to right, transparent, var(--md-sys-color-surface-container)); /* white 改为背景色 */
   }
-
-
+  
+  
   .control_AudioDuration {
     margin-bottom: -5px;
     display: flex;
     width: 65%;
     flex-wrap: wrap;
   }
-
+  
   .audioDuration {
     margin-bottom: -15px;
     display: flex;
@@ -563,21 +573,21 @@
     gap: 12px;
     width: 100%;
   }
-
+  
   .currentAudioTime, .audioDurationMax {
     min-width: 40px;
     text-align: center;
     color: var(--md-sys-color-on-surface-variant);
     font-size: 0.9rem;
   }
-
+  
   .control {
     display: flex;
     width: 100%;
     justify-content: space-evenly;
     margin-top: -1px;
   }
-
+  
   .control button span {
     display: block;
     margin: 10px;
@@ -589,12 +599,12 @@
     width: 40px;
     height: 40px;
   }
-
+  
   .control button span:hover {
     background-color: var(--md-sys-color-surface-container-high);
     color: var(--md-sys-color-primary);
   }
-
+  
   .control button:nth-child(3) span { /* 播放/暂停按钮 */
     background-color: var(--md-sys-color-primary-container);
     color: var(--md-sys-color-on-primary-container);
@@ -604,13 +614,13 @@
     font-size: 30px;
     line-height: 46px;
   }
-
+  
   .loadingButton {
     position: relative;
     width: 45px;
     height: 45px;
   }
-
+  
   /* 添加旋转加载圈 */
   .loadingButton::before {
     content: "";
@@ -625,7 +635,7 @@
     animation: spin 1s linear infinite;
     z-index: 0;
   }
-
+  
   /* 旋转动画 */
   @keyframes spin {
     0% {
@@ -635,22 +645,22 @@
       transform: rotate(360deg);
     }
   }
-
+  
   .control button:nth-child(3):hover span {
     background-color: var(--md-sys-color-primary);
     color: var(--md-sys-color-on-primary);
-
+    
   }
-
+  
   .control button:nth-child(3) span.icon-bofang {
     padding-left: 5px;
   }
-
+  
   .volumeControl {
     width: 10%;
     position: relative; /* 新增：作为子元素定位上下文 */
   }
-
+  
   .volume-slider {
     position: absolute;
     left: 50%;
@@ -658,54 +668,54 @@
     bottom: 120px;
     z-index: 10; /* 新增：确保浮在上方，不被其他元素遮住 */
   }
-
+  
   .fade-enter-active,
   .fade-leave-active {
     transition: opacity 0.3s ease;
   }
-
+  
   .fade-enter-from,
   .fade-leave-to {
     opacity: 0;
   }
-
+  
   .volumeControlButton {
     display: block;
     margin: 7px auto;
   }
-
+  
   .volumeControlButton span {
     font-size: 30px;
     text-align: center;
   }
-
+  
   /* 进度条样式覆盖 */
   :deep(.el-slider__runway) {
     background-color: var(--md-sys-color-outline-variant) !important;
   }
-
+  
   :deep(.el-slider__bar) {
     background-color: var(--md-sys-color-primary) !important;
   }
-
+  
   :deep(.el-slider__button) {
     width: 14px !important;
     height: 14px;
     border: 2px solid var(--md-sys-color-primary) !important;
     background-color: var(--md-sys-color-surface-container) !important;
   }
-
+  
   /* 音量条样式覆盖 */
   :deep(.el-slider.vertical .el-slider__runway) {
     background-color: var(--md-sys-color-outline-variant) !important;
     width: 4px !important;
   }
-
+  
   :deep(.el-slider.vertical .el-slider__bar) {
     background-color: var(--md-sys-color-primary) !important;
     width: 4px !important;
   }
-
+  
   :deep(.el-slider.vertical .el-slider__button) {
     width: 14px !important;
     height: 14px;
