@@ -500,22 +500,21 @@
       }, {deep: true}
   );
   
-  onUnmounted(() => {
+  onUnmounted(async () => {
     cancelAllRequests();
+    document.removeEventListener('click', handleClickOutside);
+    emitter.off("handleChange", handleChange);
     clearTimeout(getAudioDataErr);
     clearInterval(interval);
     clearTimeout(timeout);
     clearInterval(displayTimeInterval);
+    if (gainNode) gainNode.disconnect();
+    BlobAudioData.length = 0;
+    globalAudioBuffer.value = null;
     clearAudioBufferSourceNode();
-    audioCtx.close()
-        .then(() => {
-          console.log("audioCtx.close success");
-        })
-        .catch(
-            (err) => {
-              console.log(`audioCtx.close err: ${err}`);
-            }
-        );
+    if (audioCtx && audioCtx.state !== 'closed') {
+      await audioCtx.close();
+    }
   });
 </script>
 

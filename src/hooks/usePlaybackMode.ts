@@ -1,6 +1,6 @@
 import {useGetRandomPlaylist} from "../store/randomPlaylist.ts";
 import {storeToRefs} from "pinia";
-import {watch, onUnmounted, ref, onMounted} from "vue";
+import {watch, onUnmounted, ref} from "vue";
 import {useGetAudio} from "../store/audio.ts";
 import {useGetPlayList} from "../store/playList.ts";
 
@@ -14,9 +14,6 @@ export default function usePlaybackMode() {
     currentAudioTime,
     playingPlayList,
   } = storeToRefs(useGetAudio());
-  onMounted(()=>{
-    console.log(`onMounted: ${playingSongKey.value}`);
-  })
   
   const playList = ref<any[]>([]);
   
@@ -102,6 +99,5 @@ export default function usePlaybackMode() {
   onUnmounted(() => {
     clearPlaybackInterval();
     currentAudioTime.value = 0;
-    console.log(`onUnmounted: ${playingSongKey.value}`);
   });
 }
