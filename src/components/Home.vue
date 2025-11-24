@@ -30,6 +30,13 @@
             同步数据
           </router-link>
         </div>
+        <div class="setting">
+          <router-link :to="{
+            path: '/Setting',
+          }">
+            设置
+          </router-link>
+        </div>
       </div>
     </div>
     <suspense>
@@ -41,14 +48,14 @@
     </suspense>
     
     <div class="audioControl">
-      <Suspense>
-        <template v-slot:default>
-          <AudioControl :key="controlAudioKey+count"></AudioControl>
-        </template>
-        <template v-slot:fallback>
-          加载中
-        </template>
-      </Suspense>
+<!--      <Suspense>-->
+<!--        <template v-slot:default>-->
+<!--          <AudioControl :key="controlAudioKey+count"></AudioControl>-->
+<!--        </template>-->
+<!--        <template v-slot:fallback>-->
+<!--          加载中-->
+<!--        </template>-->
+<!--      </Suspense>-->
     </div>
   </div>
 </template>
@@ -74,8 +81,8 @@
   // 通过code获取token
   if (getCode.length > 1 && tokenStore.access_token === "null") {
     tokenStore.useCodeGetToken().then(async () => {
-      const responseText:string = await invoke('get_drive_id', {
-        token:JSON.parse(<string>localStorage.getItem("token")).access_token
+      const responseText: string = await invoke('get_drive_id', {
+        token: JSON.parse(<string>localStorage.getItem("token")).access_token
       });
       localStorage.setItem("drive_id", JSON.parse(responseText).backup_drive_id);
     });
@@ -201,13 +208,15 @@
   /* 导航项悬停效果 */
   .playList:hover,
   .musicLibrary:hover,
-  .synchronous:hover {
+  .synchronous:hover,
+  .setting:hover {
     background-color: var(--md-sys-color-surface-container);
   }
   
   .playList:hover a,
   .musicLibrary:hover a,
-  .synchronous:hover a {
+  .synchronous:hover a,
+  .setting:hover a {
     color: var(--md-sys-color-primary);
   }
   
