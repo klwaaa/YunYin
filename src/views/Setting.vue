@@ -1,37 +1,61 @@
 <template>
-  <img src="./1" alt="">
+  <!--  <img src="./79561545_p0.jpg" alt="" class="aaa">-->
+  <div>
+  
+  </div>
+  <div>
+  
+  </div>
 </template>
 
 <script setup lang="ts">
-  import {argbFromHex, themeFromImage, themeFromSourceColor} from "@material/material-color-utilities";
+  import {
+    argbFromHex,
+    themeFromImage,
+    themeFromSourceColor,
+    sourceColorFromImage
+  } from "@material/material-color-utilities";
   import {onMounted} from "vue";
   
-  // onMounted(async () => {
-  //
-  //   const img = document.querySelector("img");
-  //   async function extractMonetFromImgElement(img: HTMLImageElement) {
-  //     await img.decode(); // 确保图片完全加载
-  //     const theme = await themeFromImage(img);
-  //     return theme;
-  //   }
-  //
-  //   if (img) {
-  //     const a = await extractMonetFromImgElement(img);
-  //     console.log(a);
-  //   }
-  // });
-  //
+  let img: any;
+  onMounted(() => {
+    img = document.querySelector(".aaa");
+  });
   
-    const img = new Image();
-    img.src = "./1.jpg";
-    
-    await img.decode();
-    
+  
+  async function extractMonetFromImgElement(img: HTMLImageElement) {
+    // 确保图片完全加载
     const theme = await themeFromImage(img);
-    
-    console.log(theme);
+    return theme;
+  }
   
-
+  //
+  const checkIfLoaded = setInterval(() => {
+    if (img.complete) {
+      console.log('图片已加载完成');
+      clearInterval(checkIfLoaded);
+      const a = extractMonetFromImgElement(img);
+      a.then((v) => {
+        console.log(v);
+      });
+    }
+  }, 500);
+  // await img.decode();
+  // console.log(img);
+  // const a = await extractMonetFromImgElement(img);
+  // console.log(a);
+  
+  
+  // const img = new Image();
+  // img.src = "./1.jpg";
+  //
+  // await img.decode();
+  //
+  // const theme = await themeFromImage(img);
+  //
+  // console.log(theme);
+  
+  
   // const theme = themeFromSourceColor(argbFromHex('#FEC114'));
   // // Print out the theme as JSON
   // console.log(JSON.stringify(theme, null, 2));
@@ -39,4 +63,16 @@
 </script>
 
 <style scoped>
+
+  input {
+    width: 90%;
+    height: calc(100vh - 50vh);;
+    margin: 5vh auto;
+    border: 1px solid #000;
+    background: url("./79561545_p0.jpg") no-repeat;
+
+
+    background-size: contain; /* 包含:图片成比例放大,可能不会填满盒子。可用于适配  */
+    background-position: center;
+  }
 </style>

@@ -4,6 +4,7 @@ import PlayList from "../views/PlayList.vue";
 import AudioView from "../views/AudioView.vue";
 import DataSync from "../views/DataSync.vue";
 import Setting from "../views/Setting.vue";
+import ThemeColor from "../views/SettingViews/ThemeColor.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -31,7 +32,18 @@ const router = createRouter({
     {
       name: "Setting",
       path: "/Setting",
-      component: Setting
+      component: Setting,
+      children: [
+        {
+          name: "ThemeColor",
+          path: "ThemeColor",
+          component: ThemeColor
+        },
+        {
+          path:"/",
+          redirect:"ThemeColor"
+        }
+      ]
     },
     {
       path: "/",
