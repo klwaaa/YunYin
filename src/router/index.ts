@@ -40,8 +40,10 @@ const router = createRouter({
           component: ThemeColor
         },
         {
-          path:"/",
-          redirect:"ThemeColor"
+          path: "",
+          redirect: {
+            name: "ThemeColor"
+          }
         }
       ]
     },

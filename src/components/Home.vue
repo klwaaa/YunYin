@@ -161,7 +161,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 24px;
-    height: 64px;
+    height: 10vh;
     background-color: var(--md-sys-color-surface-container-high);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid var(--md-sys-color-outline-variant);
