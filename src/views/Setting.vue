@@ -83,15 +83,5 @@
   div.settingView {
     width: 86%;
   }
-  input {
-    width: 90%;
-    height: calc(100vh - 50vh);;
-    margin: 5vh auto;
-    border: 1px solid #000;
-    background: url("./79561545_p0.jpg") no-repeat;
-
-
-    background-size: contain; /* 包含:图片成比例放大,可能不会填满盒子。可用于适配  */
-    background-position: center;
-  }
+  
 </style>
