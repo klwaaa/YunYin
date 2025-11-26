@@ -7,21 +7,13 @@ use tauri::command;
 use reqwest::Client;
 
 use std::fs;
-use std::fs::File;
+use std::fs::{File, OpenOptions};
 use std::io::{Read, Write};
 
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
-use image;
-use material_colors::{
-    image::{FilterType, ImageReader},
-    theme::ThemeBuilder,
-};
 use std::path::Path;
-
-use std::time::{Duration, Instant};
-use tauri::Error::Json;
 
 /// 阿里云 token 接口地址
 const TOKEN_URL: &str = "https://openapi.alipan.com/oauth/access_token";
@@ -134,7 +126,12 @@ fn update_playlist_data(data: PlayListData) -> Result<(), String> {
     let path = "./data.json";
     let json = serde_json::to_string_pretty(&data).map_err(|e| e.to_string())?;
 
-    let mut file = File::create(path).map_err(|e| format!("创建文件失败: {}", e))?;
+    let mut file = OpenOptions::new()
+        .write(true)
+        .truncate(true) // 清空文件内容再写入
+        .open(path)
+        .map_err(|e| format!("打开文件失败: {}", e))?;
+
     file.write_all(json.as_bytes())
         .map_err(|e| format!("写入文件失败: {}", e))?;
 
@@ -402,18 +399,29 @@ async fn complete_upload(
     }
 }
 
-//莫奈取色
-fn material_colors() {
-    let start = Instant::now();
-    let img = fs::read("屏幕截图 2025-11-22 211927.png").unwrap();
-    let a = image::open("屏幕截图 2025-11-22 211927.png").unwrap();
-    let mut data = ImageReader::read(img).expect("failed to read image");
-    data.resize(a.width(), a.height(), FilterType::Lanczos3);
-    let theme = ThemeBuilder::with_source(ImageReader::extract_color(&data)).build();
-    let duration = start.elapsed();
+// 读取themeColor.json
+#[command]
+fn get_theme_color() -> Result<String, String> {
+    let path = "./themeColor.json";
+    let content = fs::read_to_string(path).map_err(|e| e.to_string())?;
+    Ok(content)
+}
 
-    println!("耗时的操作执行时间是: {:?}", duration);
-    println!("{:#?}", theme);
+/// 更新并写入themeColor.json
+#[command]
+fn update_theme_color(color_source: String) -> Result<(), String> {
+    let path = "./themeColor.json";
+
+    let mut file = OpenOptions::new()
+        .write(true)
+        .truncate(true) // 清空文件内容再写入
+        .open(path)
+        .map_err(|e| format!("打开文件失败: {}", e))?;
+
+    file.write_all(color_source.as_bytes())
+        .map_err(|e| format!("写入文件失败: {}", e))?;
+ 
+    Ok(())
 }
 
 /// ✅ Tauri 主函数入口
@@ -425,8 +433,16 @@ fn main() {
         // 文件不存在，创建文件
         fs::File::create(file_path).expect("Failed to create file");
     }
+    // 首次启动创建themeColor文件
+    let file_path = "./themeColor.json";
 
-//     material_colors();
+    if !Path::new(file_path).exists() {
+        // 文件不存在，创建文件
+        let mut theme_color = fs::File::create(file_path).expect("Failed to create file");
+        theme_color
+            .write_all(r#"{"source":4294962455}"#.as_bytes())
+            .expect("write failed");
+    }
 
     tauri::Builder::default()
         .plugin(tauri_plugin_localhost::Builder::new(1420).build()) // ✅ 注册 Localhost 插件
@@ -443,7 +459,9 @@ fn main() {
             get_data_url,
             put_in_recycle_bin,
             create_file,
-            complete_upload
+            complete_upload,
+            get_theme_color,
+            update_theme_color
         ])
         .run(tauri::generate_context!())
         .expect("运行 Tauri 应用失败");
