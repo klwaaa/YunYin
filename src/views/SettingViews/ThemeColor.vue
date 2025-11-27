@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
   import {ref, watch} from 'vue';
-  import {applyTheme, themeFromImage} from '@material/material-color-utilities';
+  import {applyTheme, themeFromImage,} from '@material/material-color-utilities';
   import {invoke} from "@tauri-apps/api/core";
   
   const success: any = ref();
@@ -77,6 +77,7 @@
     //   error.value.innerHTML = "提取主题色失败";
     //   console.log(err);
     // }
+    const startDate = new Date();
     
     await themeFromImage(img)
       .then(async (theme) => {
@@ -84,7 +85,7 @@
         console.log(theme);
         
         applyTheme(theme);
-        await invoke("update_theme_color", {colorSource: `{"source":${theme.source}}`});
+        // await invoke("update_theme_color", {colorSource: `{"source":${theme.source}}`});
         isShow.value = true;
         success.value.innerHTML = "提取主题色成功";
       })
@@ -93,6 +94,9 @@
         error.value.innerHTML = "提取主题色失败";
         console.log(err);
       });
+    const endDate = new Date();
+    const diff = endDate - startDate;
+    console.log("aaaaaaaaaaaaaaaaaaaaa",diff/1000);
     if (imageSrc.value) {
       URL.revokeObjectURL(imageSrc.value);
     }

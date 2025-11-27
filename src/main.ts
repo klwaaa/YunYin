@@ -11,6 +11,6 @@ const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 app.use(pinia);
 app.use(router);
-await useSetThemeColor();
+// await useSetThemeColor();
 app.mount("#app");
 
