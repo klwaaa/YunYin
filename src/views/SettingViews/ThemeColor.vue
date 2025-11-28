@@ -7,11 +7,11 @@
       </div>
     </transition>
     <input
-            type="file"
-            accept="image/*"
-            ref="fileInput"
-            @change="handleFileSelect"
-            class="file-input"
+        type="file"
+        accept="image/*"
+        ref="fileInput"
+        @change="handleFileSelect"
+        class="file-input"
     >
     <div class="upload-area" @click="selectImage">
       <div class="upload-hint" ref="uploadHint">支持 JPG、PNG、GIF 等格式</div>
@@ -19,11 +19,14 @@
     <button class="select-button" @click="selectImage">选择图片</button>
     <button class="createTeme" @click="onImageLoad">生成主题</button>
   </div>
+  <div class="test">
+  
+  </div>
 </template>
 
 <script setup lang="ts">
   import {ref, watch} from 'vue';
-  import {applyTheme, themeFromImage,} from '@material/material-color-utilities';
+  import {applyTheme, sourceColorFromImage} from '@material/material-color-utilities';
   import {invoke} from "@tauri-apps/api/core";
   
   const success: any = ref();
@@ -56,6 +59,34 @@
     uploadHint.value.style.backgroundImage = `url(${imageSrc.value})`;
   };
   
+  function argbObjToHex(c: {
+    alpha: number;
+    red: number;
+    green: number;
+    blue: number;
+  }) {
+    const toHex = (v: number) => v.toString(16).padStart(2, "0");
+    return `#${toHex(c.red)}${toHex(c.green)}${toHex(c.blue)}`;
+  }
+  
+  function schemeKeyToCssVar(key: string) {
+    return `--md-sys-color-${key.replace(/_/g, "-")}`;
+  }
+  
+  function applyThemeFromRustScheme(scheme: Record<string, any>) {
+    const root = document.documentElement;
+    
+    for (const [key, value] of Object.entries(scheme)) {
+      if (!value || typeof value !== "object") continue;
+      if (!("red" in value)) continue; // 只处理 Argb 对象
+      console.log("key:",key);
+      const hex = argbObjToHex(value);
+      const cssVar = schemeKeyToCssVar(key);
+      
+      root.style.setProperty(cssVar, hex);
+    }
+  }
+  
   async function onImageLoad() {
     success.value.innerHTML = null;
     error.value.innerHTML = null;
@@ -77,26 +108,24 @@
     //   error.value.innerHTML = "提取主题色失败";
     //   console.log(err);
     // }
-    const startDate = new Date();
     
-    await themeFromImage(img)
-      .then(async (theme) => {
-        console.log(typeof theme);
-        console.log(theme);
-        
-        applyTheme(theme);
-        // await invoke("update_theme_color", {colorSource: `{"source":${theme.source}}`});
-        isShow.value = true;
-        success.value.innerHTML = "提取主题色成功";
-      })
-      .catch((err) => {
-        isShow.value = true;
-        error.value.innerHTML = "提取主题色失败";
-        console.log(err);
-      });
-    const endDate = new Date();
-    const diff = endDate - startDate;
-    console.log("aaaaaaaaaaaaaaaaaaaaa",diff/1000);
+    await sourceColorFromImage(img)
+        .then(async (colorSource) => {
+          console.log(colorSource);
+          
+          // applyTheme(theme);
+          // await invoke("update_theme_color", {colorSource: `{"source":${theme.source}}`});
+          const a = await invoke("material_colors", {source: colorSource});
+          console.log(a);
+          applyThemeFromRustScheme(a.schemes.light);
+          isShow.value = true;
+          success.value.innerHTML = "提取主题色成功";
+        })
+        .catch((err) => {
+          isShow.value = true;
+          error.value.innerHTML = "提取主题色失败";
+          console.log(err);
+        });
     if (imageSrc.value) {
       URL.revokeObjectURL(imageSrc.value);
     }
@@ -122,7 +151,13 @@
   .file-input {
     display: none;
   }
-
+  
+  .test {
+    width: 100px;
+    height: 100px;
+    background-color: var(--md-sys-color-primary);
+  }
+  
   .upload-hint {
     margin: auto;
     text-align: center;
@@ -133,8 +168,8 @@
     background-position: center;
     background-repeat: no-repeat;
   }
-
-
+  
+  
   /* 顶部居中样式 */
   .custom-message-center {
     height: auto;
@@ -149,23 +184,23 @@
     padding: 0 24px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   }
-
+  
   /* 成功绿色文字 */
   .custom-message-center .success {
     color: var(--md-sys-color-on-tertiary-fixed-variant);
   }
-
+  
   /* 失败红色文字 */
   .custom-message-center .error {
     color: var(--md-sys-color-error);
   }
-
+  
   /* ✅ 添加动画效果 */
   .fade-enter-active,
   .fade-leave-active {
     transition: opacity 0.6s ease;
   }
-
+  
   .fade-enter-from,
   .fade-leave-to {
     opacity: 0;
