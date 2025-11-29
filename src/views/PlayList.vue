@@ -651,6 +651,7 @@
   .playList_view {
     background-color: var(--md-sys-color-background);
     color: var(--md-sys-color-on-background);
+
   }
   
   
@@ -692,7 +693,8 @@
     display: flex;
     justify-content: space-evenly;
     align-items: flex-start;
-    height: calc(100vh - 260px);
+    height: 72vh;
+    max-height: calc(100vh - 260px);
     overflow: hidden; /* 关键点 */
   }
   

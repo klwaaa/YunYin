@@ -27,6 +27,8 @@
   
   // 拉取数据
   async function pullData() {
+    success.value.innerHTML = null;
+    error.value.innerHTML = null;
     try {
       const fileId: string = await invoke('using_path_get_data', {
         driveId,
@@ -49,17 +51,17 @@
         };
         
         axios(config)
-            .then(({data}) => {
-              invoke("update_playlist_data", {
-                data: data
-              }).then(() => {
-                isShow.value = true;
-                success.value.innerHTML = "拉取成功";
-              }).catch(() => {
-                isShow.value = true;
-                error.value.innerHTML = "拉取失败";
-              });
+          .then(({data}) => {
+            invoke("update_playlist_data", {
+              data: data
+            }).then(() => {
+              isShow.value = true;
+              success.value.innerHTML = "拉取成功";
+            }).catch(() => {
+              isShow.value = true;
+              error.value.innerHTML = "拉取失败";
             });
+          });
       } catch {
         // 处理错误
         isShow.value = true;
@@ -67,12 +69,14 @@
       }
     } catch {
       isShow.value = true;
-      error.value.inn;
+      error.value.innerHTML = "拉取失败";
     }
   }
   
   // 上传数据
   async function uploadData() {
+    success.value.innerHTML = null;
+    error.value.innerHTML = null;
     let uploadData_parent_file_id: string = localStorage.getItem("uploadData_parent_file_id") as string;
     if (!uploadData_parent_file_id) {
       try {
@@ -164,39 +168,39 @@
     gap: 8px;
     transition: all 0.3s ease;
   }
-  
+
   .upload-btn {
     background-color: var(--md-sys-color-tertiary);
     color: var(--md-sys-color-on-tertiary);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   }
-  
+
   .download-btn {
     background-color: var(--md-sys-color-secondary);
     color: var(--md-sys-color-on-secondary);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   }
-  
+
   .sync-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
-  
+
   .upload-btn:hover {
     background-color: var(--md-sys-color-tertiary-container);
     color: var(--md-sys-color-on-tertiary-container);
   }
-  
+
   .download-btn:hover {
     background-color: var(--md-sys-color-secondary-container);
     color: var(--md-sys-color-on-secondary-container);
   }
-  
+
   p {
     color: var(--md-sys-color-on-surface-variant);
     margin: 15px;
   }
-  
+
   /* 顶部居中样式 */
   .custom-message-center {
     height: auto;
@@ -211,23 +215,23 @@
     padding: 0 24px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   }
-  
+
   /* 成功绿色文字 */
   .custom-message-center .success {
     color: var(--md-sys-color-on-tertiary-fixed-variant);
   }
-  
+
   /* 失败红色文字 */
   .custom-message-center .error {
     color: var(--md-sys-color-error);
   }
-  
+
   /* ✅ 添加动画效果 */
   .fade-enter-active,
   .fade-leave-active {
     transition: opacity 0.6s ease;
   }
-  
+
   .fade-enter-from,
   .fade-leave-to {
     opacity: 0;

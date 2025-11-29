@@ -528,7 +528,8 @@
     border-top: 1px solid var(--md-sys-color-outline-variant);
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
     position: relative;
-    height: 80px;
+    height: 13vh;
+    max-height: 90px;
   }
   
   

@@ -9,25 +9,32 @@
           <a v-if="!isLoggedIn" ref="loginRef" :href="loginUrl">请先登录</a>
           <span v-else @click="logOut">退出登录</span>
         </div>
-        <div class="playList">
+        <div class="playListButton">
           <router-link :to="{
             path: '/PlayList',
           }">
             歌单
           </router-link>
         </div>
-        <div class="musicLibrary">
+        <div class="musicLibraryButton">
           <router-link :to="{
             path: '/MusicLibrary',
           }">
             曲库
           </router-link>
         </div>
-        <div class="synchronous">
+        <div class="synchronousButton">
           <router-link :to="{
             path: '/DataSync',
           }">
             同步数据
+          </router-link>
+        </div>
+        <div class="settingButton">
+          <router-link :to="{
+            path: '/Setting',
+          }">
+            设置
           </router-link>
         </div>
       </div>
@@ -40,16 +47,16 @@
       </template>
     </suspense>
     
-    <div class="audioControl">
-      <Suspense>
-        <template v-slot:default>
-          <AudioControl :key="controlAudioKey+count"></AudioControl>
-        </template>
-        <template v-slot:fallback>
-          加载中
-        </template>
-      </Suspense>
-    </div>
+<!--    <div class="audioControl">-->
+<!--      <Suspense>-->
+<!--        <template v-slot:default>-->
+<!--          <AudioControl :key="controlAudioKey+count"></AudioControl>-->
+<!--        </template>-->
+<!--        <template v-slot:fallback>-->
+<!--          加载中-->
+<!--        </template>-->
+<!--      </Suspense>-->
+<!--    </div>-->
   </div>
 </template>
 
@@ -74,8 +81,8 @@
   // 通过code获取token
   if (getCode.length > 1 && tokenStore.access_token === "null") {
     tokenStore.useCodeGetToken().then(async () => {
-      const responseText:string = await invoke('get_drive_id', {
-        token:JSON.parse(<string>localStorage.getItem("token")).access_token
+      const responseText: string = await invoke('get_drive_id', {
+        token: JSON.parse(<string>localStorage.getItem("token")).access_token
       });
       localStorage.setItem("drive_id", JSON.parse(responseText).backup_drive_id);
     });
@@ -154,7 +161,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 24px;
-    height: 64px;
+    height: 10vh;
+    max-height: 80px;
     background-color: var(--md-sys-color-surface-container-high);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid var(--md-sys-color-outline-variant);
@@ -199,15 +207,17 @@
   }
   
   /* 导航项悬停效果 */
-  .playList:hover,
-  .musicLibrary:hover,
-  .synchronous:hover {
+  .playListButton:hover,
+  .musicLibraryButton:hover,
+  .synchronousButton:hover,
+  .settingButton:hover {
     background-color: var(--md-sys-color-surface-container);
   }
   
-  .playList:hover a,
-  .musicLibrary:hover a,
-  .synchronous:hover a {
+  .playListButton:hover a,
+  .musicLibraryButton:hover a,
+  .synchronousButton:hover a,
+  .settingButton:hover a {
     color: var(--md-sys-color-primary);
   }
   
