@@ -16,8 +16,10 @@
     <div class="upload-area" @click="selectImage">
       <div class="upload-hint" ref="uploadHint">支持 JPG、PNG、GIF 等格式</div>
     </div>
-    <button class="select-button" @click="selectImage">选择图片</button>
-    <button class="createTeme" @click="onImageLoad">生成主题</button>
+    <div class="button-group">
+      <button class="select-button" @click="selectImage">选择图片</button>
+      <button class="createTeme" @click="onImageLoad">生成主题</button>
+    </div>
   </div>
 </template>
 
@@ -98,56 +100,201 @@
 </script>
 
 <style scoped>
-  .img-input {
-    display: none;
+  .themeColor {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2vh 3vw;
+    height: 100%;
+    gap: 2vh;
   }
   
+  .upload-area {
+    width: 85%;
+    min-height: 45vh;
+    max-height: 60vh;
+    border: 0.2rem dashed var(--md-sys-color-outline-variant);
+    border-radius: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    background-color: var(--md-sys-color-surface-container-lowest);
+    overflow: hidden;
+  }
+  
+  .upload-area:hover {
+    border-color: var(--md-sys-color-primary);
+    background-color: var(--md-sys-color-surface-container);
+    transform: scale(1.01);
+  }
   
   .upload-hint {
     margin: auto;
     text-align: center;
-    line-height: 50vh;
-    width: 80%;
-    height: 50vh;
-    background-size: contain; /* 包含:图片成比例放大,可能不会填满盒子。可用于适配  */
+    width: 90%;
+    height: 90%;
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--md-sys-color-on-surface-variant);
+    font-size: clamp(0.9rem, 1.5vw, 1.2rem);
+    padding: 2vh;
+    word-break: break-word;
   }
   
+  .button-group {
+    display: flex;
+    gap: 1.5vw;
+    width: 85%;
+    justify-content: center;
+    margin-top: 1vh;
+  }
+  
+  .select-button, .createTeme {
+    padding: 1.2vh 2.5vw;
+    border: none;
+    border-radius: 1rem;
+    font-size: clamp(0.9rem, 1.3vw, 1.1rem);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    min-width: 12vw;
+    max-width: 20vw;
+  }
+  
+  .select-button {
+    background-color: var(--md-sys-color-secondary-container);
+    color: var(--md-sys-color-on-secondary-container);
+  }
+  
+  .select-button:hover {
+    background-color: var(--md-sys-color-secondary-fixed-dim);
+    transform: translateY(-0.2vh);
+  }
+  
+  .createTeme {
+    background-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+  }
+  
+  .createTeme:hover {
+    background-color: var(--md-sys-color-primary-fixed-dim);
+    transform: translateY(-0.2vh);
+  }
+  
+  .createTeme:disabled {
+    background-color: var(--md-sys-color-outline-variant);
+    color: var(--md-sys-color-on-surface-variant);
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .img-input {
+    display: none;
+  }
   
   /* 顶部居中样式 */
   .custom-message-center {
+    width: auto;
+    min-width: 30vw;
+    max-width: 70vw;
     height: auto;
     position: fixed;
-    top: 80px;
+    top: 12vh;
     left: 50%;
     transform: translateX(-50%);
     color: white;
     text-align: center;
     background-color: var(--md-sys-color-surface-container-high);
-    border-radius: 24px;
-    padding: 0 24px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    border-radius: 1.5rem;
+    padding: 1.5vh 3vw;
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15);
+    z-index: 1000;
   }
   
-  /* 成功绿色文字 */
   .custom-message-center .success {
-    color: var(--md-sys-color-on-tertiary-fixed-variant);
+    color: var(--md-sys-color-on-tertiary-container);
+    font-size: clamp(0.9rem, 1.2vw, 1.1rem);
+    margin: 0;
   }
   
-  /* 失败红色文字 */
   .custom-message-center .error {
     color: var(--md-sys-color-error);
+    font-size: clamp(0.9rem, 1.2vw, 1.1rem);
+    margin: 0;
   }
   
-  /* ✅ 添加动画效果 */
+  /* 动画效果 */
   .fade-enter-active,
   .fade-leave-active {
-    transition: opacity 0.6s ease;
+    transition: all 0.4s ease;
   }
   
-  .fade-enter-from,
+  .fade-enter-from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-1rem);
+  }
+  
   .fade-leave-to {
     opacity: 0;
+    transform: translateX(-50%) translateY(-1rem);
+  }
+  
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    .themeColor {
+      padding: 1.5vh 4vw;
+      gap: 1.5vh;
+    }
+    
+    .upload-area {
+      width: 95%;
+      min-height: 40vh;
+      max-height: 50vh;
+    }
+    
+    .button-group {
+      width: 95%;
+      flex-direction: column;
+      align-items: center;
+      gap: 1vh;
+    }
+    
+    .select-button, .createTeme {
+      width: 60%;
+      min-width: 45vw;
+      max-width: 70vw;
+      padding: 1.5vh 4vw;
+    }
+    
+    .custom-message-center {
+      min-width: 50vw;
+      max-width: 85vw;
+      top: 10vh;
+      padding: 1.2vh 4vw;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .upload-area {
+      min-height: 35vh;
+      border-width: 0.15rem;
+    }
+    
+    .upload-hint {
+      font-size: clamp(0.8rem, 4vw, 1rem);
+      padding: 1vh;
+    }
+    
+    .select-button, .createTeme {
+      width: 80%;
+      min-width: 55vw;
+      padding: 1.8vh 5vw;
+    }
   }
 </style>
