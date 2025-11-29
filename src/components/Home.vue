@@ -47,16 +47,16 @@
       </template>
     </suspense>
     
-    <div class="audioControl">
-      <Suspense>
-        <template v-slot:default>
-          <AudioControl :key="controlAudioKey+count"></AudioControl>
-        </template>
-        <template v-slot:fallback>
-          加载中
-        </template>
-      </Suspense>
-    </div>
+<!--    <div class="audioControl">-->
+<!--      <Suspense>-->
+<!--        <template v-slot:default>-->
+<!--          <AudioControl :key="controlAudioKey+count"></AudioControl>-->
+<!--        </template>-->
+<!--        <template v-slot:fallback>-->
+<!--          加载中-->
+<!--        </template>-->
+<!--      </Suspense>-->
+<!--    </div>-->
   </div>
 </template>
 
