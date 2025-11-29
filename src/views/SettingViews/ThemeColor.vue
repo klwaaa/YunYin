@@ -1,5 +1,5 @@
 <template>
-  <div class="content">
+  <div class="themeColor">
     <transition name="fade">
       <div class="custom-message-center" v-show="isShow">
         <p class="success" ref="success"></p>
@@ -11,7 +11,7 @@
         accept="image/*"
         ref="fileInput"
         @change="handleFileSelect"
-        class="file-input"
+        class="img-input"
     >
     <div class="upload-area" @click="selectImage">
       <div class="upload-hint" ref="uploadHint">支持 JPG、PNG、GIF 等格式</div>
@@ -19,15 +19,13 @@
     <button class="select-button" @click="selectImage">选择图片</button>
     <button class="createTeme" @click="onImageLoad">生成主题</button>
   </div>
-  <div class="test">
-  
-  </div>
 </template>
 
 <script setup lang="ts">
   import {ref, watch} from 'vue';
-  import {applyTheme, sourceColorFromImage} from '@material/material-color-utilities';
+  import {sourceColorFromImage} from '@material/material-color-utilities';
   import {invoke} from "@tauri-apps/api/core";
+  import applyThemeFromRustScheme from "../../hooks/useSetThemeColor.ts";
   
   const success: any = ref();
   const error: any = ref();
@@ -59,77 +57,29 @@
     uploadHint.value.style.backgroundImage = `url(${imageSrc.value})`;
   };
   
-  function argbObjToHex(c: {
-    alpha: number;
-    red: number;
-    green: number;
-    blue: number;
-  }) {
-    const toHex = (v: number) => v.toString(16).padStart(2, "0");
-    return `#${toHex(c.red)}${toHex(c.green)}${toHex(c.blue)}`;
-  }
-  
-  function schemeKeyToCssVar(key: string) {
-    return `--md-sys-color-${key.replace(/_/g, "-")}`;
-  }
-  
-  function applyThemeFromRustScheme(scheme: Record<string, any>) {
-    const root = document.documentElement;
-    
-    for (const [key, value] of Object.entries(scheme)) {
-      if (!value || typeof value !== "object") continue;
-      if (!("red" in value)) continue; // 只处理 Argb 对象
-      console.log("key:",key);
-      const hex = argbObjToHex(value);
-      const cssVar = schemeKeyToCssVar(key);
-      
-      root.style.setProperty(cssVar, hex);
-    }
-  }
   
   async function onImageLoad() {
     success.value.innerHTML = null;
     error.value.innerHTML = null;
     const img: any = new Image();
     img.src = imageSrc.value;
-    // try {
-    //   // 使用 material-color-utilities 提取主题
-    //   theme.value = await themeFromImage(img);
-    //   console.log(theme.value);
-    //   isShow.value = true;
-    //   success.value.innerHTML = "提取主题色成功";
-    //
-    //   // 清理 Blob URL 释放内存
-    //   if (imageSrc.value) {
-    //     URL.revokeObjectURL(imageSrc.value);
-    //   }
-    // } catch (err) {
-    //   isShow.value = true;
-    //   error.value.innerHTML = "提取主题色失败";
-    //   console.log(err);
-    // }
     
     await sourceColorFromImage(img)
         .then(async (colorSource) => {
-          console.log(colorSource);
-          
-          // applyTheme(theme);
-          // await invoke("update_theme_color", {colorSource: `{"source":${theme.source}}`});
-          const a = await invoke("material_colors", {source: colorSource});
-          console.log(a);
-          applyThemeFromRustScheme(a.schemes.light);
+          await invoke("update_theme_color", {colorSource: `{"source":${colorSource}}`});
+          const theme: any = await invoke("material_colors", {source: colorSource});
+          applyThemeFromRustScheme(theme.schemes.light);
           isShow.value = true;
           success.value.innerHTML = "提取主题色成功";
         })
-        .catch((err) => {
+        .catch((_) => {
           isShow.value = true;
           error.value.innerHTML = "提取主题色失败";
-          console.log(err);
         });
     if (imageSrc.value) {
       URL.revokeObjectURL(imageSrc.value);
     }
-  };
+  }
   
   function debounce(fn: any, t: any) {
     let timer: any;
@@ -148,15 +98,10 @@
 </script>
 
 <style scoped>
-  .file-input {
+  .img-input {
     display: none;
   }
   
-  .test {
-    width: 100px;
-    height: 100px;
-    background-color: var(--md-sys-color-primary);
-  }
   
   .upload-hint {
     margin: auto;
