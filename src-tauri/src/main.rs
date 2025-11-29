@@ -6,8 +6,8 @@ use tauri::command;
 
 use reqwest::Client;
 
-use std::fs;
-use std::fs::{File, OpenOptions};
+
+use std::fs::{File, OpenOptions,read_to_string};
 use std::io::{Read, Write};
 
 use indexmap::IndexMap;
@@ -17,7 +17,6 @@ use material_colors::theme::{Theme, ThemeBuilder};
 use std::path::Path;
 
 use material_colors::color::Argb;
-
 
 /// 阿里云 token 接口地址
 const TOKEN_URL: &str = "https://openapi.alipan.com/oauth/access_token";
@@ -119,7 +118,7 @@ async fn get_drive_id(token: String) -> Result<String, String> {
 #[command]
 fn get_all_audio_data() -> Result<PlayListData, String> {
   let path = "./data.json";
-  let content = fs::read_to_string(path).map_err(|e| e.to_string())?;
+  let content = read_to_string(path).map_err(|e| e.to_string())?;
   let parsed: PlayListData = serde_json::from_str(&content).map_err(|e| e.to_string())?;
   Ok(parsed)
 }
@@ -403,18 +402,25 @@ async fn complete_upload(
   }
 }
 
+#[derive(Deserialize, Debug)]
+struct SourceColor {
+  source: u32
+}
+
+
 //莫奈取色
 #[command]
 fn material_colors(source: u32) -> Theme{
   ThemeBuilder::with_source(Argb::from_u32(source)).build()
 }
 
-// 读取themeColor.json
+// 读取themeColor.json并生成主题
 #[command]
-fn get_theme_color() -> Result<String, String> {
+fn get_theme_color_from_local() -> Result<Theme, String> {
   let path = "./themeColor.json";
-  let content = fs::read_to_string(path).map_err(|e| e.to_string())?;
-  Ok(content)
+  let content = read_to_string(path).map_err(|e| e.to_string())?;
+  let color:SourceColor = serde_json::from_str(&content).map_err(|e| e.to_string())?;
+  Ok(ThemeBuilder::with_source(Argb::from_u32(color.source)).build())
 }
 
 /// 更新并写入themeColor.json
@@ -441,14 +447,14 @@ fn main() {
 
   if !Path::new(file_path).exists() {
     // 文件不存在，创建文件
-    fs::File::create(file_path).expect("Failed to create file");
+    File::create(file_path).expect("Failed to create file");
   }
   // 首次启动创建themeColor文件
   let file_path = "./themeColor.json";
 
   if !Path::new(file_path).exists() {
     // 文件不存在，创建文件
-    let mut theme_color = fs::File::create(file_path).expect("Failed to create file");
+    let mut theme_color = File::create(file_path).expect("Failed to create file");
     theme_color
       .write_all(r#"{"source":4294962455}"#.as_bytes())
       .expect("write failed");
@@ -471,7 +477,7 @@ fn main() {
             create_file,
             complete_upload,
             material_colors,
-            get_theme_color,
+            get_theme_color_from_local,
             update_theme_color
         ])
     .run(tauri::generate_context!())
