@@ -2,6 +2,9 @@
 
 ## 应用介绍：
     应用是基于Tauri 2.0 + Vue 3的阿里云盘音乐播放器
+    
+## Android版：
+### https://github.com/klwaaa/YunYinOnAndroid
 
 ## 二次开发须知：
 ### _请把项目中main.rs中的client_id和client_secret改为自己的App Id和App Secret_
