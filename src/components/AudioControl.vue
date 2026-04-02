@@ -62,6 +62,7 @@
   import {invoke} from "@tauri-apps/api/core";
   import router from "../router";
   import emitter from "../utils/emitter.ts";
+  import { parseBlob } from 'music-metadata'
   
   onMounted(() => {
     displayTime.value = 0;
@@ -291,7 +292,7 @@
   
   
   // 控制播放
-  function control() {
+  async function control() {
     if (isPlaying.value) {
       isPlaying.value = false;
       clearAudioBufferSourceNode();
@@ -333,7 +334,7 @@
       shuffledIndex.value = controlAudioKeyCount;
       for (let i = 0; i < playList.length; i++) {
         if (playList[i].name.substring(0, playList[i].name.lastIndexOf(".")) ===
-            randomPlaylist[shuffledIndex.value].name.substring(0, randomPlaylist[shuffledIndex.value].name.lastIndexOf("."))) {
+          randomPlaylist[shuffledIndex.value].name.substring(0, randomPlaylist[shuffledIndex.value].name.lastIndexOf("."))) {
           controlAudioKey.value = i;
           break;
         }
@@ -364,6 +365,7 @@
   
   // 分段请求
   async function getSegmentData() {
+    console.log("dataPosition_____getSegmentData:",dataPosition);
     const controller = new AbortController();
     controllers.push(controller);
     
@@ -417,16 +419,27 @@
     return Promise.all([
       getSegmentData(),
       getSegmentData(),
-      getSegmentData(),
-      getSegmentData(),
-      getSegmentData(),
-      getSegmentData()
+      // getSegmentData(),
+      // getSegmentData(),
+      // getSegmentData(),
+      // getSegmentData()
     ]).then(async (audioBlob) => {
       // 把得到的所有数据合为一个blob
       for (let i = 0; i < audioBlob.length; i++) {
         BlobAudioData.push(<Blob>audioBlob[i]);
       }
       const audio = new Blob(BlobAudioData);
+      
+      
+      // console.log("dataPosition:",dataPosition);
+      if (dataPosition<=4800000){
+        try {
+          const metadata = await parseBlob(audio);
+          console.log(metadata);
+        } catch (error:any) {
+          console.error('Error parsing metadata:', error.message);
+        }
+      }
       
       await audioCtx.decodeAudioData(await audio.arrayBuffer(), function (audioBuffer) {
         globalAudioBufferDuration.value = audioBuffer.duration;
@@ -454,14 +467,14 @@
         setTimeout(getAudioData, 500);
       }
     }).catch(() => {
-      getAudioDataErr = setTimeout(getAudioData, 5000);
+      getAudioDataErr = setTimeout(getAudioData, 13000);
     });
   }
   
   
   let interval: any = null;
   
-  const timeout = setTimeout(getAudioData, 6000);
+  const timeout = setTimeout(getAudioData, 3000);
   
   usePlaybackMode();
   const displayTimeInterval = setInterval(() => {
@@ -469,35 +482,35 @@
   }, 1000);
   
   watch(
-      displayTime,
-      (newTime, oldTime) => {
-        if (isPlaying.value) {
-          if (oldTime >= globalAudioBufferDuration.value) {
-            clearInterval(interval);
-            interval = null;
-          } else {
-            if (interval === null) {
-              interval = setInterval(() => {
-                currentAudioTime.value += 0.05;
-              }, 50);
-            }
-          }
-        }
-        if (newTime >= audioDuration.value && iterationsGroupCount !== 0) {
-          if (playbackModeIndex.value !== 1) {
-            nextSong();
-            debounceChooseSong();
-          } else {
-            currentAudioTime.value = 0;
-            handleChange();
-            setTimeout(() => {
-              interval = setInterval(() => {
-                currentAudioTime.value += 0.05;
-              }, 50);
+    displayTime,
+    (newTime, oldTime) => {
+      if (isPlaying.value) {
+        if (oldTime >= globalAudioBufferDuration.value) {
+          clearInterval(interval);
+          interval = null;
+        } else {
+          if (interval === null) {
+            interval = setInterval(() => {
+              currentAudioTime.value += 0.05;
             }, 50);
           }
         }
-      }, {deep: true}
+      }
+      if (newTime >= audioDuration.value && iterationsGroupCount !== 0) {
+        if (playbackModeIndex.value !== 1) {
+          nextSong();
+          debounceChooseSong();
+        } else {
+          currentAudioTime.value = 0;
+          handleChange();
+          setTimeout(() => {
+            interval = setInterval(() => {
+              currentAudioTime.value += 0.05;
+            }, 50);
+          }, 50);
+        }
+      }
+    }, {deep: true}
   );
   
   onUnmounted(async () => {
