@@ -9,8 +9,8 @@
           <label>
             <input
                 type="checkbox"
-                :value="item"
-                v-model="selectedAudios"
+                :checked="selectedIds.has(item.fileId)"
+                @change="toggleSelect(item.fileId)"
             />
             {{ item.name }}
           </label>
@@ -40,7 +40,7 @@
     <span class="dialog-footer">
       <el-button @click="saveToIsShow = false">取消</el-button>
       <el-button type="primary"
-                 @click="enterSaveTo(selectedPlayList, playListData, undefined, selectedAudios);selectedPlayList=[]">确定</el-button>
+                 @click="enterSaveTo(selectedPlayList, playListData, undefined, selectedAudios); selectedPlayList=[]">确定</el-button>
     </span>
       </template>
     </el-dialog>
@@ -50,7 +50,7 @@
 <script setup lang="ts">
   import useGetAudioFiles from "../hooks/useGetMusicLibrary.ts";
   import {useGetPlayList} from "../store/playList.ts";
-  import {ref, onMounted, onUnmounted} from "vue";
+  import {ref, onMounted, onUnmounted, computed} from "vue";
   import {storeToRefs} from "pinia";
   import useSaveTo from "../hooks/useSaveTo.ts";
   
@@ -72,8 +72,8 @@
   // 所有展示的音频
   const displayedList = ref<any[]>([]);
   
-  // 用户当前勾选的
-  const selectedAudios = ref<any[]>([]);
+  // 用户当前勾选的 id
+  const selectedIds = ref<Set<string>>(new Set());
   
   // 分页控制
   let oldArr: Array<any> = [];
@@ -96,10 +96,29 @@
     
     if (!next_marker) observer.disconnect();
   }
+  // 保存时转对象
+  const selectedAudios = computed(() => {
+    const idSet = selectedIds.value;
+    return displayedList.value.filter(item => idSet.has(item.fileId));
+  });
+  
+  function toggleSelect(id: string) {
+    const set = selectedIds.value;
+    
+    if (set.has(id)) {
+      set.delete(id);
+    } else {
+      set.add(id);
+    }
+  }
   
   // 全选所有
   function clickAll() {
-    selectedAudios.value = [...displayedList.value];
+    const newSet = new Set<string>();
+    displayedList.value.forEach(item => {
+      newSet.add(item.fileId);
+    });
+    selectedIds.value = newSet;
   }
   
   
@@ -129,11 +148,13 @@
     height: calc(100vh - 150px);
     overflow: hidden;
   }
+  
   .prompt {
     color: var(--md-sys-color-error);
     font-size: 20px;
     margin-left: 10px;
   }
+  
   button {
     margin: 10px;
     padding: 12px 24px;
