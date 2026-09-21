@@ -269,7 +269,6 @@
       controller.abort();
     }
     controllers.length = 0;
-    console.log(controllers);
   }
   
   
@@ -366,10 +365,6 @@
   async function getSegmentData() {
     const controller = new AbortController();
     controllers.push(controller);
-    
-    console.log("dataPosition:", dataPosition);
-    console.log("playingSong:", playingSong);
-    
     let rangeHeader: string;
     if (iterationsCount < iterations) {
       dataPosition += dataSize;
@@ -394,7 +389,6 @@
     });
     
     if (!response.ok) {
-      console.log("!response.ok");
       dataPosition -= 800000;
       iterationsCount--;
       throw new Error(`请求失败: ${response.status}`);
@@ -416,7 +410,6 @@
       getSegmentData(),
       getSegmentData()
     ]).then(async (audioBlob) => {
-      console.log("getAudioData____then");
       // 把得到的所有数据合为一个blob
       for (let i = 0; i < audioBlob.length; i++) {
         BlobAudioData.push(<Blob>audioBlob[i]);
@@ -446,11 +439,9 @@
       // 音频链接播放
       if (iterationsGroup >= iterationsGroupCount) {
         iterationsGroupCount++;
-        console.log("222222222222222");
         getAudioDataSuccess = setTimeout(getAudioData, 500);
       }
     }).catch(() => {
-      console.log("getAudioData____catch");
       getAudioDataErr = setTimeout(getAudioData, 12000);
     });
   }
@@ -498,7 +489,6 @@
   );
   
   onUnmounted(async () => {
-    console.log(111111111);
     cancelAllRequests();
     document.removeEventListener('click', handleClickOutside);
     emitter.off("handleChange", handleChange);

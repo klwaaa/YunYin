@@ -5,7 +5,7 @@
   "identifier": "com.YunYin.app",
   "build": {
     "beforeDevCommand": "npm run dev",
-    "devUrl": "http://localhost:1420",
+    "devUrl": "http://localhost:49152",
     "beforeBuildCommand": "npm run build",
     "frontendDist": "../dist"
   },
@@ -15,7 +15,7 @@
         "title": "云音",
         "width": 1100,
         "height": 650,
-        "url": "http://localhost:1420"
+        "url": "http://localhost:49152"
       }
     ],
     "security": {

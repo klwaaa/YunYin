@@ -90,7 +90,7 @@
   // 刷新AudioControl
   const {controlAudioKey} = storeToRefs(useGetAudio());
   
-  const loginUrl = "https://openapi.alipan.com/oauth/authorize?client_id=f3bc86ad8618424d99beb9da421d5526&redirect_uri=http://localhost:1420/PlayList/&scope=user:base,file:all:read,file:all:write";
+  const loginUrl = "https://openapi.alipan.com/oauth/authorize?client_id=f3bc86ad8618424d99beb9da421d5526&redirect_uri=http://localhost:49152/PlayList/&scope=user:base,file:all:read,file:all:write";
   const isLoggedIn = ref(false);
   const token = ref(JSON.parse(localStorage.getItem("token") as string));
   
