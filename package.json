@@ -25,6 +25,7 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",
+    "@types/vue-virtual-scroller": "npm:types-vue-virtual-scroller@^1.0.2",
     "@vitejs/plugin-vue": "^6.0.6",
     "typescript": "~5.6.2",
     "unplugin-auto-import": "^19.3.0",
